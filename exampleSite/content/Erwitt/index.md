@@ -1,5 +1,5 @@
 ---
-type: _default
+type: gallery
 layout: single
 url: /erwitt/
 menu:
