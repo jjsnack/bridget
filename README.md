@@ -16,6 +16,56 @@ To see this theme in action, here is a live [demo site](https://bridget-demo.spe
 
 Head to this [documentation](https://github.com/Sped0n/bridget/blob/main/doc/getStarted.md) for a complete guidance to get started with the Bridget theme.
 
+### Blog Functionality
+
+This theme now includes blog functionality with a clean, minimal design matching the photography galleries.
+
+#### Creating a New Blog Post
+
+1. Create a new blog post using Hugo's archetype:
+   ```bash
+   hugo new blog/my-post-title.md
+   ```
+
+2. This will create a new file at `content/blog/my-post-title.md` with the proper front matter.
+
+3. Edit the file to add your content using standard Markdown.
+
+#### Adding Photos to Blog Posts
+
+**Single Photo:**
+```markdown
+![Photo description](photo.jpg)
+```
+
+**Multiple Photos (Gallery/Carousel):**
+For a gallery of photos in a blog post, place your images in the same directory as your blog post and reference them:
+
+1. Create a directory structure like this:
+   ```
+   content/blog/my-post-with-photos/
+   ├── index.md
+   ├── photo1.jpg
+   ├── photo2.jpg
+   └── photo3.jpg
+   ```
+
+2. In your `index.md`, use standard Markdown image syntax:
+   ```markdown
+   +++
+   title = "My Post with Photos"
+   date = 2024-01-01T12:00:00Z
+   +++
+
+   Here's my blog post content.
+
+   ![First photo](photo1.jpg)
+   ![Second photo](photo2.jpg)
+   ![Third photo](photo3.jpg)
+   ```
+
+The theme's responsive image handling will automatically optimize and display your photos appropriately.
+
 ## Features
 
 - **Blazingly fast**: 100/100 on both desktop and mobile in [Google PageSpeed Insights](https://developers.google.com/speed/pagespeed/insights)
