@@ -17,4 +17,56 @@
 
     {{- partial "nav.html" . -}}
   </div>
+  
+  <!-- Blog Image Gallery -->
+  <div id="blog-gallery" class="blog-gallery">
+    <button class="close-button" type="button">X</button>
+    <img id="blog-gallery-image" src="" alt="">
+  </div>
+  
+  <script>
+    (function() {
+      const gallery = document.getElementById('blog-gallery');
+      const galleryImg = document.getElementById('blog-gallery-image');
+      const closeBtn = gallery.querySelector('.close-button');
+      const blogImages = document.querySelectorAll('.blog-post img:not([src=""])');
+      
+      // Add click listeners to blog images
+      blogImages.forEach(img => {
+        img.addEventListener('click', (e) => {
+          e.preventDefault();
+          if (img.src && !img.src.includes('data:image/svg+xml')) {
+            galleryImg.src = img.src;
+            galleryImg.alt = img.alt || 'Blog image';
+            gallery.classList.add('active');
+            document.body.style.overflow = 'hidden';
+          }
+        });
+      });
+      
+      // Close gallery function
+      const closeGallery = () => {
+        gallery.classList.remove('active');
+        document.body.style.overflow = '';
+        galleryImg.src = '';
+      };
+      
+      // Close button click
+      closeBtn.addEventListener('click', closeGallery);
+      
+      // Close on background click
+      gallery.addEventListener('click', (e) => {
+        if (e.target === gallery) {
+          closeGallery();
+        }
+      });
+      
+      // Close on Escape key
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && gallery.classList.contains('active')) {
+          closeGallery();
+        }
+      });
+    })();
+  </script>
 {{- end -}}
