@@ -1,0 +1,20 @@
+{{- define "main" -}}
+  <div
+    class="container"
+    data-next="{{- i18n "next" -}}"
+    data-prev="{{- i18n "prev" -}}"
+    data-close="{{- i18n "close" -}}"
+    data-loading="{{- i18n "loading" -}}"
+  >
+    <article class="blog-post">
+      <div class="blog-back-link">
+        <a href="/blog/">← back</a>
+      </div>
+      <div class="blog-post-title">{{ .Title }}</div>
+      <p class="blog-date">{{ .Date.Format "January 2, 2006" }}</p>
+      {{- .Content -}}
+    </article>
+
+    {{- partial "nav.html" . -}}
+  </div>
+{{- end -}}

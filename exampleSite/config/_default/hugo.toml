@@ -4,8 +4,8 @@ timeout = "1200s"
 baseURL = 'https://bridget-demo.sped0n.com'
 # website title
 title = 'Bridget'
-# don't touch this
-disableKinds = ["section", "taxonomy", "term", "home"]
+# don't touch this (modified to allow blog section)
+disableKinds = ["taxonomy", "term", "home"]
 # robots.txt
 enableRobotsTXT = true
 # available options

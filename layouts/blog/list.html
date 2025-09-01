@@ -1,0 +1,24 @@
+{{- define "main" -}}
+  <div
+    class="container"
+    data-next="{{- i18n "next" -}}"
+    data-prev="{{- i18n "prev" -}}"
+    data-close="{{- i18n "close" -}}"
+    data-loading="{{- i18n "loading" -}}"
+  >
+    <article>
+      <div class="blog-page-title">Blogs</div>
+      {{- range .Pages.ByDate.Reverse -}}
+        <div class="blog-entry">
+          <div class="blog-entry-title"><a href="{{ .Permalink }}">{{ .Title }}</a></div>
+          <p class="blog-date">{{ .Date.Format "January 2, 2006" }}</p>
+          {{- if .Summary -}}
+            <p class="blog-summary">{{ .Summary }}</p>
+          {{- end -}}
+        </div>
+      {{- end -}}
+    </article>
+
+    {{- partial "nav.html" . -}}
+  </div>
+{{- end -}}
