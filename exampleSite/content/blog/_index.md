@@ -3,7 +3,7 @@ title: "Blogs"
 url: /blog/
 menu:
   main:
-    weight: 5
+    weight: 4
     identifier: Blog
     title: Blogs
 ---
