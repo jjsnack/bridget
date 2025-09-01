@@ -32,7 +32,7 @@
       {{- $index = add $index 1 -}}
     {{- end -}}
   </div>
-  <div class="threshold">
+  <div class="threshold"{{- if eq .Section "blog" -}} style="visibility: hidden;"{{- end -}}>
     {{- $length := 0 -}}
     {{- with partial "function/getImageSlice.html" . -}}
       {{- $length = len . -}}
@@ -45,7 +45,7 @@
       <button class="inc">&#xFF0B;</button>
     </span>
   </div>
-  <div class="index">
+  <div class="index"{{- if eq .Section "blog" -}} style="visibility: hidden;"{{- end -}}>
     <span class="num">0</span><span class="num">0</span><span class="num">0</span
     ><span class="num">0</span>
     <span>/</span>
@@ -56,6 +56,7 @@
   </div>
 </nav>
 {{- /* for threshold */ -}}
+{{- if ne .Section "blog" -}}
 <script>
   i = 2
   const s = sessionStorage.getItem('thresholdsIndex')
@@ -86,3 +87,4 @@
     e.innerText = t[i]
   })
 </script>
+{{- end -}}
