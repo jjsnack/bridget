@@ -7,7 +7,6 @@
     data-loading="{{- i18n "loading" -}}"
   >
     <article>
-      <div class="blog-page-title">Blogs</div>
       {{- range .Pages.ByDate.Reverse -}}
         <div class="blog-entry">
           <div class="blog-entry-title"><a href="{{ .Permalink }}">{{ .Title }}</a></div>
