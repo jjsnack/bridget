@@ -125,7 +125,7 @@
       }
     }
     
-    /* 3-column layout for wide screens - flex-based with predetermined positions */
+    /* 2-column layout for wide screens - dynamic positioning with draggability */
     @media (min-width: 1025px) {
       .collections-gallery {
         position: relative;
@@ -148,8 +148,8 @@
       
       .collection-photo-wrapper {
         z-index: 2;
-        max-width: 25vw;
-        max-height: 35vh;
+        max-width: 30vw;
+        max-height: auto;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -204,36 +204,6 @@
         width: 3rem;
       }
       
-      /* Predetermined positions for each collection */
-      .collection-item[data-index="1"] {
-        left: 5vw;
-        top: 15vh;
-      }
-      
-      .collection-item[data-index="2"] {
-        left: 35vw;
-        top: 25vh;
-      }
-      
-      .collection-item[data-index="3"] {
-        left: 65vw;
-        top: 10vh;
-      }
-      
-      .collection-item[data-index="4"] {
-        left: 10vw;
-        top: 55vh;
-      }
-      
-      .collection-item[data-index="5"] {
-        left: 45vw;
-        top: 60vh;
-      }
-      
-      .collection-item[data-index="6"] {
-        left: 70vw;
-        top: 50vh;
-      }
     }
     
     /* 2-column layout for medium screens - scattered positioning */
@@ -369,7 +339,85 @@
         const screenWidth = window.innerWidth;
         
         items.forEach((item, index) => {
-          if (screenWidth > 768 && screenWidth <= 1024) {
+          if (screenWidth > 1024) {
+            // 2-column wide screen - collision-free positioning with draggability and rotating titles
+            
+            // Size variation parameters
+            const baseTileWidth = Math.min(screenWidth * 0.35, 500);
+            const baseTileHeight = Math.min(screenWidth * 0.30, 400);
+            const sizeVariationPercent = 0.025; // 2.5% variation in size
+            const minSizeScale = 1 - sizeVariationPercent; // 97.5% of base size
+            const maxSizeScale = 1 + sizeVariationPercent; // 102.5% of base size
+            
+            // Spacing control parameters
+            const minVerticalSpacing = 400; // Minimum vertical spacing between tiles (increased)
+            const minHorizontalSpacing = 10; // Minimum horizontal spacing between tiles (reduced)
+            const maxVerticalSpacing = 450; // Maximum vertical spacing between tiles (increased)
+            const maxHorizontalSpacing = 50; // Maximum horizontal spacing between tiles (reduced)
+            
+            // Generate random size scale for this tile
+            const sizeScale = minSizeScale + Math.random() * (maxSizeScale - minSizeScale);
+            const tileWidth = baseTileWidth * sizeScale;
+            const tileHeight = baseTileHeight * sizeScale;
+            
+            const padding = 50;
+            
+            const columnWidth = (screenWidth - padding * 2) / 2;
+            const column = index % 2;
+            
+            // Store placed tiles for collision detection
+            const placedTiles = [];
+            items.forEach((placedItem, placedIndex) => {
+              if (placedIndex < index && placedItem.style.left) {
+                placedTiles.push({
+                  x: parseInt(placedItem.style.left),
+                  y: parseInt(placedItem.style.top),
+                  width: tileWidth,
+                  height: tileHeight
+                });
+              }
+            });
+            
+            let attempts = 0;
+            let x, y, validPosition = false;
+            
+            // Try to find non-overlapping position
+            while (!validPosition && attempts < 50) {
+              // Calculate padding based on screen width for equal side spacing
+              const sidePadding = Math.max(30, (screenWidth - 2 * tileWidth) / 3);
+              const buffer = 50; // Buffer between left and right columns
+              
+              if (column === 0) {
+                // Left column: random position with left padding constraint
+                const minX = sidePadding;
+                const maxX = (screenWidth / 2) - tileWidth - buffer;
+                x = minX + Math.random() * Math.max(0, maxX - minX);
+              } else {
+                // Right column: random position with right padding constraint  
+                const minX = (screenWidth / 2) + buffer;
+                const maxX = screenWidth - tileWidth - sidePadding;
+                x = minX + Math.random() * Math.max(0, maxX - minX);
+              }
+              
+              const topPagePadding = 50; // Top padding for wide screens
+              let baseY = Math.floor(index / 2) * 550 + topPagePadding;
+              const verticalVariation = 200; // More variation for scattered look
+              y = baseY + Math.random() * verticalVariation;
+              
+              // Ensure within bounds
+              x = Math.max(sidePadding, Math.min(x, screenWidth - tileWidth - sidePadding));
+              y = Math.max(padding, y);
+              
+              const currentTile = { x, y, width: tileWidth, height: tileHeight };
+              validPosition = !placedTiles.some(tile => tilesOverlap(currentTile, tile, minHorizontalSpacing, minVerticalSpacing)) &&
+                             !placedTiles.some(tile => tilesAreTooFarApart(currentTile, tile, maxHorizontalSpacing, maxVerticalSpacing));
+              attempts++;
+            }
+            
+            item.style.left = x + 'px';
+            item.style.top = y + 'px';
+            item.style.position = 'absolute';
+          } else if (screenWidth > 768 && screenWidth <= 1024) {
             // 2-column medium screen - collision-free positioning
             const tileWidth = Math.min(screenWidth * 0.35, 400);
             const tileHeight = Math.min(screenWidth * 0.25, 300);
@@ -455,25 +503,82 @@
         });
       }
       
-      // Check if two tiles overlap
-      function tilesOverlap(tile1, tile2, buffer = 20) {
-        const rect1 = {
-          left: tile1.x,
-          right: tile1.x + tile1.width,
-          top: tile1.y,
-          bottom: tile1.y + tile1.height + 40 // Add space for title
-        };
-        const rect2 = {
-          left: tile2.x,
-          right: tile2.x + tile2.width,
-          top: tile2.y,
-          bottom: tile2.y + tile2.height + 40 // Add space for title
-        };
+      // Check if two tiles overlap (violate minimum spacing)
+      function tilesOverlap(tile1, tile2, minHorizontalSpacing = 20, minVerticalSpacing = 20) {
+        // Calculate boundaries (include title space)
+        const left1 = tile1.x, right1 = tile1.x + tile1.width;
+        const top1 = tile1.y, bottom1 = tile1.y + tile1.height + 40; // Add space for title
+        const left2 = tile2.x, right2 = tile2.x + tile2.width;
+        const top2 = tile2.y, bottom2 = tile2.y + tile2.height + 40; // Add space for title
         
-        return !(rect1.right + buffer < rect2.left || 
-                rect2.right + buffer < rect1.left || 
-                rect1.bottom + buffer < rect2.top || 
-                rect2.bottom + buffer < rect1.top);
+        // Calculate actual spacing between closest boundaries
+        let horizontalDistance, verticalDistance;
+        
+        // Horizontal distance between closest edges
+        if (right1 <= left2) {
+          horizontalDistance = left2 - right1;
+        } else if (right2 <= left1) {
+          horizontalDistance = left1 - right2;
+        } else {
+          horizontalDistance = 0; // tiles overlap horizontally
+        }
+        
+        // Vertical distance between closest edges
+        if (bottom1 <= top2) {
+          verticalDistance = top2 - bottom1;
+        } else if (bottom2 <= top1) {
+          verticalDistance = top1 - bottom2;
+        } else {
+          verticalDistance = 0; // tiles overlap vertically
+        }
+        
+        // Tiles violate minimum spacing if they're too close
+        return (horizontalDistance >= 0 && horizontalDistance < minHorizontalSpacing) ||
+               (verticalDistance >= 0 && verticalDistance < minVerticalSpacing);
+      }
+      
+      // Check if two tiles are too far apart (only for adjacent tiles)
+      function tilesAreTooFarApart(tile1, tile2, maxHorizontalSpacing, maxVerticalSpacing) {
+        // Calculate boundaries
+        const left1 = tile1.x, right1 = tile1.x + tile1.width;
+        const top1 = tile1.y, bottom1 = tile1.y + tile1.height;
+        const left2 = tile2.x, right2 = tile2.x + tile2.width;
+        const top2 = tile2.y, bottom2 = tile2.y + tile2.height;
+        
+        // Calculate closest boundary distances
+        let horizontalDistance, verticalDistance;
+        
+        // Horizontal distance between closest edges
+        if (right1 < left2) {
+          horizontalDistance = left2 - right1; // tile1 is to the left of tile2
+        } else if (right2 < left1) {
+          horizontalDistance = left1 - right2; // tile2 is to the left of tile1
+        } else {
+          horizontalDistance = 0; // tiles overlap horizontally
+        }
+        
+        // Vertical distance between closest edges  
+        if (bottom1 < top2) {
+          verticalDistance = top2 - bottom1; // tile1 is above tile2
+        } else if (bottom2 < top1) {
+          verticalDistance = top1 - bottom2; // tile2 is above tile1
+        } else {
+          verticalDistance = 0; // tiles overlap vertically
+        }
+        
+        // Check if tiles are roughly aligned horizontally (check horizontal spacing)
+        const verticalOverlap = Math.min(bottom1, bottom2) - Math.max(top1, top2);
+        if (verticalOverlap > 0 && horizontalDistance > 0) {
+          return horizontalDistance > maxHorizontalSpacing;
+        }
+        
+        // Check if tiles are roughly aligned vertically (check vertical spacing)
+        const horizontalOverlap = Math.min(right1, right2) - Math.max(left1, left2);
+        if (horizontalOverlap > 0 && verticalDistance > 0) {
+          return verticalDistance > maxVerticalSpacing;
+        }
+        
+        return false; // Don't constrain tiles that aren't aligned
       }
       
       // Photo cycling on hover
@@ -667,21 +772,35 @@
       // Update gallery height to include space for all tiles and their titles
       function updateGalleryHeight() {
         const screenWidth = window.innerWidth;
-        if (screenWidth > 768 && screenWidth <= 1024) {
+        if (screenWidth > 768) {
           let maxBottom = 0;
           
           items.forEach(item => {
             if (item.style.left && item.style.top) {
               const tileY = parseInt(item.style.top);
-              const tileHeight = Math.min(screenWidth * 0.25, 300);
-              const titleSpace = 60; // Increased space for title below tile
+              let tileHeight;
+              
+              if (screenWidth > 1024) {
+                // 2-column wide screen layout - use actual rendered height due to size variation
+                const wrapper = item.querySelector('.collection-photo-wrapper');
+                if (wrapper) {
+                  tileHeight = wrapper.getBoundingClientRect().height || Math.min(screenWidth * 0.30, 400);
+                } else {
+                  tileHeight = Math.min(screenWidth * 0.30, 400); // Fallback
+                }
+              } else {
+                // 2-column medium screen layout
+                tileHeight = Math.min(screenWidth * 0.25, 300);
+              }
+              
+              const titleSpace = 60; // Space for title below tile
               const tileBottom = tileY + tileHeight + titleSpace;
               maxBottom = Math.max(maxBottom, tileBottom);
             }
           });
           
           // Set minimum height to accommodate all content plus generous bottom padding
-          const minHeight = maxBottom + 50; // Increased extra padding at bottom
+          const minHeight = maxBottom + 50; // Extra padding at bottom
           const viewportHeight = window.innerHeight;
           
           // Ensure the gallery is tall enough to scroll past the bottom tiles
