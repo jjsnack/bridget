@@ -1,0 +1,546 @@
+{{- define "main" -}}
+  <div
+    class="container"
+    data-next="{{- i18n "next" -}}"
+    data-prev="{{- i18n "prev" -}}"
+    data-close="{{- i18n "close" -}}"
+    data-loading="{{- i18n "loading" -}}"
+  >
+    <div class="collections-gallery" id="collections-gallery">
+      {{- $itemIndex := 0 -}}
+      {{- range .Pages.ByLastmod.Reverse -}}
+        {{- $images := .Resources.Match "*.{jpg,jpeg,png,gif,webp}" -}}
+        {{- if $images -}}
+          {{- $itemIndex = add $itemIndex 1 -}}
+          {{- $firstImage := index $images 0 -}}
+          <div class="collection-item" data-collection-url="{{ .Permalink }}" data-index="{{ $itemIndex }}">
+            <div class="collection-container">
+              <div class="title-flex title-top"><span class="title-text">{{ .Title }}</span></div>
+              <div class="title-flex title-left"><span class="title-text">{{ .Title }}</span></div>
+              <div class="collection-photo-wrapper">
+                <img src="{{ $firstImage.RelPermalink }}" 
+                     alt="{{ .Title }}" 
+                     class="collection-photo" 
+                     draggable="true"
+                     loading="lazy"
+                     data-images="{{- range $imgIndex, $img := (first 4 $images) -}}{{- if $imgIndex -}},{{- end -}}{{ $img.RelPermalink }}{{- end -}}">
+              </div>
+              <div class="title-flex title-right"><span class="title-text">{{ .Title }}</span></div>
+              <div class="title-flex title-bottom"><span class="title-text">{{ .Title }}</span></div>
+            </div>
+          </div>
+        {{- end -}}
+      {{- end -}}
+    </div>
+
+    {{- partial "nav.html" . -}}
+  </div>
+
+  <style>
+    .collections-gallery {
+      position: relative;
+      min-height: 70vh;
+      padding: 2rem;
+    }
+    
+    .collection-item {
+      position: absolute;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+      user-select: none;
+    }
+    
+    .collection-item:hover {
+      transform: scale(1.02);
+      z-index: 10;
+    }
+    
+    .collection-photo-wrapper {
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      margin-bottom: 0.5rem;
+    }
+    
+    .collection-photo {
+      display: block;
+      object-fit: contain;
+      max-width: 25vw;
+      max-height: 35vh;
+    }
+    
+    .collection-photo.cycling {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    
+    .collection-title {
+      position: absolute;
+      font-size: 1.1rem;
+      font-weight: 500;
+      margin: 0;
+      color: #333;
+      white-space: nowrap;
+      z-index: 10;
+      opacity: 0;
+      pointer-events: none;
+      
+      /* Default position: bottom center */
+      bottom: -2rem;
+      left: 50%;
+      transform: translateX(-50%) rotate(0deg);
+      text-align: center;
+    }
+    
+    .collection-item:hover .collection-title {
+      opacity: 1;
+    }
+    
+    /* No visual effects when dragging */
+    .collection-item.dragging {
+      z-index: 1000;
+    }
+    
+    /* Show title on mobile/narrow screens */
+    @media (max-width: 1024px) {
+      .collection-title {
+        opacity: 1;
+        bottom: -1rem;
+      }
+      
+      .collections-gallery {
+        padding: 1rem;
+      }
+      
+      /* Disable dragging effects on narrow screens */
+      .collection-item.dragging {
+        opacity: 1;
+        transform: none;
+      }
+    }
+    
+    /* 3-column layout for wide screens - flex-based with predetermined positions */
+    @media (min-width: 1025px) {
+      .collections-gallery {
+        position: relative;
+        min-height: 100vh;
+        padding: 2rem;
+      }
+      
+      .collection-item {
+        position: absolute;
+      }
+      
+      .collection-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        height: 100%;
+        position: relative;
+      }
+      
+      .collection-photo-wrapper {
+        z-index: 2;
+        max-width: 25vw;
+        max-height: 35vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      
+      .title-flex {
+        position: absolute;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        z-index: 1;
+        pointer-events: none;
+      }
+      
+      .title-text {
+        font-size: 1.1rem;
+        font-weight: 500;
+        color: #333;
+        white-space: nowrap;
+        background: transparent;
+        padding: 0.5rem 1rem;
+      }
+      
+      .title-top {
+        top: -3rem;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100%;
+      }
+      
+      .title-bottom {
+        bottom: -3rem;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100%;
+      }
+      
+      .title-left {
+        left: -3rem;
+        top: 50%;
+        transform: translateY(-50%) rotate(-90deg);
+        height: 100%;
+        width: 3rem;
+      }
+      
+      .title-right {
+        right: -3rem;
+        top: 50%;
+        transform: translateY(-50%) rotate(90deg);
+        height: 100%;
+        width: 3rem;
+      }
+      
+      /* Predetermined positions for each collection */
+      .collection-item[data-index="1"] {
+        left: 5vw;
+        top: 15vh;
+      }
+      
+      .collection-item[data-index="2"] {
+        left: 35vw;
+        top: 25vh;
+      }
+      
+      .collection-item[data-index="3"] {
+        left: 65vw;
+        top: 10vh;
+      }
+      
+      .collection-item[data-index="4"] {
+        left: 10vw;
+        top: 55vh;
+      }
+      
+      .collection-item[data-index="5"] {
+        left: 45vw;
+        top: 60vh;
+      }
+      
+      .collection-item[data-index="6"] {
+        left: 70vw;
+        top: 50vh;
+      }
+    }
+    
+    /* 2-column layout for medium screens - scattered positioning */
+    @media (max-width: 1024px) and (min-width: 769px) {
+      .collections-gallery {
+        position: relative;
+        min-height: 100vh;
+        padding: 2rem;
+      }
+      
+      .collection-item {
+        position: absolute !important;
+      }
+      
+      .collection-title {
+        opacity: 1 !important;
+        position: absolute !important;
+        bottom: -2rem !important;
+        left: 50% !important;
+        transform: translateX(-50%) !important;
+        text-align: center !important;
+        margin-top: 0;
+        pointer-events: auto;
+      }
+    }
+    
+    /* 1-column layout for mobile screens - static vertical layout */
+    @media (max-width: 768px) {
+      .collections-gallery {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 2rem;
+        padding: 2rem;
+        max-width: 600px;
+        margin: 0 auto;
+      }
+      
+      .collection-item {
+        position: static !important;
+        width: 100% !important;
+        left: auto !important;
+        top: auto !important;
+      }
+      
+      .collection-item .collection-photo-wrapper {
+        width: calc(100% - 2rem) !important;
+        max-height: 60vh;
+        margin: 0 auto;
+      }
+      
+      .collection-title {
+        opacity: 1 !important;
+        position: static !important;
+        bottom: auto !important;
+        left: auto !important;
+        transform: none !important;
+        text-align: center !important;
+        margin: 0.5rem 0 0 0;
+        pointer-events: auto;
+      }
+    }
+  </style>
+
+  <script>
+    (function() {
+      const gallery = document.getElementById('collections-gallery');
+      const items = gallery.querySelectorAll('.collection-item');
+      
+      // Initialize positions for non-wide screens (2-column and 1-column use CSS Grid)
+      function initializePositions() {
+        const screenWidth = window.innerWidth;
+        
+        items.forEach((item, index) => {
+          if (screenWidth > 768 && screenWidth <= 1024) {
+            // 2-column medium screen - scattered random positions
+            const wrapper = item.querySelector('.collection-photo-wrapper');
+            const baseWidth = screenWidth * 0.25; // Base size ~25% of screen
+            const variation = 0.3; // ±30% size variation
+            const sizeMultiplier = 0.8 + (Math.random() * variation * 2);
+            const width = baseWidth * sizeMultiplier;
+            
+            wrapper.style.width = width + 'px';
+            wrapper.style.maxHeight = (width * 1.2) + 'px'; // Maintain aspect ratio variety
+            
+            // Random positioning within 2-column constraints
+            const columnWidth = screenWidth / 2;
+            const column = index % 2;
+            const x = column * columnWidth + Math.random() * (columnWidth - width - 100) + 50;
+            const y = Math.floor(index / 2) * 350 + Math.random() * 150 + 100;
+            
+            item.style.left = x + 'px';
+            item.style.top = y + 'px';
+            item.style.position = 'absolute';
+          }
+          // Wide screen (>1024px) positions are handled by CSS data-index selectors
+          // Mobile (<769px) uses CSS Grid layout
+        });
+      }
+      
+      function scorePosition(x, y, width, height, positions, index) {
+        let score = 1000;
+        const padding = 60; // Increased padding for larger tiles
+        
+        // Check for overlaps and proximity
+        positions.forEach((pos, i) => {
+          const centerX1 = x + width / 2;
+          const centerY1 = y + height / 2;
+          const centerX2 = pos.x + pos.width / 2;
+          const centerY2 = pos.y + pos.height / 2;
+          const distance = Math.sqrt(Math.pow(centerX1 - centerX2, 2) + Math.pow(centerY1 - centerY2, 2));
+          const minDistance = Math.max(width, height, pos.width, pos.height) * 0.7 + padding;
+          
+          // Heavy penalty for overlapping
+          if (!(x + width + padding < pos.x || pos.x + pos.width + padding < x || y + height + padding < pos.y || pos.y + pos.height + padding < y)) {
+            score -= 5000; // Very heavy penalty for overlap
+          }
+          
+          // Penalty for being too close
+          if (distance < minDistance) {
+            score -= (minDistance - distance) * 10;
+          }
+          
+          // Bonus for good spacing
+          if (distance > minDistance && distance < minDistance * 1.8) {
+            score += 100;
+          }
+        });
+        
+        // Prefer positions not at exact edges with larger margins
+        const margin = 50;
+        if (x < margin || y < margin) score -= 500;
+        
+        // Bonus for positions in the upper half (more natural reading pattern)
+        const galleryHeight = document.getElementById('collections-gallery').getBoundingClientRect().height;
+        if (y < galleryHeight * 0.6) {
+          score += 200;
+        }
+        
+        return score;
+      }
+      
+      // Photo cycling on hover
+      const cycleIntervals = new Map();
+      
+      items.forEach(item => {
+        const img = item.querySelector('.collection-photo');
+        const wrapper = item.querySelector('.collection-photo-wrapper');
+        const title = item.querySelector('.collection-title');
+        const imagesData = img.dataset.images;
+        
+        // Get title flex elements
+        function getTitleElements() {
+          return {
+            bottom: item.querySelector('.title-bottom'),
+            right: item.querySelector('.title-right'), 
+            top: item.querySelector('.title-top'),
+            left: item.querySelector('.title-left')
+          };
+        }
+        
+        // Check if screen is wide enough for advanced features
+        const isWideScreen = () => window.innerWidth > 1024;
+        
+        // Only enable photo cycling and title rotation on wide screens
+        if (imagesData && isWideScreen()) {
+          const imageUrls = imagesData.split(',');
+          let currentIndex = 0;
+          
+          item.addEventListener('mouseenter', () => {
+            if (imageUrls.length > 1) {
+              // Lock the wrapper dimensions to maintain tile size during cycling
+              const wrapperRect = wrapper.getBoundingClientRect();
+              wrapper.style.width = wrapperRect.width + 'px';
+              wrapper.style.height = wrapperRect.height + 'px';
+              
+              const interval = setInterval(() => {
+                currentIndex = (currentIndex + 1) % imageUrls.length;
+                img.src = imageUrls[currentIndex];
+                img.classList.add('cycling');
+                
+                // Show title in rotating positions (anti-clockwise: bottom -> right -> top -> left)
+                const titleElements = getTitleElements();
+                const titleOrder = ['bottom', 'right', 'top', 'left'];
+                const activeTitle = titleOrder[currentIndex % titleOrder.length];
+                
+                // Hide all titles
+                Object.values(titleElements).forEach(el => el.style.opacity = '0');
+                
+                // Show active title
+                titleElements[activeTitle].style.opacity = '1';
+              }, 500);
+              cycleIntervals.set(item, interval);
+            }
+          });
+          
+          item.addEventListener('mouseleave', () => {
+            const interval = cycleIntervals.get(item);
+            if (interval) {
+              clearInterval(interval);
+              cycleIntervals.delete(item);
+              // Reset to first image and unlock dimensions
+              img.src = imageUrls[0];
+              img.classList.remove('cycling');
+              wrapper.style.width = '';
+              wrapper.style.height = '';
+              
+              // Hide all titles
+              const titleElements = getTitleElements();
+              Object.values(titleElements).forEach(el => el.style.opacity = '0');
+              
+              currentIndex = 0;
+            }
+          });
+        }
+        
+        // Drag state for this item
+        let isDragging = false;
+        let hasDragged = false;
+        
+        // Simple drag functionality for wide screens only
+        if (isWideScreen()) {
+          let startX, startY, initialLeft, initialTop;
+          
+          item.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            hasDragged = false;
+            startX = e.clientX;
+            startY = e.clientY;
+            initialLeft = parseInt(item.style.left) || 0;
+            initialTop = parseInt(item.style.top) || 0;
+            item.style.zIndex = '1000';
+            e.preventDefault();
+            
+            // Clear any cycling interval
+            const interval = cycleIntervals.get(item);
+            if (interval) {
+              clearInterval(interval);
+              cycleIntervals.delete(item);
+            }
+            
+            const handleMouseMove = (e) => {
+              if (!isDragging) return;
+              
+              const deltaX = e.clientX - startX;
+              const deltaY = e.clientY - startY;
+              
+              // If mouse has moved more than a few pixels, consider it a drag
+              if (Math.abs(deltaX) > 3 || Math.abs(deltaY) > 3) {
+                hasDragged = true;
+              }
+              
+              item.style.left = (initialLeft + deltaX) + 'px';
+              item.style.top = (initialTop + deltaY) + 'px';
+            };
+            
+            const handleMouseUp = () => {
+              if (isDragging) {
+                isDragging = false;
+                item.style.zIndex = '';
+                document.removeEventListener('mousemove', handleMouseMove);
+                document.removeEventListener('mouseup', handleMouseUp);
+                
+                // Reset hasDragged after a short delay to prevent click
+                setTimeout(() => {
+                  hasDragged = false;
+                }, 10);
+              }
+            };
+            
+            document.addEventListener('mousemove', handleMouseMove);
+            document.addEventListener('mouseup', handleMouseUp);
+          });
+        }
+        
+        // Click to open collection (only if not dragging)
+        item.addEventListener('click', (e) => {
+          if (!hasDragged) {
+            window.location.href = item.dataset.collectionUrl;
+          }
+        });
+      });
+      
+      // Function to handle layout changes
+      function handleResize() {
+        const screenWidth = window.innerWidth;
+        
+        // Clear existing positions and sizes to allow re-initialization
+        items.forEach(item => {
+          const wrapper = item.querySelector('.collection-photo-wrapper');
+          item.style.left = '';
+          item.style.top = '';
+          wrapper.style.width = '';
+          wrapper.style.maxHeight = '';
+        });
+        
+        // Re-initialize positions based on new screen size
+        if (screenWidth > 768) {
+          setTimeout(initializePositions, 100);
+        }
+      }
+      
+      // Initialize positions when page loads
+      if (window.innerWidth > 768) {
+        setTimeout(initializePositions, 100);
+      }
+      
+      // Add resize listener for responsive changes
+      let resizeTimeout;
+      window.addEventListener('resize', () => {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(handleResize, 200); // Debounce resize events
+      });
+    })();
+  </script>
+{{- end -}}
