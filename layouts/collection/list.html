@@ -384,20 +384,30 @@
         const minTileHeight = Math.max(screenHeight * 0.15, 150); // Min 15% of height or 150px
         
         // Size variation (adds visual interest)
-        const sizeVariationPercent = 0.025; // ±2.5% random size variation
+        const sizeVariationPercent = 0.05; // ±5% random size variation
         
         // Layout spacing (responsive to screen dimensions)
         const sidePaddingPercent = 0.02;     // 2% side padding from screen edges
         const columnBufferPercent = 0.02;    // 2% buffer between left and right columns
         const topPaddingPercent = 0.03;      // 3% top padding from screen top
-        const verticalVariationPercent = aspectRatio > wideScreenThreshold ? 0.03 : 0.05; // Less variation on wide screens
+        const verticalVariationPercent = aspectRatio > wideScreenThreshold ? 0.1 : 0.1; // Less variation on wide screens
         
         // Tile spacing (responsive to screen size)
         const minSpacing = Math.max(20, Math.min(screenWidth, screenHeight) * 0.02); // 2% of smaller screen dimension
         
-        // Row spacing (responsive to screen height)
-        const baseRowHeight = screenHeight * 0.4; // 40% of screen height between rows
-        const rowHeight = Math.max(250, Math.min(baseRowHeight, 500)); // Between 250-500px
+        // Row spacing (responsive to screen aspect ratio)
+        let baseRowHeight;
+        if (aspectRatio > wideScreenThreshold) {
+          // Wide screens: more vertical spacing to spread content out
+          baseRowHeight = screenHeight * 0.65; // 65% of screen height between rows
+        } else if (aspectRatio < tallScreenThreshold) {
+          // Portrait/tall screens: less vertical spacing to fit more content
+          baseRowHeight = screenHeight * 0.3; // 25% of screen height between rows
+        } else {
+          // Normal screens: standard spacing
+          baseRowHeight = screenHeight * 0.3; // 40% of screen height between rows
+        }
+        const rowHeight = Math.max(200, Math.min(baseRowHeight, 900)); // Between 200-900px
         
         // ===== CALCULATIONS =====
         
