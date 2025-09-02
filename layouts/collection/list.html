@@ -457,17 +457,19 @@
             hasDragged = false;
             startX = e.clientX;
             startY = e.clientY;
-            initialLeft = parseInt(item.style.left) || 0;
-            initialTop = parseInt(item.style.top) || 0;
+            
+            // Get the current computed position, not just the inline style
+            const computedStyle = window.getComputedStyle(item);
+            initialLeft = parseInt(computedStyle.left) || 0;
+            initialTop = parseInt(computedStyle.top) || 0;
+            
+            // Set inline styles to match computed position to maintain position
+            item.style.left = initialLeft + 'px';
+            item.style.top = initialTop + 'px';
             item.style.zIndex = '1000';
             e.preventDefault();
             
-            // Clear any cycling interval
-            const interval = cycleIntervals.get(item);
-            if (interval) {
-              clearInterval(interval);
-              cycleIntervals.delete(item);
-            }
+            // Don't clear cycling interval - allow rotation during drag
             
             const handleMouseMove = (e) => {
               if (!isDragging) return;
