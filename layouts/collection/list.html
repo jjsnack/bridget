@@ -39,14 +39,11 @@
   <style>
     .collections-gallery {
       position: relative;
-      min-height: 70vh;
+      min-height: 100vh;
       padding: 2rem 1rem;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      max-width: 1400px;
+      width: 100%;
+      max-width: 100vw;
       margin: 0 auto;
-      /* width: 100%; */
     }
     
     .collection-item {
@@ -60,17 +57,30 @@
       z-index: 10;
     }
     
+    .collection-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100%;
+      position: relative;
+    }
+    
     .collection-photo-wrapper {
       overflow: hidden;
       box-shadow: 0 4px 12px rgba(0,0,0,0.15);
       margin-bottom: 0.5rem;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
     
     .collection-photo {
       display: block;
-      object-fit: contain;
-      max-width: auto;
-      max-height: auto;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
     }
     
     .collection-photo.cycling {
@@ -79,252 +89,113 @@
       object-fit: cover;
     }
     
-    
-    .collection-title {
+    .title-flex {
       position: absolute;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      z-index: 1;
+      pointer-events: none;
+    }
+    
+    .title-text {
       font-size: 1.1rem;
       font-weight: 500;
-      margin: 0;
       color: #333;
       white-space: nowrap;
-      z-index: 10;
-      opacity: 0;
-      pointer-events: none;
-      
-      /* Default position: bottom center */
-      bottom: -2rem;
+      background: transparent;
+      padding: 0.5rem 1rem;
+    }
+    
+    .title-top {
+      top: -3rem;
       left: 50%;
-      transform: translateX(-50%) rotate(0deg);
-      text-align: center;
+      transform: translateX(-50%);
+      width: 100%;
     }
     
-    .collection-item:hover .collection-title {
-      opacity: 1;
+    .title-bottom {
+      bottom: -3rem;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
     }
     
-    /* No visual effects when dragging */
-    .collection-item.dragging {
-      z-index: 1000;
+    .title-left {
+      left: -3rem;
+      top: 50%;
+      transform: translateY(-50%) rotate(-90deg);
+      height: 100%;
+      width: 3rem;
     }
     
-    /* Show title on mobile/narrow screens */
-    @media (max-width: 1024px) {
-      .collection-title {
+    .title-right {
+      right: -3rem;
+      top: 50%;
+      transform: translateY(-50%) rotate(90deg);
+      height: 100%;
+      width: 3rem;
+    }
+    
+    /* Wide screens - alternating grid pattern */
+    @media (min-width: 901px) {
+      .collection-item:hover .title-flex {
         opacity: 1;
-        bottom: -1rem;
-      }
-      
-      .collections-gallery {
-        padding: 1rem;
-      }
-      
-      /* Disable dragging effects on narrow screens */
-      .collection-item.dragging {
-        opacity: 1;
-        transform: none;
       }
     }
     
-    /* 2-column layout for wide screens - dynamic positioning with draggability */
-    @media (min-width: 1025px) {
-      .collections-gallery {
-        position: relative;
-        min-height: 100vh;
-        padding: 2rem 1rem;
-      }
-      
-      .collection-item {
-        position: absolute;
-      }
-      
-      .collection-container {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 100%;
-        height: 100%;
-        position: relative;
-      }
-      
-      .collection-photo-wrapper {
-        z-index: 2;
-        max-width: 30vw;
-        max-height: auto;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-      
-      .title-flex {
-        position: absolute;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        opacity: 0;
-        z-index: 1;
-        pointer-events: none;
-      }
-      
-      .title-text {
-        font-size: 1.1rem;
-        font-weight: 500;
-        color: #333;
-        white-space: nowrap;
-        background: transparent;
-        padding: 0.5rem 1rem;
-      }
-      
-      .title-top {
-        top: -3rem;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 100%;
-      }
-      
-      .title-bottom {
-        bottom: -3rem;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 100%;
-      }
-      
-      .title-left {
-        left: -3rem;
-        top: 50%;
-        transform: translateY(-50%) rotate(-90deg);
-        height: 100%;
-        width: 3rem;
-      }
-      
-      .title-right {
-        right: -3rem;
-        top: 50%;
-        transform: translateY(-50%) rotate(90deg);
-        height: 100%;
-        width: 3rem;
-      }
-      
-    }
-    
-    /* 2-column layout for medium screens - scattered positioning */
-    @media (max-width: 1024px) and (min-width: 769px) {
-      .collections-gallery {
-        position: relative;
-        min-height: 100vh;
-        padding: 2rem 1rem 6rem 1rem;
-      }
-      
-      .collection-item {
-        position: absolute !important;
-        cursor: pointer;
-      }
-      
-      .collection-container {
-        display: flex !important;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        position: relative;
-      }
-      
-      .collection-photo-wrapper {
-        max-width: 40vw !important;
-        max-height: 55vh !important;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-      
-      .collection-photo {
-        max-width: 40vw !important;
-        max-height: 55vh !important;
-      }
-      
-      /* Hide top, left, right title-flex elements, show only bottom */
+    /* Medium screens - even 2-column layout */
+    @media (max-width: 900px) and (min-width: 601px) {
       .title-top, .title-left, .title-right {
         display: none !important;
       }
       
       .title-bottom {
-        display: flex !important;
         opacity: 1 !important;
-        position: absolute !important;
-        bottom: -1.5rem !important;
-        left: 50% !important;
-        transform: translateX(-50%) !important;
-        width: auto !important;
         pointer-events: auto;
-      }
-      
-      .title-bottom .title-text {
-        background: transparent !important;
-        font-size: 1.1rem;
-        font-weight: 500;
-        color: #333;
-        white-space: nowrap;
+        position: static;
+        margin-top: 0.5rem;
+        transform: none;
       }
     }
     
-    /* 1-column layout for mobile screens - static vertical layout */
-    @media (max-width: 768px) {
+    /* Mobile screens - vertical layout */
+    @media (max-width: 600px) {
       .collections-gallery {
-        display: grid;
-        grid-template-columns: 1fr;
+        display: flex;
+        flex-direction: column;
         gap: 2rem;
         padding: 2rem 1rem;
-        max-width: none;
-        width: calc(100vw - 0.5rem);
+        position: static;
       }
       
       .collection-item {
         position: static !important;
         width: 100% !important;
-        left: auto !important;
-        top: auto !important;
+        max-width: 500px;
+        margin: 0 auto;
       }
       
       .collection-container {
-        display: flex !important;
         flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        position: relative;
       }
       
       .collection-photo-wrapper {
-        width: auto;
-        height: auto;
-        margin: 0 0 0.5rem 0;
-        overflow: hidden;
+        width: 100%;
+        max-height: 400px;
       }
       
-      .collection-photo {
-        width: auto;
-        height: auto;
-        object-fit: cover;
-      }
-      
-      /* Hide top, left, right title-flex elements, show only bottom */
       .title-top, .title-left, .title-right {
         display: none !important;
       }
       
       .title-bottom {
-        display: flex !important;
         opacity: 1 !important;
-        position: static !important;
-        width: auto !important;
         pointer-events: auto;
+        position: static;
         margin-top: 0.5rem;
-      }
-      
-      .title-bottom .title-text {
-        background: transparent !important;
-        font-size: 1.1rem;
-        font-weight: 500;
-        color: #333;
-        white-space: nowrap;
-        text-align: center;
+        transform: none;
       }
     }
   </style>
@@ -334,294 +205,279 @@
       const gallery = document.getElementById('collections-gallery');
       const items = gallery.querySelectorAll('.collection-item');
       
-      // Initialize positions for different screen sizes
-      function initializePositions() {
+      // TUNABLE PARAMETERS - Adjust these to modify layout behavior
+      const CONFIG = {
+        // Layout breakpoints
+        WIDE_LAYOUT_MIN: 901,      // Wide alternating grid layout
+        MEDIUM_LAYOUT_MIN: 601,    // 2-column layout
+        MOBILE_MAX: 600,           // Single column layout
+        
+        // Wide layout parameters
+        WIDE_3COL_HEIGHT_RATIO: 0.35,    // 3-column row height as % of viewport
+        WIDE_2COL_HEIGHT_RATIO: 0.45,    // 2-column row height as % of viewport  
+        WIDE_3COL_MAX_HEIGHT: 400,       // Max height for 3-column rows (px)
+        WIDE_2COL_MAX_HEIGHT: 500,       // Max height for 2-column rows (px)
+        WIDE_SIDE_PADDING_RATIO: 0.15,   // Side padding for 2-column rows
+        WIDE_ROW_SPACING: 40,            // Spacing between 3-column rows
+        WIDE_2COL_ROW_SPACING: 60,       // Spacing between 2-column rows
+        
+        // Medium layout parameters  
+        MEDIUM_SIDE_PADDING_RATIO: 0.1,  // Side padding for 2-column layout
+        MEDIUM_ROW_HEIGHT_RATIO: 0.4,    // Row height as % of viewport
+        MEDIUM_MAX_HEIGHT: 450,          // Max row height (px)
+        MEDIUM_ROW_SPACING: 50,          // Spacing between rows
+        
+        // Tile sizing parameters
+        TILE_SIZE_MIN: 0.6,              // Min tile size (60% of container)
+        TILE_SIZE_MAX: 0.9,              // Max tile size (90% of container)
+        TILE_MIN_WIDTH: 180,             // Absolute minimum tile width
+        TILE_MIN_HEIGHT: 150,            // Absolute minimum tile height
+        GRID_CELL_PADDING: 20,           // Padding within grid cells
+        
+        // Animation parameters
+        HOVER_SCALE: 1.02,               // Scale factor on hover
+        DRAG_Z_INDEX: 1000,              // Z-index when dragging
+        TITLE_CYCLE_SPEED: 500           // Title cycling speed (ms)
+      };
+      
+      // Alternating grid system with 3-column and 2-column rows (wide screens)
+      function initializeWideLayout() {
+        const screenWidth = window.innerWidth;
+        const screenHeight = window.innerHeight;
+        
+        const galleryPadding = 32;
+        const availableWidth = screenWidth - (galleryPadding * 2);
+        
+        let currentY = galleryPadding;
+        let itemIndex = 0;
+        let rowIndex = 0;
+        
+        while (itemIndex < items.length) {
+          const isThreeColumnRow = rowIndex % 2 === 0;
+          
+          if (isThreeColumnRow) {
+            // 3-column row
+            const columnsInRow = Math.min(3, items.length - itemIndex);
+            const baseRowHeight = Math.min(
+              screenHeight * CONFIG.WIDE_3COL_HEIGHT_RATIO, 
+              CONFIG.WIDE_3COL_MAX_HEIGHT
+            );
+            
+            for (let col = 0; col < columnsInRow; col++) {
+              if (itemIndex >= items.length) break;
+              
+              const item = items[itemIndex];
+              const gridContainer = createWideGridContainer(
+                availableWidth, baseRowHeight, col, columnsInRow, currentY
+              );
+              
+              positionTileInGrid(item, gridContainer);
+              itemIndex++;
+            }
+            
+            currentY += baseRowHeight + CONFIG.WIDE_ROW_SPACING;
+            
+          } else {
+            // 2-column row (asymmetric)
+            const columnsInRow = Math.min(2, items.length - itemIndex);
+            const baseRowHeight = Math.min(
+              screenHeight * CONFIG.WIDE_2COL_HEIGHT_RATIO,
+              CONFIG.WIDE_2COL_MAX_HEIGHT
+            );
+            const sidePadding = availableWidth * CONFIG.WIDE_SIDE_PADDING_RATIO;
+            const narrowerWidth = availableWidth - (sidePadding * 2);
+            
+            for (let col = 0; col < columnsInRow; col++) {
+              if (itemIndex >= items.length) break;
+              
+              const item = items[itemIndex];
+              const gridContainer = createAsymmetricGridContainer(
+                narrowerWidth, baseRowHeight, col, currentY, sidePadding
+              );
+              
+              positionTileInGrid(item, gridContainer);
+              itemIndex++;
+            }
+            
+            currentY += baseRowHeight + CONFIG.WIDE_2COL_ROW_SPACING;
+          }
+          
+          rowIndex++;
+        }
+        
+        gallery.style.minHeight = currentY + galleryPadding + 'px';
+      }
+      
+      // Even 2-column layout for medium screens
+      function initializeMediumLayout() {
+        const screenWidth = window.innerWidth;
+        const screenHeight = window.innerHeight;
+        
+        const galleryPadding = 32;
+        const sidePadding = screenWidth * CONFIG.MEDIUM_SIDE_PADDING_RATIO;
+        const availableWidth = screenWidth - (galleryPadding * 2) - (sidePadding * 2);
+        const rowHeight = Math.min(
+          screenHeight * CONFIG.MEDIUM_ROW_HEIGHT_RATIO,
+          CONFIG.MEDIUM_MAX_HEIGHT
+        );
+        
+        let currentY = galleryPadding;
+        let itemIndex = 0;
+        
+        while (itemIndex < items.length) {
+          const columnsInRow = Math.min(2, items.length - itemIndex);
+          
+          for (let col = 0; col < columnsInRow; col++) {
+            if (itemIndex >= items.length) break;
+            
+            const item = items[itemIndex];
+            const gridContainer = createMediumGridContainer(
+              availableWidth, rowHeight, col, currentY, sidePadding + galleryPadding
+            );
+            
+            positionTileInGrid(item, gridContainer);
+            itemIndex++;
+          }
+          
+          currentY += rowHeight + CONFIG.MEDIUM_ROW_SPACING;
+        }
+        
+        gallery.style.minHeight = currentY + galleryPadding + 'px';
+      }
+      
+      // Main layout initialization
+      function initializeLayout() {
         const screenWidth = window.innerWidth;
         
-        items.forEach((item, index) => {
-          // Unified 2-column layout for both wide and medium screens
-          if (screenWidth > 768) {
-            positionTile(item, index, screenWidth, items);
-          }
-          // Wide screen (>1024px) positions are handled by CSS data-index selectors
-          // Mobile (<769px) uses CSS Grid layout
-        });
+        if (screenWidth >= CONFIG.WIDE_LAYOUT_MIN) {
+          initializeWideLayout();
+        } else if (screenWidth >= CONFIG.MEDIUM_LAYOUT_MIN) {
+          initializeMediumLayout();
+        }
+        // Mobile layout handled by CSS
       }
       
-      // Unified 2-column tile positioning function
-      function positionTile(item, index, screenWidth, items) {
-        const screenHeight = window.innerHeight;
-        const aspectRatio = screenWidth / screenHeight;
+      // Grid container creation functions
+      function createWideGridContainer(totalWidth, rowHeight, columnIndex, totalColumns, yPosition) {
+        const columnWidth = totalWidth / totalColumns;
+        const padding = CONFIG.GRID_CELL_PADDING;
         
-        // ===== ADJUSTABLE PARAMETERS =====
+        return {
+          x: columnIndex * columnWidth + padding,
+          y: yPosition + padding,
+          width: columnWidth - (padding * 2),
+          height: rowHeight - (padding * 2)
+        };
+      }
+      
+      function createAsymmetricGridContainer(totalWidth, rowHeight, columnIndex, yPosition, sideOffset) {
+        const padding = CONFIG.GRID_CELL_PADDING;
+        const column1Width = totalWidth * 0.6; // First column is wider
+        const column2Width = totalWidth * 0.4; // Second column is narrower
         
-        // Tile sizing (responsive to screen aspect ratio)
-        const baseTileWidthPercent = 0.35;  // 35% of screen width for normal screens
-        const baseTileHeightPercent = 0.25; // 25% of screen height for normal screens
-        
-        // Aspect ratio adjustments
-        const wideScreenThreshold = 1.5;    // Screens wider than this are considered "wide"
-        const tallScreenThreshold = 0.8;    // Screens narrower than this are considered "tall"
-        
-        // Adjust tile sizing based on aspect ratio
-        let tileWidthPercent = baseTileWidthPercent;
-        let tileHeightPercent = baseTileHeightPercent;
-        
-        if (aspectRatio > wideScreenThreshold) {
-          // Wide screens: reduce width percentage, increase height percentage
-          tileWidthPercent = baseTileWidthPercent * 0.8; // Smaller width percentage
-          tileHeightPercent = baseTileHeightPercent * 1.2; // Larger height percentage
-        } else if (aspectRatio < tallScreenThreshold) {
-          // Tall screens: increase width percentage, reduce height percentage  
-          tileWidthPercent = baseTileWidthPercent * 1.1; // Larger width percentage
-          tileHeightPercent = baseTileHeightPercent * 0.9; // Smaller height percentage
-        }
-        
-        // Size limits (responsive to screen dimensions)
-        const maxTileWidth = Math.min(screenWidth * 0.4, 600);   // Max 40% of width or 600px
-        const maxTileHeight = Math.min(screenHeight * 0.4, 500); // Max 40% of height or 500px
-        const minTileWidth = Math.max(screenWidth * 0.15, 200);  // Min 15% of width or 200px  
-        const minTileHeight = Math.max(screenHeight * 0.15, 150); // Min 15% of height or 150px
-        
-        // Size variation (adds visual interest)
-        const sizeVariationPercent = 0.05; // ±5% random size variation
-        
-        // Layout spacing (responsive to screen dimensions)
-        const sidePaddingPercent = 0.02;     // 2% side padding from screen edges
-        const columnBufferPercent = 0.02;    // 2% buffer between left and right columns
-        const topPaddingPercent = 0.03;      // 3% top padding from screen top
-        const verticalVariationPercent = aspectRatio > wideScreenThreshold ? 0.1 : 0.1; // Less variation on wide screens
-        
-        // Tile spacing (responsive to screen size)
-        const minSpacing = Math.max(20, Math.min(screenWidth, screenHeight) * 0.02); // 2% of smaller screen dimension
-        
-        // Row spacing (responsive to screen aspect ratio)
-        let baseRowHeight;
-        if (aspectRatio > wideScreenThreshold) {
-          // Wide screens: more vertical spacing to spread content out
-          baseRowHeight = screenHeight * 0.65; // 65% of screen height between rows
-        } else if (aspectRatio < tallScreenThreshold) {
-          // Portrait/tall screens: less vertical spacing to fit more content
-          baseRowHeight = screenHeight * 0.3; // 25% of screen height between rows
+        let xPos, width;
+        if (columnIndex === 0) {
+          // First (wider) column
+          xPos = sideOffset + padding;
+          width = column1Width - (padding * 2);
         } else {
-          // Normal screens: standard spacing
-          baseRowHeight = screenHeight * 0.3; // 40% of screen height between rows
-        }
-        const rowHeight = Math.max(200, Math.min(baseRowHeight, 900)); // Between 200-900px
-        
-        // ===== CALCULATIONS =====
-        
-        // Calculate base tile dimensions (using appropriate screen dimension)
-        let tileWidth = Math.min(screenWidth * tileWidthPercent, maxTileWidth);
-        let tileHeight = Math.min(screenHeight * tileHeightPercent, maxTileHeight);
-        
-        // Apply size variation
-        const sizeScale = 1 + (Math.random() - 0.5) * 2 * sizeVariationPercent;
-        tileWidth = Math.max(tileWidth * sizeScale, minTileWidth);
-        tileHeight = Math.max(tileHeight * sizeScale, minTileHeight);
-        
-        // Calculate layout parameters
-        const sidePadding = screenWidth * sidePaddingPercent;
-        const columnBuffer = screenWidth * columnBufferPercent;
-        const topPadding = screenWidth * topPaddingPercent;
-        const verticalVariation = screenWidth * verticalVariationPercent;
-        
-        // Determine column (0 = left, 1 = right)
-        const column = index % 2;
-        const row = Math.floor(index / 2);
-        
-        // ===== POSITIONING =====
-        
-        let attempts = 0;
-        let validPosition = false;
-        let x, y;
-        
-        while (!validPosition && attempts < 30) {
-          // Calculate horizontal position
-          if (column === 0) {
-            // Left column
-            const minX = sidePadding;
-            const maxX = (screenWidth / 2) - tileWidth - columnBuffer;
-            x = minX + Math.random() * Math.max(0, maxX - minX);
-          } else {
-            // Right column
-            const minX = (screenWidth / 2) + columnBuffer;
-            const maxX = screenWidth - tileWidth - sidePadding;
-            x = minX + Math.random() * Math.max(0, maxX - minX);
-          }
-          
-          // Calculate vertical position
-          const baseY = row * rowHeight + topPadding;
-          y = baseY + Math.random() * verticalVariation;
-          
-          // Check for collisions with existing tiles
-          const currentTile = { x, y, width: tileWidth, height: tileHeight };
-          const placedTiles = [];
-          
-          items.forEach((placedItem, placedIndex) => {
-            if (placedIndex < index && placedItem.style.left) {
-              placedTiles.push({
-                x: parseInt(placedItem.style.left),
-                y: parseInt(placedItem.style.top),
-                width: parseInt(placedItem.style.width) || tileWidth,
-                height: parseInt(placedItem.style.height) || tileHeight
-              });
-            }
-          });
-          
-          validPosition = !placedTiles.some(tile => tilesOverlap(currentTile, tile, minSpacing, minSpacing));
-          attempts++;
+          // Second (narrower) column  
+          xPos = sideOffset + column1Width + padding;
+          width = column2Width - (padding * 2);
         }
         
-        // Apply position and size
-        item.style.left = x + 'px';
-        item.style.top = y + 'px';
+        return {
+          x: xPos,
+          y: yPosition + padding,
+          width: width,
+          height: rowHeight - (padding * 2)
+        };
+      }
+      
+      function createMediumGridContainer(totalWidth, rowHeight, columnIndex, yPosition, xOffset) {
+        const columnWidth = totalWidth / 2;
+        const padding = CONFIG.GRID_CELL_PADDING;
+        
+        return {
+          x: xOffset + (columnIndex * columnWidth) + padding,
+          y: yPosition + padding,
+          width: columnWidth - (padding * 2),
+          height: rowHeight - (padding * 2)
+        };
+      }
+      
+      // Tunable tile positioning and sizing function
+      function positionTileInGrid(item, gridContainer) {
+        // Calculate random size using tunable parameters
+        const sizeVariation = CONFIG.TILE_SIZE_MIN + 
+                             (Math.random() * (CONFIG.TILE_SIZE_MAX - CONFIG.TILE_SIZE_MIN));
+        const tileWidth = Math.max(
+          gridContainer.width * sizeVariation, 
+          CONFIG.TILE_MIN_WIDTH
+        );
+        const tileHeight = Math.max(
+          gridContainer.height * sizeVariation, 
+          CONFIG.TILE_MIN_HEIGHT
+        );
+        
+        // Calculate random position within remaining space
+        const maxX = Math.max(0, gridContainer.width - tileWidth);
+        const maxY = Math.max(0, gridContainer.height - tileHeight);
+        
+        const randomX = maxX > 0 ? Math.random() * maxX : 0;
+        const randomY = maxY > 0 ? Math.random() * maxY : 0;
+        
+        // Final position
+        const finalX = gridContainer.x + randomX;
+        const finalY = gridContainer.y + randomY;
+        
+        // Apply styles
         item.style.position = 'absolute';
-        
-        // Store dimensions for collision detection
+        item.style.left = finalX + 'px';
+        item.style.top = finalY + 'px';
         item.style.width = tileWidth + 'px';
         item.style.height = tileHeight + 'px';
-      }
-      
-      // Check if two tiles overlap (violate minimum spacing)
-      function tilesOverlap(tile1, tile2, minHorizontalSpacing = 20, minVerticalSpacing = 20) {
-        // Calculate boundaries (include title space)
-        const left1 = tile1.x, right1 = tile1.x + tile1.width;
-        const top1 = tile1.y, bottom1 = tile1.y + tile1.height + 40; // Add space for title
-        const left2 = tile2.x, right2 = tile2.x + tile2.width;
-        const top2 = tile2.y, bottom2 = tile2.y + tile2.height + 40; // Add space for title
         
-        // Calculate actual spacing between closest boundaries
-        let horizontalDistance, verticalDistance;
-        
-        // Horizontal distance between closest edges
-        if (right1 <= left2) {
-          horizontalDistance = left2 - right1;
-        } else if (right2 <= left1) {
-          horizontalDistance = left1 - right2;
-        } else {
-          horizontalDistance = 0; // tiles overlap horizontally
-        }
-        
-        // Vertical distance between closest edges
-        if (bottom1 <= top2) {
-          verticalDistance = top2 - bottom1;
-        } else if (bottom2 <= top1) {
-          verticalDistance = top1 - bottom2;
-        } else {
-          verticalDistance = 0; // tiles overlap vertically
-        }
-        
-        // Tiles violate minimum spacing if they're too close
-        return (horizontalDistance >= 0 && horizontalDistance < minHorizontalSpacing) ||
-               (verticalDistance >= 0 && verticalDistance < minVerticalSpacing);
-      }
-      
-      // Photo cycling on hover
-      const cycleIntervals = new Map();
-      
-      items.forEach(item => {
-        const img = item.querySelector('.collection-photo');
+        // Set photo wrapper size (account for title space)
         const wrapper = item.querySelector('.collection-photo-wrapper');
-        const title = item.querySelector('.collection-title');
-        const imagesData = img.dataset.images;
-        
-        // Get title flex elements
-        function getTitleElements() {
-          return {
-            bottom: item.querySelector('.title-bottom'),
-            right: item.querySelector('.title-right'), 
-            top: item.querySelector('.title-top'),
-            left: item.querySelector('.title-left')
-          };
+        if (wrapper) {
+          wrapper.style.width = tileWidth + 'px';
+          wrapper.style.height = Math.max(tileHeight - 40, 100) + 'px';
         }
         
-        // Check if screen is wide enough for advanced features
-        const isWideScreen = () => window.innerWidth > 1024;
+        // Store container info for drag bounds checking
+        item.dataset.containerX = gridContainer.x;
+        item.dataset.containerY = gridContainer.y;
+        item.dataset.containerWidth = gridContainer.width;
+        item.dataset.containerHeight = gridContainer.height;
+      }
+      
+      // Drag functionality for multi-column layouts
+      function enableDragFunctionality() {
+        const isMultiColumn = () => window.innerWidth >= CONFIG.MEDIUM_LAYOUT_MIN;
         
-        // Enable photo cycling on all screens, but title rotation only on wide screens
-        if (imagesData) {
-          const imageUrls = imagesData.split(',');
-          let currentIndex = 0;
-          
-          item.addEventListener('mouseenter', () => {
-            if (imageUrls.length > 1) {
-              // Lock the wrapper dimensions to maintain tile size during cycling
-              const wrapperRect = wrapper.getBoundingClientRect();
-              wrapper.style.width = wrapperRect.width + 'px';
-              wrapper.style.height = wrapperRect.height + 'px';
-              
-              const interval = setInterval(() => {
-                currentIndex = (currentIndex + 1) % imageUrls.length;
-                img.src = imageUrls[currentIndex];
-                img.classList.add('cycling');
-                
-                // Only rotate title on wide screens
-                if (isWideScreen()) {
-                  // Show title in rotating positions (anti-clockwise: bottom -> right -> top -> left)
-                  const titleElements = getTitleElements();
-                  const titleOrder = ['bottom', 'right', 'top', 'left'];
-                  const activeTitle = titleOrder[currentIndex % titleOrder.length];
-                  
-                  // Hide all titles
-                  Object.values(titleElements).forEach(el => el.style.opacity = '0');
-                  
-                  // Show active title
-                  titleElements[activeTitle].style.opacity = '1';
-                }
-              }, 500);
-              cycleIntervals.set(item, interval);
-            }
-          });
-          
-          item.addEventListener('mouseleave', () => {
-            const interval = cycleIntervals.get(item);
-            if (interval) {
-              clearInterval(interval);
-              cycleIntervals.delete(item);
-              // Reset to first image and unlock dimensions
-              img.src = imageUrls[0];
-              img.classList.remove('cycling');
-              wrapper.style.width = '';
-              wrapper.style.height = '';
-              
-              // Hide all titles on wide screens only
-              if (isWideScreen()) {
-                const titleElements = getTitleElements();
-                Object.values(titleElements).forEach(el => el.style.opacity = '0');
-              }
-              
-              currentIndex = 0;
-            }
-          });
-        }
-        
-        // Drag state for this item
-        let isDragging = false;
-        let hasDragged = false;
-        
-        // Simple drag functionality for wide screens only (>1024px)
-        if (isWideScreen()) {
+        items.forEach(item => {
+          let isDragging = false;
+          let hasDragged = false;
           let startX, startY, initialLeft, initialTop;
           
           item.addEventListener('mousedown', (e) => {
+            if (!isMultiColumn()) return;
+            
             isDragging = true;
             hasDragged = false;
             startX = e.clientX;
             startY = e.clientY;
             
-            // Get the current computed position, not just the inline style
             const computedStyle = window.getComputedStyle(item);
             initialLeft = parseInt(computedStyle.left) || 0;
             initialTop = parseInt(computedStyle.top) || 0;
             
-            // Set inline styles to match computed position to maintain position
             item.style.left = initialLeft + 'px';
             item.style.top = initialTop + 'px';
-            item.style.zIndex = '1000';
+            item.style.zIndex = CONFIG.DRAG_Z_INDEX;
+            item.style.transform = `scale(${CONFIG.HOVER_SCALE})`;
             e.preventDefault();
-            
-            // Don't clear cycling interval - allow rotation during drag
             
             const handleMouseMove = (e) => {
               if (!isDragging) return;
@@ -629,135 +485,204 @@
               const deltaX = e.clientX - startX;
               const deltaY = e.clientY - startY;
               
-              // If mouse has moved more than a few pixels, consider it a drag
               if (Math.abs(deltaX) > 3 || Math.abs(deltaY) > 3) {
                 hasDragged = true;
               }
               
-              item.style.left = (initialLeft + deltaX) + 'px';
-              item.style.top = (initialTop + deltaY) + 'px';
+              // Calculate new position
+              let newX = initialLeft + deltaX;
+              let newY = initialTop + deltaY;
+              
+              // Optional: Constrain to viewport bounds
+              const itemWidth = parseInt(item.style.width) || 200;
+              const itemHeight = parseInt(item.style.height) || 150;
+              newX = Math.max(0, Math.min(newX, window.innerWidth - itemWidth));
+              newY = Math.max(0, Math.min(newY, window.innerHeight - itemHeight));
+              
+              item.style.left = newX + 'px';
+              item.style.top = newY + 'px';
             };
             
             const handleMouseUp = () => {
               if (isDragging) {
                 isDragging = false;
                 item.style.zIndex = '';
+                item.style.transform = '';
                 document.removeEventListener('mousemove', handleMouseMove);
                 document.removeEventListener('mouseup', handleMouseUp);
                 
-                // Reset hasDragged after a short delay to prevent click
-                setTimeout(() => {
-                  hasDragged = false;
-                }, 10);
+                setTimeout(() => { hasDragged = false; }, 10);
               }
             };
             
             document.addEventListener('mousemove', handleMouseMove);
             document.addEventListener('mouseup', handleMouseUp);
           });
-        }
-        
-        // Click to open collection (only if not dragging)
-        item.addEventListener('click', (e) => {
-          if (!hasDragged) {
-            window.location.href = item.dataset.collectionUrl;
-          }
-        });
-      });
-      
-      // Function to handle layout changes
-      function handleResize() {
-        const screenWidth = window.innerWidth;
-        
-        // Clear existing positions and sizes to allow re-initialization
-        items.forEach(item => {
-          const wrapper = item.querySelector('.collection-photo-wrapper');
-          item.style.left = '';
-          item.style.top = '';
-          wrapper.style.width = '';
-          wrapper.style.maxHeight = '';
           
-          // Clear any existing intervals and restart interactions
-          const interval = cycleIntervals.get(item);
-          if (interval) {
-            clearInterval(interval);
-            cycleIntervals.delete(item);
-          }
+          // Prevent click navigation when dragging
+          item.addEventListener('click', (e) => {
+            if (hasDragged) {
+              e.preventDefault();
+              e.stopPropagation();
+            } else {
+              window.location.href = item.dataset.collectionUrl;
+            }
+          });
         });
-        
-        // Re-initialize positions based on new screen size
-        if (screenWidth > 768) {
-          setTimeout(() => {
-            initializePositions();
-            // Update gallery height to accommodate all tiles and their titles
-            updateGalleryHeight();
-            // Restart interactions for all items
-            items.forEach(item => {
-              const img = item.querySelector('.collection-photo');
-              const imagesData = img.dataset.images;
-              if (imagesData) {
-                const imageUrls = imagesData.split(',');
-                img.src = imageUrls[0]; // Reset to first image
-                img.classList.remove('cycling');
-              }
-            });
-          }, 100);
-        }
       }
       
-      // Update gallery height to include space for all tiles and their titles
-      function updateGalleryHeight() {
-        const screenWidth = window.innerWidth;
-        if (screenWidth > 768) {
-          let maxBottom = 0;
+      // Photo cycling functionality
+      function setupPhotoCycling() {
+        const cycleIntervals = new Map();
+        
+        items.forEach(item => {
+          const img = item.querySelector('.collection-photo');
+          const wrapper = item.querySelector('.collection-photo-wrapper');
+          const imagesData = img.dataset.images;
           
-          items.forEach(item => {
-            if (item.style.left && item.style.top) {
-              const tileY = parseInt(item.style.top);
-              let tileHeight;
-              
-              if (screenWidth > 1024) {
-                // 2-column wide screen layout - use actual rendered height due to size variation
-                const wrapper = item.querySelector('.collection-photo-wrapper');
-                if (wrapper) {
-                  tileHeight = wrapper.getBoundingClientRect().height || Math.min(screenWidth * 0.30, 400);
-                } else {
-                  tileHeight = Math.min(screenWidth * 0.30, 400); // Fallback
-                }
-              } else {
-                // 2-column medium screen layout
-                tileHeight = Math.min(screenWidth * 0.25, 300);
+          function getTitleElements() {
+            return {
+              bottom: item.querySelector('.title-bottom'),
+              right: item.querySelector('.title-right'), 
+              top: item.querySelector('.title-top'),
+              left: item.querySelector('.title-left')
+            };
+          }
+          
+          const isWideScreen = () => window.innerWidth >= CONFIG.WIDE_LAYOUT_MIN;
+          
+          if (imagesData) {
+            const imageUrls = imagesData.split(',');
+            let currentIndex = 0;
+            
+            item.addEventListener('mouseenter', () => {
+              if (imageUrls.length > 1) {
+                const wrapperRect = wrapper.getBoundingClientRect();
+                wrapper.style.width = wrapperRect.width + 'px';
+                wrapper.style.height = wrapperRect.height + 'px';
+                
+                const interval = setInterval(() => {
+                  currentIndex = (currentIndex + 1) % imageUrls.length;
+                  img.src = imageUrls[currentIndex];
+                  img.classList.add('cycling');
+                  
+                  if (isWideScreen()) {
+                    const titleElements = getTitleElements();
+                    const titleOrder = ['bottom', 'right', 'top', 'left'];
+                    const activeTitle = titleOrder[currentIndex % titleOrder.length];
+                    
+                    Object.values(titleElements).forEach(el => {
+                      if (el) el.style.opacity = '0';
+                    });
+                    
+                    if (titleElements[activeTitle]) {
+                      titleElements[activeTitle].style.opacity = '1';
+                    }
+                  }
+                }, CONFIG.TITLE_CYCLE_SPEED);
+                cycleIntervals.set(item, interval);
               }
-              
-              const titleSpace = 60; // Space for title below tile
-              const tileBottom = tileY + tileHeight + titleSpace;
-              maxBottom = Math.max(maxBottom, tileBottom);
+            });
+            
+            item.addEventListener('mouseleave', () => {
+              const interval = cycleIntervals.get(item);
+              if (interval) {
+                clearInterval(interval);
+                cycleIntervals.delete(item);
+                
+                img.src = imageUrls[0];
+                img.classList.remove('cycling');
+                wrapper.style.width = '';
+                wrapper.style.height = '';
+                
+                if (isWideScreen()) {
+                  const titleElements = getTitleElements();
+                  Object.values(titleElements).forEach(el => {
+                    if (el) el.style.opacity = '0';
+                  });
+                }
+                
+                currentIndex = 0;
+              }
+            });
+          }
+        });
+        
+        return cycleIntervals;
+      }
+      
+      // Main initialization function
+      function initializeApp() {
+        const screenWidth = window.innerWidth;
+        
+        // Clear existing styles for multi-column layouts
+        if (screenWidth >= CONFIG.MEDIUM_LAYOUT_MIN) {
+          items.forEach(item => {
+            const wrapper = item.querySelector('.collection-photo-wrapper');
+            item.style.position = '';
+            item.style.left = '';
+            item.style.top = '';
+            item.style.width = '';
+            item.style.height = '';
+            item.style.transform = '';
+            item.style.zIndex = '';
+            if (wrapper) {
+              wrapper.style.width = '';
+              wrapper.style.height = '';
             }
           });
           
-          // Set minimum height to accommodate all content plus generous bottom padding
-          const minHeight = maxBottom + 50; // Extra padding at bottom
-          const viewportHeight = window.innerHeight;
+          // Initialize appropriate layout
+          initializeLayout();
           
-          // Ensure the gallery is tall enough to scroll past the bottom tiles
-          gallery.style.minHeight = Math.max(minHeight, viewportHeight * 1.1) + 'px';
+          // Enable drag functionality for multi-column layouts
+          enableDragFunctionality();
+        } else {
+          // Mobile layout - reset all positioning
+          items.forEach(item => {
+            const wrapper = item.querySelector('.collection-photo-wrapper');
+            item.style.position = '';
+            item.style.left = '';
+            item.style.top = '';
+            item.style.width = '';
+            item.style.height = '';
+            item.style.transform = '';
+            item.style.zIndex = '';
+            if (wrapper) {
+              wrapper.style.width = '';
+              wrapper.style.height = '';
+            }
+          });
         }
       }
       
-      // Initialize positions when page loads
-      if (window.innerWidth > 768) {
-        setTimeout(() => {
-          initializePositions();
-          updateGalleryHeight();
-        }, 100);
-      }
-      
-      // Add resize listener for responsive changes
+      // Handle resize with debouncing
       let resizeTimeout;
+      let cycleIntervals;
+      
       window.addEventListener('resize', () => {
         clearTimeout(resizeTimeout);
-        resizeTimeout = setTimeout(handleResize, 200); // Debounce resize events
+        resizeTimeout = setTimeout(() => {
+          // Clear photo cycling intervals
+          if (cycleIntervals) {
+            cycleIntervals.forEach((interval) => clearInterval(interval));
+            cycleIntervals.clear();
+          }
+          
+          // Re-initialize layout
+          initializeApp();
+          
+          // Re-setup photo cycling
+          cycleIntervals = setupPhotoCycling();
+        }, 200);
       });
+      
+      // Initialize on load
+      setTimeout(() => {
+        initializeApp();
+        cycleIntervals = setupPhotoCycling();
+      }, 100);
+      
     })();
   </script>
 {{- end -}}
