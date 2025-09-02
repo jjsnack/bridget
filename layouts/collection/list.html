@@ -40,7 +40,12 @@
     .collections-gallery {
       position: relative;
       min-height: 70vh;
-      padding: 2rem;
+      padding: 2rem 1rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      max-width: 1400px;
+      margin: 0 auto;
     }
     
     .collection-item {
@@ -125,7 +130,7 @@
       .collections-gallery {
         position: relative;
         min-height: 100vh;
-        padding: 2rem;
+        padding: 2rem 1rem;
       }
       
       .collection-item {
@@ -236,22 +241,57 @@
       .collections-gallery {
         position: relative;
         min-height: 100vh;
-        padding: 2rem;
+        padding: 2rem 1rem 6rem 1rem;
       }
       
       .collection-item {
         position: absolute !important;
+        cursor: pointer;
       }
       
-      .collection-title {
+      .collection-container {
+        display: flex !important;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+      }
+      
+      .collection-photo-wrapper {
+        max-width: 40vw !important;
+        max-height: 55vh !important;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      
+      .collection-photo {
+        max-width: 40vw !important;
+        max-height: 55vh !important;
+      }
+      
+      /* Hide top, left, right title-flex elements, show only bottom */
+      .title-top, .title-left, .title-right {
+        display: none !important;
+      }
+      
+      .title-bottom {
+        display: flex !important;
         opacity: 1 !important;
         position: absolute !important;
-        bottom: -2rem !important;
+        bottom: -1.5rem !important;
         left: 50% !important;
         transform: translateX(-50%) !important;
-        text-align: center !important;
-        margin-top: 0;
+        width: auto !important;
         pointer-events: auto;
+      }
+      
+      .title-bottom .title-text {
+        background: transparent !important;
+        font-size: 1.1rem;
+        font-weight: 500;
+        color: #333;
+        white-space: nowrap;
       }
     }
     
@@ -261,9 +301,8 @@
         display: grid;
         grid-template-columns: 1fr;
         gap: 2rem;
-        padding: 2rem;
+        padding: 2rem 1rem;
         max-width: 600px;
-        margin: 0 auto;
       }
       
       .collection-item {
@@ -273,21 +312,44 @@
         top: auto !important;
       }
       
-      .collection-item .collection-photo-wrapper {
-        width: calc(100% - 2rem) !important;
-        max-height: 60vh;
-        margin: 0 auto;
+      .collection-container {
+        display: flex !important;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        position: relative;
       }
       
-      .collection-title {
+      .collection-photo-wrapper {
+        width: calc(100% - 2rem) !important;
+        max-height: 60vh;
+        margin: 0 auto 1rem auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      
+      /* Hide top, left, right title-flex elements, show only bottom */
+      .title-top, .title-left, .title-right {
+        display: none !important;
+      }
+      
+      .title-bottom {
+        display: flex !important;
         opacity: 1 !important;
         position: static !important;
-        bottom: auto !important;
-        left: auto !important;
-        transform: none !important;
-        text-align: center !important;
-        margin: 0.5rem 0 0 0;
+        width: auto !important;
         pointer-events: auto;
+        margin-top: 0.5rem;
+      }
+      
+      .title-bottom .title-text {
+        background: transparent !important;
+        font-size: 1.1rem;
+        font-weight: 500;
+        color: #333;
+        white-space: nowrap;
+        text-align: center;
       }
     }
   </style>
@@ -297,27 +359,73 @@
       const gallery = document.getElementById('collections-gallery');
       const items = gallery.querySelectorAll('.collection-item');
       
-      // Initialize positions for non-wide screens (2-column and 1-column use CSS Grid)
+      // Initialize positions for different screen sizes
       function initializePositions() {
         const screenWidth = window.innerWidth;
         
         items.forEach((item, index) => {
           if (screenWidth > 768 && screenWidth <= 1024) {
-            // 2-column medium screen - scattered random positions
-            const wrapper = item.querySelector('.collection-photo-wrapper');
-            const baseWidth = screenWidth * 0.25; // Base size ~25% of screen
-            const variation = 0.3; // ±30% size variation
-            const sizeMultiplier = 0.8 + (Math.random() * variation * 2);
-            const width = baseWidth * sizeMultiplier;
+            // 2-column medium screen - collision-free positioning
+            const tileWidth = Math.min(screenWidth * 0.35, 400);
+            const tileHeight = Math.min(screenWidth * 0.25, 300);
+            const padding = 50;
             
-            wrapper.style.width = width + 'px';
-            wrapper.style.maxHeight = (width * 1.2) + 'px'; // Maintain aspect ratio variety
-            
-            // Random positioning within 2-column constraints
-            const columnWidth = screenWidth / 2;
+            const columnWidth = (screenWidth - padding * 2) / 2;
             const column = index % 2;
-            const x = column * columnWidth + Math.random() * (columnWidth - width - 100) + 50;
-            const y = Math.floor(index / 2) * 350 + Math.random() * 150 + 100;
+            
+            // Store placed tiles for collision detection
+            const placedTiles = [];
+            items.forEach((placedItem, placedIndex) => {
+              if (placedIndex < index && placedItem.style.left) {
+                placedTiles.push({
+                  x: parseInt(placedItem.style.left),
+                  y: parseInt(placedItem.style.top),
+                  width: tileWidth,
+                  height: tileHeight
+                });
+              }
+            });
+            
+            let attempts = 0;
+            let x, y, validPosition = false;
+            
+            // Try to find non-overlapping position
+            while (!validPosition && attempts < 50) {
+              // Calculate padding based on leftmost left tile edge and rightmost right tile edge
+              const sidePadding = Math.max(20, (screenWidth - 2 * tileWidth) / 6); // Reduced padding
+              
+              const buffer = 30; // Buffer between left and right columns
+              
+              if (column === 0) {
+                // Left column: random position with left padding constraint
+                const minX = sidePadding;
+                const maxX = (screenWidth / 2) - tileWidth - buffer; // Stop before middle with buffer
+                x = minX + Math.random() * Math.max(0, maxX - minX);
+              } else {
+                // Right column: random position with right padding constraint  
+                const minX = (screenWidth / 2) + buffer; // Start after middle with buffer
+                const maxX = screenWidth - tileWidth - sidePadding;
+                x = minX + Math.random() * Math.max(0, maxX - minX);
+              }
+              const baseY = Math.floor(index / 2) * 300 + 80; // Increased base Y for more top buffer
+              const verticalVariation = 120; // Reduced variation for better spacing
+              y = baseY + Math.random() * verticalVariation;
+              
+              // Ensure within bounds with equal padding on both sides
+              x = Math.max(sidePadding, Math.min(x, screenWidth - tileWidth - sidePadding));
+              y = Math.max(padding, y);
+              
+              // Make sure there's enough space at bottom for the title, accounting for nav bar
+              const galleryHeight = document.getElementById('collections-gallery').getBoundingClientRect().height;
+              const nav = document.querySelector('nav');
+              const navHeight = nav ? nav.getBoundingClientRect().height : 0;
+              const maxY = galleryHeight - tileHeight - 120 - navHeight; // Buffer + nav height
+              y = Math.min(y, maxY);
+              
+              const currentTile = { x, y, width: tileWidth, height: tileHeight };
+              validPosition = !placedTiles.some(tile => tilesOverlap(currentTile, tile));
+              attempts++;
+            }
             
             item.style.left = x + 'px';
             item.style.top = y + 'px';
@@ -328,46 +436,25 @@
         });
       }
       
-      function scorePosition(x, y, width, height, positions, index) {
-        let score = 1000;
-        const padding = 60; // Increased padding for larger tiles
+      // Check if two tiles overlap
+      function tilesOverlap(tile1, tile2, buffer = 20) {
+        const rect1 = {
+          left: tile1.x,
+          right: tile1.x + tile1.width,
+          top: tile1.y,
+          bottom: tile1.y + tile1.height + 40 // Add space for title
+        };
+        const rect2 = {
+          left: tile2.x,
+          right: tile2.x + tile2.width,
+          top: tile2.y,
+          bottom: tile2.y + tile2.height + 40 // Add space for title
+        };
         
-        // Check for overlaps and proximity
-        positions.forEach((pos, i) => {
-          const centerX1 = x + width / 2;
-          const centerY1 = y + height / 2;
-          const centerX2 = pos.x + pos.width / 2;
-          const centerY2 = pos.y + pos.height / 2;
-          const distance = Math.sqrt(Math.pow(centerX1 - centerX2, 2) + Math.pow(centerY1 - centerY2, 2));
-          const minDistance = Math.max(width, height, pos.width, pos.height) * 0.7 + padding;
-          
-          // Heavy penalty for overlapping
-          if (!(x + width + padding < pos.x || pos.x + pos.width + padding < x || y + height + padding < pos.y || pos.y + pos.height + padding < y)) {
-            score -= 5000; // Very heavy penalty for overlap
-          }
-          
-          // Penalty for being too close
-          if (distance < minDistance) {
-            score -= (minDistance - distance) * 10;
-          }
-          
-          // Bonus for good spacing
-          if (distance > minDistance && distance < minDistance * 1.8) {
-            score += 100;
-          }
-        });
-        
-        // Prefer positions not at exact edges with larger margins
-        const margin = 50;
-        if (x < margin || y < margin) score -= 500;
-        
-        // Bonus for positions in the upper half (more natural reading pattern)
-        const galleryHeight = document.getElementById('collections-gallery').getBoundingClientRect().height;
-        if (y < galleryHeight * 0.6) {
-          score += 200;
-        }
-        
-        return score;
+        return !(rect1.right + buffer < rect2.left || 
+                rect2.right + buffer < rect1.left || 
+                rect1.bottom + buffer < rect2.top || 
+                rect2.bottom + buffer < rect1.top);
       }
       
       // Photo cycling on hover
@@ -392,8 +479,8 @@
         // Check if screen is wide enough for advanced features
         const isWideScreen = () => window.innerWidth > 1024;
         
-        // Only enable photo cycling and title rotation on wide screens
-        if (imagesData && isWideScreen()) {
+        // Enable photo cycling on all screens, but title rotation only on wide screens
+        if (imagesData) {
           const imageUrls = imagesData.split(',');
           let currentIndex = 0;
           
@@ -409,16 +496,19 @@
                 img.src = imageUrls[currentIndex];
                 img.classList.add('cycling');
                 
-                // Show title in rotating positions (anti-clockwise: bottom -> right -> top -> left)
-                const titleElements = getTitleElements();
-                const titleOrder = ['bottom', 'right', 'top', 'left'];
-                const activeTitle = titleOrder[currentIndex % titleOrder.length];
-                
-                // Hide all titles
-                Object.values(titleElements).forEach(el => el.style.opacity = '0');
-                
-                // Show active title
-                titleElements[activeTitle].style.opacity = '1';
+                // Only rotate title on wide screens
+                if (isWideScreen()) {
+                  // Show title in rotating positions (anti-clockwise: bottom -> right -> top -> left)
+                  const titleElements = getTitleElements();
+                  const titleOrder = ['bottom', 'right', 'top', 'left'];
+                  const activeTitle = titleOrder[currentIndex % titleOrder.length];
+                  
+                  // Hide all titles
+                  Object.values(titleElements).forEach(el => el.style.opacity = '0');
+                  
+                  // Show active title
+                  titleElements[activeTitle].style.opacity = '1';
+                }
               }, 500);
               cycleIntervals.set(item, interval);
             }
@@ -435,9 +525,11 @@
               wrapper.style.width = '';
               wrapper.style.height = '';
               
-              // Hide all titles
-              const titleElements = getTitleElements();
-              Object.values(titleElements).forEach(el => el.style.opacity = '0');
+              // Hide all titles on wide screens only
+              if (isWideScreen()) {
+                const titleElements = getTitleElements();
+                Object.values(titleElements).forEach(el => el.style.opacity = '0');
+              }
               
               currentIndex = 0;
             }
@@ -448,7 +540,7 @@
         let isDragging = false;
         let hasDragged = false;
         
-        // Simple drag functionality for wide screens only
+        // Simple drag functionality for wide screens only (>1024px)
         if (isWideScreen()) {
           let startX, startY, initialLeft, initialTop;
           
@@ -524,17 +616,66 @@
           item.style.top = '';
           wrapper.style.width = '';
           wrapper.style.maxHeight = '';
+          
+          // Clear any existing intervals and restart interactions
+          const interval = cycleIntervals.get(item);
+          if (interval) {
+            clearInterval(interval);
+            cycleIntervals.delete(item);
+          }
         });
         
         // Re-initialize positions based on new screen size
         if (screenWidth > 768) {
-          setTimeout(initializePositions, 100);
+          setTimeout(() => {
+            initializePositions();
+            // Update gallery height to accommodate all tiles and their titles
+            updateGalleryHeight();
+            // Restart interactions for all items
+            items.forEach(item => {
+              const img = item.querySelector('.collection-photo');
+              const imagesData = img.dataset.images;
+              if (imagesData) {
+                const imageUrls = imagesData.split(',');
+                img.src = imageUrls[0]; // Reset to first image
+                img.classList.remove('cycling');
+              }
+            });
+          }, 100);
+        }
+      }
+      
+      // Update gallery height to include space for all tiles and their titles
+      function updateGalleryHeight() {
+        const screenWidth = window.innerWidth;
+        if (screenWidth > 768 && screenWidth <= 1024) {
+          let maxBottom = 0;
+          
+          items.forEach(item => {
+            if (item.style.left && item.style.top) {
+              const tileY = parseInt(item.style.top);
+              const tileHeight = Math.min(screenWidth * 0.25, 300);
+              const titleSpace = 60; // Increased space for title below tile
+              const tileBottom = tileY + tileHeight + titleSpace;
+              maxBottom = Math.max(maxBottom, tileBottom);
+            }
+          });
+          
+          // Set minimum height to accommodate all content plus generous bottom padding
+          const minHeight = maxBottom + 50; // Increased extra padding at bottom
+          const viewportHeight = window.innerHeight;
+          
+          // Ensure the gallery is tall enough to scroll past the bottom tiles
+          gallery.style.minHeight = Math.max(minHeight, viewportHeight * 1.1) + 'px';
         }
       }
       
       // Initialize positions when page loads
       if (window.innerWidth > 768) {
-        setTimeout(initializePositions, 100);
+        setTimeout(() => {
+          initializePositions();
+          updateGalleryHeight();
+        }, 100);
       }
       
       // Add resize listener for responsive changes
