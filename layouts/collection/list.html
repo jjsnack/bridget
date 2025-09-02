@@ -412,8 +412,22 @@
                 const maxX = screenWidth - tileWidth - sidePadding;
                 x = minX + Math.random() * Math.max(0, maxX - minX);
               }
-              const baseY = Math.floor(index / 2) * 300 + 80; // Increased base Y for more top buffer
+              const topPagePadding = 0; // Adjustable padding from top of webpage to first tile
+              let baseY = Math.floor(index / 2) * 300 + topPagePadding;
               const verticalVariation = 120; // Reduced variation for better spacing
+              
+              // For the first row (top two tiles), ensure minimum and maximum offset between their top edges
+              if (Math.floor(index / 2) === 0) {
+                const minTopOffset = 25; // Minimum vertical offset between top two tiles
+                const maxTopOffset = 75; // Maximum vertical offset between top two tiles
+                if (index === 1) { // Second tile (right column)
+                  // Check the first tile's Y position and ensure offset constraints
+                  const firstTileY = items[0].style.top ? parseInt(items[0].style.top) : baseY;
+                  baseY = Math.max(baseY, firstTileY + minTopOffset);
+                  baseY = Math.min(baseY, firstTileY + maxTopOffset);
+                }
+              }
+              
               y = baseY + Math.random() * verticalVariation;
               
               // Ensure within bounds with equal padding on both sides
