@@ -12,6 +12,7 @@ import { render } from 'solid-js/web'
 
 import { getImageJSON } from './resources'
 import { StateProvider } from './state'
+import { lmchabotLayout } from './lmchabotLayout'
 
 import '../scss/style.scss'
 
@@ -83,3 +84,23 @@ function Main(): JSX.Element {
 }
 
 render(() => <Main />, container)
+
+// Initialize LM Chabot layout system for collections pages
+// Check if we're on a collections page by looking for c-projects elements
+const checkAndInitializeLMChabot = (): void => {
+  const projectsContainer = document.querySelector('.c-projects')
+  if (projectsContainer) {
+    console.log('Collections page detected, initializing LM Chabot layout')
+    lmchabotLayout.initialize()
+  }
+}
+
+// Run after a brief delay to ensure DOM is ready
+setTimeout(checkAndInitializeLMChabot, 100)
+
+// Also check on DOM content loaded as backup
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', checkAndInitializeLMChabot)
+} else {
+  checkAndInitializeLMChabot()
+}

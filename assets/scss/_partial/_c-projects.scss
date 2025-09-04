@@ -1,0 +1,432 @@
+// LM Chabot Projects Layout System
+// Port of the complete c-projects CSS system from lmchabot.com
+
+// Container system
+.o-container {
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 1rem;
+  
+  &.-small {
+    max-width: 1200px;
+    padding: 0 2rem;
+    
+    @media (max-width: 768px) {
+      padding: 0 1rem;
+    }
+  }
+}
+
+// Main projects container
+.c-projects {
+  padding: 8.5714285714rem 0;
+}
+
+.c-projects img {
+  width: 100%;
+}
+
+// Row system
+.c-projects_row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: stretch;
+}
+
+// Wide layout (alternating 3/2 columns)
+body.layout-wide .c-projects_row {
+  margin-left: -5.7142857143rem;
+}
+
+body.layout-wide .c-projects_row:nth-child(2n) {
+  justify-content: center;
+  padding-top: 5.7142857143rem;
+}
+
+// Square layout (2 columns)  
+body.layout-square .c-projects_row {
+  margin-left: -2.8571428571rem;
+}
+
+// Tall layout (1 column)
+body.layout-tall .c-projects_row {
+  width: 100% !important;
+  flex-direction: column;
+}
+
+// Item system with complex nth-child patterns
+.c-projects_item {
+  display: flex;
+  position: relative;
+}
+
+// Wide layout item styles (alternating 3/2 columns)
+body.layout-wide .c-projects_item {
+  width: 33.333%;
+  padding-bottom: 11.4285714286rem;
+  padding-left: 5.7142857143rem;
+}
+
+body.layout-wide .c-projects_item:nth-child(10n-6),
+body.layout-wide .c-projects_item:nth-child(10n-5),
+body.layout-wide .c-projects_item:nth-child(10n),
+body.layout-wide .c-projects_item:nth-child(10n-1) {
+  width: 50%;
+}
+
+// Square layout item styles (2 columns)
+body.layout-square .c-projects_item {
+  width: 50%;
+  padding-left: 2.8571428571rem;
+  padding-bottom: 7.1428571429rem;
+}
+
+// Complex positioning patterns for wide layout (10-item cycles)
+body.layout-wide .c-projects_item:nth-child(10n-9) {
+  padding-right: 4%;
+}
+
+body.layout-wide .c-projects_item:nth-child(10n-9) .c-projects_inner {
+  padding-right: 10%;
+}
+
+body.layout-wide .c-projects_item:nth-child(10n-8) {
+  padding-right: 2%;
+}
+
+body.layout-wide .c-projects_item:nth-child(10n-8) .c-projects_inner {
+  align-items: flex-end;
+  margin-top: 5.7142857143rem;
+  margin-left: -4.2857142857rem;
+}
+
+body.layout-wide .c-projects_item:nth-child(10n-7) .c-projects_inner {
+  margin-top: -2.8571428571rem;
+}
+
+body.layout-wide .c-projects_item:nth-child(10n-6) .c-projects_inner {
+  align-items: flex-end;
+  padding-right: 8%;
+}
+
+body.layout-wide .c-projects_item:nth-child(10n-5) .c-projects_inner {
+  align-items: flex-end;
+  padding-left: 8%;
+}
+
+body.layout-wide .c-projects_item:nth-child(10n-4) .c-projects_inner {
+  align-items: flex-end;
+  padding-left: 8%;
+}
+
+body.layout-wide .c-projects_item:nth-child(10n-3) {
+  padding-bottom: 4.2857142857rem;
+}
+
+body.layout-wide .c-projects_item:nth-child(10n-3) .c-projects_inner {
+  align-items: flex-end;
+  padding-left: 8%;
+}
+
+body.layout-wide .c-projects_item:nth-child(10n-2) .c-projects_inner {
+  margin-top: -2.1428571429rem;
+  align-items: flex-end;
+  padding-left: 18%;
+}
+
+body.layout-wide .c-projects_item:nth-child(10n-1) .c-projects_inner {
+  margin-top: 4.2857142857rem;
+  align-items: flex-end;
+  padding-left: 8%;
+  justify-content: flex-end;
+}
+
+body.layout-wide .c-projects_item:nth-child(10n) .c-projects_inner {
+  margin-top: 4.2857142857rem;
+  align-items: center;
+  padding-left: 8%;
+  justify-content: flex-end;
+}
+
+// Tall layout item styles (1 column)
+body.layout-tall .c-projects_item {
+  width: 100% !important;
+  flex-direction: column;
+}
+
+body.layout-tall .c-projects_item:not(:last-child) {
+  margin-bottom: 60px;
+}
+
+.c-projects_item img {
+  width: 100%;
+}
+
+// Inner container
+.c-projects_inner {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  align-items: center;
+}
+
+// Content wrapper
+.c-projects_content {
+  display: inline-block;
+}
+
+// Animation wrapper
+.c-projects_anim {
+  position: relative;
+  transition: transform 0.3s cubic-bezier(0.35, 0.755, 0.42, 0.95),
+              opacity 0.3s cubic-bezier(0.35, 0.755, 0.42, 0.95);
+  width: 100%;
+}
+
+@media (min-width: 1000px) {
+  html.has-logo-hovered .c-projects_anim,
+  html.is-changing-page .c-projects_anim {
+    transform: scale3d(0.8, 0.8, 1);
+  }
+}
+
+// Aspect ratio wrapper
+.c-projects_wrap {
+  position: relative;
+  overflow: hidden;
+  
+  img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+// Hover image system
+.c-projects_hover {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.c-projects_hover_img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.c-projects_anim:hover .c-projects_hover {
+  opacity: 1;
+}
+
+.c-projects_anim:hover .c-projects_hover_img {
+  opacity: 1;
+}
+
+// Title system
+.c-projects_title {
+  font-weight: 400;
+  line-height: 1;
+  z-index: 100;
+  pointer-events: none;
+}
+
+@media (min-width: 1000px) {
+  .c-projects_title {
+    font-size: 1.8571428571rem;
+  }
+}
+
+@media (min-width: 700px) and (max-width: 999px) {
+  .c-projects_title {
+    font-size: 24px;
+  }
+}
+
+@media (min-width: 500px) and (max-width: 699px) {
+  .c-projects_title {
+    font-size: 20px;
+  }
+}
+
+@media (max-width: 499px) {
+  .c-projects_title {
+    font-size: 16px;
+  }
+}
+
+.c-projects_anim:hover .c-projects_title {
+  opacity: 1;
+}
+
+@media (min-width: 1000px) {
+  .c-projects_title {
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    position: absolute;
+    opacity: 0;
+  }
+}
+
+.c-projects_item.is-dragging .c-projects_title {
+  display: none;
+}
+
+// Title label positioning system
+.c-projects_title_label {
+  display: inline-block;
+  position: relative;
+  width: 100%;
+  text-align: center;
+}
+
+// Wide and square layouts get rotating title labels
+body.layout-wide .c-projects_title_label,
+body.layout-square .c-projects_title_label {
+  position: absolute;
+  visibility: hidden;
+}
+
+body.layout-wide .c-projects_title_label.-top,
+body.layout-square .c-projects_title_label.-top {
+  bottom: 100%;
+  transform: rotate(180deg);
+}
+
+body.layout-wide .c-projects_anim:hover .c-projects_title_label.-top,
+body.layout-square .c-projects_anim:hover .c-projects_title_label.-top {
+  animation: visibility 2s 1s infinite linear;
+}
+
+body.layout-wide .c-projects_title_label.-bottom,
+body.layout-square .c-projects_title_label.-bottom {
+  top: 100%;
+}
+
+body.layout-wide .c-projects_anim:hover .c-projects_title_label.-bottom,
+body.layout-square .c-projects_anim:hover .c-projects_title_label.-bottom {
+  animation: visibility 2s 0s infinite linear;
+}
+
+body.layout-wide .c-projects_title_label.-left,
+body.layout-square .c-projects_title_label.-left {
+  top: 50%;
+  right: 50%;
+  width: 100%;
+  transform: translate3d(0%, -50%, 0);
+}
+
+body.layout-wide .c-projects_anim:hover .c-projects_title_label.-left,
+body.layout-square .c-projects_anim:hover .c-projects_title_label.-left {
+  animation: visibility 2s 0.5s infinite linear;
+}
+
+body.layout-wide .c-projects_title_label.-right,
+body.layout-square .c-projects_title_label.-right {
+  top: 50%;
+  transform: translate3d(0%, -50%, 0);
+  left: 50%;
+  width: 100%;
+}
+
+body.layout-wide .c-projects_anim:hover .c-projects_title_label.-right,
+body.layout-square .c-projects_anim:hover .c-projects_title_label.-right {
+  animation: visibility 2s 1.5s infinite linear;
+}
+
+// Tall layout gets simple bottom title only
+body.layout-tall .c-projects_title_label {
+  display: none;
+}
+
+body.layout-tall .c-projects_title_label.-bottom {
+  display: inline-block;
+}
+
+.c-projects_title_label_inner {
+  display: inline-block;
+}
+
+// Visibility animation keyframes
+@keyframes visibility {
+  0%, 25% {
+    visibility: visible;
+  }
+
+  26%, 100% {
+    visibility: hidden;
+  }
+}
+
+// Navigation link
+.c-projects_link {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 10;
+  cursor: pointer;
+}
+
+// Additional utility classes
+.u-pointer-events {
+  pointer-events: auto;
+}
+
+// Dragging states
+.c-projects_item.is-dragging {
+  z-index: 1000;
+  position: fixed !important; // Allow positioning anywhere on screen
+  
+  .c-projects_title {
+    display: none;
+  }
+  
+  .c-projects_anim {
+    transform: scale(1.02);
+  }
+}
+
+// Items that have been dragged maintain their position
+.c-projects_item[style*="transform"] {
+  position: absolute;
+}
+
+// Loading states
+.c-projects_item:not(.-lazy-loaded) {
+  .c-projects_wrap::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #f0f0f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+.c-projects_item.-lazy-loaded {
+  .c-projects_wrap::after {
+    display: none;
+  }
+}
