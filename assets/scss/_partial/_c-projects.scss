@@ -242,43 +242,39 @@ body.layout-tall .c-projects_item:not(:last-child) {
   pointer-events: none;
 }
 
-@media (min-width: 1000px) {
-  .c-projects_title {
-    font-size: 1.8571428571rem;
-  }
+// Title font sizes (smaller than before)
+body.layout-wide .c-projects_title {
+  font-size: 18px; // Reduced from 1.8571428571rem
 }
 
-@media (min-width: 700px) and (max-width: 999px) {
-  .c-projects_title {
-    font-size: 24px;
-  }
+body.layout-square .c-projects_title {
+  font-size: 18px; // Reduced from 24px
 }
 
-@media (min-width: 500px) and (max-width: 699px) {
-  .c-projects_title {
-    font-size: 20px;
-  }
+body.layout-tall .c-projects_title {
+  font-size: 14px; // Reduced from 16px
 }
 
-@media (max-width: 499px) {
-  .c-projects_title {
-    font-size: 16px;
-  }
-}
-
-.c-projects_anim:hover .c-projects_title {
+// Only apply hover opacity effect to wide layout (square and tall are always visible)
+body.layout-wide .c-projects_anim:hover .c-projects_title {
   opacity: 1;
 }
 
-@media (min-width: 1000px) {
-  .c-projects_title {
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    position: absolute;
-    opacity: 0;
-  }
+// Wide layout: positioned and hidden by default (for rotating effect)
+body.layout-wide .c-projects_title {
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  position: absolute;
+  opacity: 0;
+}
+
+// Square and tall layouts: always visible and positioned normally
+body.layout-square .c-projects_title,
+body.layout-tall .c-projects_title {
+  position: relative;
+  opacity: 1;
 }
 
 .c-projects_item.is-dragging .c-projects_title {
@@ -293,67 +289,64 @@ body.layout-tall .c-projects_item:not(:last-child) {
   text-align: center;
 }
 
-// Wide and square layouts get rotating title labels
-body.layout-wide .c-projects_title_label,
-body.layout-square .c-projects_title_label {
+// Wide layout: rotating title labels (hidden by default, animated on hover)
+body.layout-wide .c-projects_title_label {
   position: absolute;
   visibility: hidden;
 }
 
-body.layout-wide .c-projects_title_label.-top,
-body.layout-square .c-projects_title_label.-top {
+body.layout-wide .c-projects_title_label.-top {
   bottom: 100%;
   transform: rotate(180deg);
 }
 
-body.layout-wide .c-projects_anim:hover .c-projects_title_label.-top,
-body.layout-square .c-projects_anim:hover .c-projects_title_label.-top {
+body.layout-wide .c-projects_anim:hover .c-projects_title_label.-top {
   animation: visibility 2s 1s infinite linear;
 }
 
-body.layout-wide .c-projects_title_label.-bottom,
-body.layout-square .c-projects_title_label.-bottom {
+body.layout-wide .c-projects_title_label.-bottom {
   top: 100%;
 }
 
-body.layout-wide .c-projects_anim:hover .c-projects_title_label.-bottom,
-body.layout-square .c-projects_anim:hover .c-projects_title_label.-bottom {
+body.layout-wide .c-projects_anim:hover .c-projects_title_label.-bottom {
   animation: visibility 2s 0s infinite linear;
 }
 
-body.layout-wide .c-projects_title_label.-left,
-body.layout-square .c-projects_title_label.-left {
+body.layout-wide .c-projects_title_label.-left {
   top: 50%;
-  right: 50%;
-  width: 100%;
-  transform: translate3d(0%, -50%, 0);
+  right: 100%;
+  width: max-content;
+  transform: rotate(-90deg);
+  transform-origin: center;
 }
 
-body.layout-wide .c-projects_anim:hover .c-projects_title_label.-left,
-body.layout-square .c-projects_anim:hover .c-projects_title_label.-left {
+body.layout-wide .c-projects_anim:hover .c-projects_title_label.-left {
   animation: visibility 2s 0.5s infinite linear;
 }
 
-body.layout-wide .c-projects_title_label.-right,
-body.layout-square .c-projects_title_label.-right {
+body.layout-wide .c-projects_title_label.-right {
   top: 50%;
-  transform: translate3d(0%, -50%, 0);
-  left: 50%;
-  width: 100%;
+  left: 100%;
+  width: max-content;
+  transform: rotate(90deg);
+  transform-origin: center;
 }
 
-body.layout-wide .c-projects_anim:hover .c-projects_title_label.-right,
-body.layout-square .c-projects_anim:hover .c-projects_title_label.-right {
+body.layout-wide .c-projects_anim:hover .c-projects_title_label.-right {
   animation: visibility 2s 1.5s infinite linear;
 }
 
-// Tall layout gets simple bottom title only
+// Square and tall layouts: always show bottom title only
+body.layout-square .c-projects_title_label,
 body.layout-tall .c-projects_title_label {
   display: none;
 }
 
+body.layout-square .c-projects_title_label.-bottom,
 body.layout-tall .c-projects_title_label.-bottom {
   display: inline-block;
+  position: relative;
+  visibility: visible;
 }
 
 .c-projects_title_label_inner {
