@@ -5,13 +5,14 @@
  * All dynamic layout values should be defined here for centralized management.
  */
 
-export type PresetName = 'portrait' | 'square' | 'landscape'
+export type PresetName = 'mobile' | 'portrait' | 'square' | 'landscape'
 
 export interface PresetConfig {
   // Navigation
   navHeight: string
   navFontSize: string
   navPadding: string
+  navPosition: 'top' | 'bottom'
 
   // Stage & Gallery
   stageImageScale: number
@@ -26,6 +27,7 @@ export interface PresetConfig {
 }
 
 export interface PresetThresholds {
+  mobile: { min: number; max: number }
   portrait: { min: number; max: number }
   square: { min: number; max: number }
   landscape: { min: number; max: number }
@@ -34,10 +36,12 @@ export interface PresetThresholds {
 /**
  * Aspect ratio thresholds for each preset
  * Ratio = width / height
+ * Mobile preset is for very narrow/tall screens (typical mobile portrait)
  */
 export const PRESET_THRESHOLDS: PresetThresholds = {
-  portrait: { min: 0, max: 0.8 },
-  square: { min: 0.8, max: 1.2 },
+  mobile: { min: 0, max: 0.6 },
+  portrait: { min: 0.6, max: 0.9 },
+  square: { min: 0.9, max: 1.2 },
   landscape: { min: 1.2, max: Infinity }
 }
 
@@ -45,11 +49,31 @@ export const PRESET_THRESHOLDS: PresetThresholds = {
  * Configuration values for each preset
  */
 export const PRESETS: Record<PresetName, PresetConfig> = {
-  portrait: {
-    // Navigation - compact for mobile portrait
-    navHeight: '3rem',
-    navFontSize: '1.5rem',
+  mobile: {
+    // Navigation - compact for mobile, positioned at top
+    navHeight: '2.5rem',
+    navFontSize: '1rem',
     navPadding: '0.5rem',
+    navPosition: 'top',
+
+    // Stage & Gallery - very vertical oriented
+    stageImageScale: 0.75,
+    collectionGap: '12vh',
+    collectionImageWidth: '90vw',
+    collectionImageHeight: '20vh',
+    collectionTopPadding: '25vh',
+    collectionStickyTop: '25vh',
+
+    // Spacing
+    spaceStandard: '0.5rem'
+  },
+
+  portrait: {
+    // Navigation - compact for tablet portrait, positioned at top
+    navHeight: '3rem',
+    navFontSize: '1.25rem',
+    navPadding: '0.5rem',
+    navPosition: 'bottom',
 
     // Stage & Gallery - vertical oriented
     stageImageScale: 0.7,
@@ -64,10 +88,11 @@ export const PRESETS: Record<PresetName, PresetConfig> = {
   },
 
   square: {
-    // Navigation - balanced
+    // Navigation - balanced, positioned at bottom
     navHeight: '3rem',
-    navFontSize: '2rem',
+    navFontSize: '1.5rem',
     navPadding: '0.625rem',
+    navPosition: 'bottom',
 
     // Stage & Gallery - balanced
     stageImageScale: 0.65,
@@ -82,10 +107,11 @@ export const PRESETS: Record<PresetName, PresetConfig> = {
   },
 
   landscape: {
-    // Navigation - expanded for wide screens
+    // Navigation - expanded for wide screens, positioned at bottom
     navHeight: '3rem',
     navFontSize: '2rem',
     navPadding: '0.75rem',
+    navPosition: 'bottom',
 
     // Stage & Gallery - horizontal oriented
     stageImageScale: 0.6,

@@ -4,13 +4,14 @@ nav {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 1rem;
 
   width: 100%;
   height: var(--nav-height);
   padding: 0 var(--nav-padding);
 
   position: fixed;
-  bottom: 0;
+  bottom: 0; // Default position
   background: black;
   color: white;
   font-size: var(--nav-font-size);
@@ -21,11 +22,37 @@ nav {
   // Maintain functionality while container is locked
   pointer-events: all;
 
+  // Prevent text wrapping
+  white-space: nowrap;
+  overflow: hidden;
+
   // Smooth transitions for preset changes
-  transition: height 300ms ease, font-size 300ms ease, padding 300ms ease;
+  transition: height 300ms ease, font-size 300ms ease, padding 300ms ease, top 300ms ease,
+    bottom 300ms ease;
+
+  // Nav sections should not wrap
+  > div {
+    white-space: nowrap;
+    overflow: hidden;
+    flex-shrink: 1;
+    min-width: 0;
+  }
+
+  // Links section should be able to shrink
+  .links {
+    flex-shrink: 2;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  // Nav artist section (site title) shouldn't shrink as much
+  .navArtist {
+    flex-shrink: 0;
+  }
 
   a {
     color: white;
+    white-space: nowrap;
   }
 
   button {
@@ -33,7 +60,20 @@ nav {
     background: transparent;
     border: none;
     cursor: pointer;
+    white-space: nowrap;
   }
+}
+
+// Position nav at top when body has nav-top class (set by viewport.tsx)
+body.nav-top nav {
+  top: 0;
+  bottom: auto;
+}
+
+// Position nav at bottom when body has nav-bottom class (set by viewport.tsx)
+body.nav-bottom nav {
+  bottom: 0;
+  top: auto;
 }
 
 .num {
@@ -47,11 +87,8 @@ nav {
   text-decoration: underline;
 }
 
-@media (max-width: $tablet), (hover: none) {
-  nav {
-    top: 0;
-  }
-
+// Hide index and threshold on narrow screens (mobile/portrait presets)
+body.preset-mobile {
   .index,
   .threshold {
     display: none;

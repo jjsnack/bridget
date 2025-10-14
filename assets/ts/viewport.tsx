@@ -40,7 +40,9 @@ function calculateAspectRatio(): number {
  * Determine preset based on aspect ratio
  */
 function getPresetFromRatio(ratio: number): PresetName {
-  if (ratio <= PRESET_THRESHOLDS.portrait.max) {
+  if (ratio <= PRESET_THRESHOLDS.mobile.max) {
+    return 'mobile'
+  } else if (ratio <= PRESET_THRESHOLDS.portrait.max) {
     return 'portrait'
   } else if (ratio <= PRESET_THRESHOLDS.square.max) {
     return 'square'
@@ -50,15 +52,17 @@ function getPresetFromRatio(ratio: number): PresetName {
 }
 
 /**
- * Apply preset configuration to CSS custom properties
+ * Apply preset configuration to CSS custom properties and body classes
  */
-function applyCSSVariables(config: PresetConfig): void {
+function applyCSSVariables(config: PresetConfig, presetName: PresetName): void {
   const root = document.documentElement
+  const body = document.body
 
   // Navigation
   root.style.setProperty('--nav-height', config.navHeight)
   root.style.setProperty('--nav-font-size', config.navFontSize)
   root.style.setProperty('--nav-padding', config.navPadding)
+  root.style.setProperty('--nav-position', config.navPosition)
 
   // Stage & Gallery
   root.style.setProperty('--stage-image-scale', config.stageImageScale.toString())
@@ -70,6 +74,14 @@ function applyCSSVariables(config: PresetConfig): void {
 
   // Spacing
   root.style.setProperty('--space-standard', config.spaceStandard)
+
+  // Apply body classes for nav positioning
+  body.classList.remove('nav-top', 'nav-bottom')
+  body.classList.add(`nav-${config.navPosition}`)
+
+  // Apply body class for current preset
+  body.classList.remove('preset-mobile', 'preset-portrait', 'preset-square', 'preset-landscape')
+  body.classList.add(`preset-${presetName}`)
 }
 
 /**
@@ -121,8 +133,8 @@ export function ViewportProvider(props: { children?: JSX.Element }): JSX.Element
 
   // Setup resize listener
   onMount(() => {
-    // Apply initial CSS variables
-    applyCSSVariables(config())
+    // Apply initial CSS variables and body classes
+    applyCSSVariables(config(), preset())
 
     // Add resize listener
     window.addEventListener('resize', debouncedUpdate)
@@ -133,9 +145,9 @@ export function ViewportProvider(props: { children?: JSX.Element }): JSX.Element
     window.removeEventListener('resize', debouncedUpdate)
   })
 
-  // Apply CSS variables when config changes
+  // Apply CSS variables and body classes when config or preset changes
   createEffect(() => {
-    applyCSSVariables(config())
+    applyCSSVariables(config(), preset())
   })
 
   const contextValue: ViewportContextType = [preset, config, ratio] as const
