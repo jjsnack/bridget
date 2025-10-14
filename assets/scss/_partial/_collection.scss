@@ -4,7 +4,7 @@
   gap: var(--collection-gap);
 
   padding-top: var(--collection-top-padding);
-  margin-top: calc(var(--nav-height) * -1);
+  margin-top: 0;
 
   // Smooth transitions for preset changes
   transition: gap 300ms ease, padding-top 300ms ease, margin-top 300ms ease;
@@ -24,6 +24,34 @@
     // Smooth transitions for preset changes
     transition: top 300ms ease, width 300ms ease, height 300ms ease;
 
+    &:last-child {
+      margin-bottom: calc(var(--window-height) * 0.35);
+    }
+  }
+}
+
+// When nav is at top, add margin to push collection down
+body.nav-top .collection {
+  margin-top: var(--nav-height);
+
+  img {
+    top: calc(var(--collection-sticky-top) + var(--nav-height));
+
+    // Remove bottom margin since nav is at top
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+}
+
+// When nav is at bottom, negative margin pulls collection up
+body.nav-bottom .collection {
+  margin-top: calc(var(--nav-height) * -1);
+
+  img {
+    top: var(--collection-sticky-top);
+
+    // Keep bottom margin for nav space
     &:last-child {
       margin-bottom: calc(var(--window-height) * 0.35);
     }

@@ -12,8 +12,8 @@ nav {
 
   position: fixed;
   bottom: 0; // Default position
-  background: black;
-  color: white;
+  background: transparent;
+  color: black;
   font-size: var(--nav-font-size);
   text-transform: uppercase;
 
@@ -51,12 +51,12 @@ nav {
   }
 
   a {
-    color: white;
+    color: black;
     white-space: nowrap;
   }
 
   button {
-    color: white;
+    color: black;
     background: transparent;
     border: none;
     cursor: pointer;
@@ -68,12 +68,14 @@ nav {
 body.nav-top nav {
   top: 0;
   bottom: auto;
+  background: white;
 }
 
 // Position nav at bottom when body has nav-bottom class (set by viewport.tsx)
 body.nav-bottom nav {
   bottom: 0;
   top: auto;
+  background: transparent;
 }
 
 .num {

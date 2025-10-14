@@ -26,3 +26,15 @@
     transition: transform 300ms ease;
   }
 }
+
+// When nav is at top, adjust stage position to start below nav
+body.nav-top .stage {
+  top: var(--nav-height);
+  height: calc(var(--window-height) - var(--nav-height));
+}
+
+// When nav is at bottom, stage starts at top
+body.nav-bottom .stage {
+  top: 0;
+  height: calc(var(--window-height) - var(--nav-height));
+}
