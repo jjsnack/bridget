@@ -7,16 +7,33 @@ nav {
 
   width: 100%;
   height: var(--nav-height);
-  padding: 0 var(--space-standard);
+  padding: 0 var(--nav-padding);
 
   position: fixed;
   bottom: 0;
-  background: white;
+  background: black;
+  color: white;
+  font-size: var(--nav-font-size);
+  text-transform: uppercase;
 
   z-index: var(--z-nav);
 
   // Maintain functionality while container is locked
   pointer-events: all;
+
+  // Smooth transitions for preset changes
+  transition: height 300ms ease, font-size 300ms ease, padding 300ms ease;
+
+  a {
+    color: white;
+  }
+
+  button {
+    color: white;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+  }
 }
 
 .num {
