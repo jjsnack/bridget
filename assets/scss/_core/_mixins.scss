@@ -5,7 +5,7 @@ $breakpoints: (
   'desktop': 1440px
 ) !default;
 
-// Breakpoints
+// Width-based Breakpoints
 
 @mixin min-width($breakpoint) {
   @if map-has-key($breakpoints, $breakpoint) {
@@ -24,5 +24,25 @@ $breakpoints: (
     }
   } @else {
     @error "Unfortunately, no value could be retrieved from `#{$breakpoint}`. " + "Available breakpoints are: #{map-keys($breakpoints)}.";
+  }
+}
+
+// Aspect-ratio based Breakpoints
+
+@mixin aspect-portrait {
+  @media (max-aspect-ratio: 4/5) {
+    @content;
+  }
+}
+
+@mixin aspect-square {
+  @media (min-aspect-ratio: 4/5) and (max-aspect-ratio: 6/5) {
+    @content;
+  }
+}
+
+@mixin aspect-landscape {
+  @media (min-aspect-ratio: 6/5) {
+    @content;
   }
 }

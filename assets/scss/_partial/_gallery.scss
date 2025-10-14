@@ -13,6 +13,9 @@
   background: white;
   transform: translate3d(0, 100%, 0);
 
+  // Smooth transitions for preset changes
+  transition: top 300ms ease, height 300ms ease;
+
   .galleryInner {
     flex: 1;
     height: 0;
@@ -44,11 +47,14 @@
 
   .nav {
     height: var(--nav-height);
-    padding: var(--space-standard);
+    padding: var(--nav-padding);
 
     display: flex;
     justify-content: space-between;
     align-items: center;
+
+    // Smooth transitions for preset changes
+    transition: height 300ms ease, padding 300ms ease;
   }
 }
 

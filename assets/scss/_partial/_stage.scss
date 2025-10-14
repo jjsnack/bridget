@@ -6,6 +6,9 @@
 
   cursor: pointer;
 
+  // Smooth transitions for preset changes
+  transition: height 300ms ease;
+
   img {
     position: absolute;
     top: 0;
@@ -15,8 +18,11 @@
     height: var(--window-height);
     object-fit: contain;
 
-    transform: scale(0.6);
+    transform: scale(var(--stage-image-scale));
     opacity: 0;
     pointer-events: none;
+
+    // Smooth transitions for image scaling
+    transition: transform 300ms ease;
   }
 }

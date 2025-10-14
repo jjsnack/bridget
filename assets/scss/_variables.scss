@@ -2,11 +2,32 @@
 
 :root {
   --window-height: 100vh;
-  --nav-height: 2rem;
-  --space-standard: 0.625rem;
 
+  // Z-index layers (static)
   --z-curtain: 200;
   --z-nav-gallery: 500;
   --z-cursor: 600;
   --z-nav: 800;
+
+  // Dynamic values (updated by viewport.tsx)
+  // Navigation
+  --nav-height: 3rem;
+  --nav-font-size: 2rem;
+  --nav-padding: 0.625rem;
+
+  // Stage & Gallery
+  --stage-image-scale: 0.6;
+  --collection-gap: 20vh;
+  --collection-image-width: 60vw;
+  --collection-image-height: 20vh;
+  --collection-top-padding: 40vh;
+  --collection-sticky-top: 40vh;
+
+  // Spacing
+  --space-standard: 0.625rem;
+
+  // Transitions for preset changes
+  transition: --nav-height 300ms ease, --nav-font-size 300ms ease, --nav-padding 300ms ease,
+    --collection-gap 300ms ease, --collection-image-width 300ms ease,
+    --collection-image-height 300ms ease;
 }

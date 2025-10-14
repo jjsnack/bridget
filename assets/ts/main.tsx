@@ -12,6 +12,7 @@ import { render } from 'solid-js/web'
 
 import { getImageJSON } from './resources'
 import { StateProvider } from './state'
+import { ViewportProvider } from './viewport'
 
 import '../scss/style.scss'
 
@@ -56,27 +57,29 @@ function Main(): JSX.Element {
   return (
     <>
       <Show when={ijs.state === 'ready'}>
-        <StateProvider length={ijs()?.length ?? 0}>
-          <Switch fallback={<div>Error</div>}>
-            <Match when={isMobile}>
-              <Mobile
-                ijs={ijs() ?? []}
-                closeText={container.dataset.close}
-                loadingText={container.dataset.loading}
-                setScrollable={setScollable}
-              />
-            </Match>
-            <Match when={!isMobile}>
-              <Desktop
-                ijs={ijs() ?? []}
-                prevText={container.dataset.prev}
-                closeText={container.dataset.close}
-                nextText={container.dataset.next}
-                loadingText={container.dataset.loading}
-              />
-            </Match>
-          </Switch>
-        </StateProvider>
+        <ViewportProvider>
+          <StateProvider length={ijs()?.length ?? 0}>
+            <Switch fallback={<div>Error</div>}>
+              <Match when={isMobile}>
+                <Mobile
+                  ijs={ijs() ?? []}
+                  closeText={container.dataset.close}
+                  loadingText={container.dataset.loading}
+                  setScrollable={setScollable}
+                />
+              </Match>
+              <Match when={!isMobile}>
+                <Desktop
+                  ijs={ijs() ?? []}
+                  prevText={container.dataset.prev}
+                  closeText={container.dataset.close}
+                  nextText={container.dataset.next}
+                  loadingText={container.dataset.loading}
+                />
+              </Match>
+            </Switch>
+          </StateProvider>
+        </ViewportProvider>
       </Show>
     </>
   )

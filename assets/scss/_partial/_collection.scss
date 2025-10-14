@@ -1,22 +1,28 @@
 .collection {
   display: flex;
   flex-direction: column;
-  gap: 20vh;
+  gap: var(--collection-gap);
 
-  padding-top: calc(var(--window-height) * 0.4);
+  padding-top: var(--collection-top-padding);
   margin-top: calc(var(--nav-height) * -1);
+
+  // Smooth transitions for preset changes
+  transition: gap 300ms ease, padding-top 300ms ease, margin-top 300ms ease;
 
   img {
     position: sticky;
-    top: calc(var(--window-height) * 0.4);
+    top: var(--collection-sticky-top);
 
-    width: 60vw;
-    height: 20vh;
+    width: var(--collection-image-width);
+    height: var(--collection-image-height);
 
     object-fit: contain;
 
     transform: translate3d(0, -50%, 0);
     align-self: center;
+
+    // Smooth transitions for preset changes
+    transition: top 300ms ease, width 300ms ease, height 300ms ease;
 
     &:last-child {
       margin-bottom: calc(var(--window-height) * 0.35);
