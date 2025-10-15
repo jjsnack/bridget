@@ -1,0 +1,56 @@
+{{- define "main" -}}
+  {{- /* Load collection CSS */ -}}
+  <link rel="stylesheet" href="/bundled/css/collection.css">
+
+  <div class="collection-container">
+    {{- with .Content -}}
+      <article>
+        {{- . -}}
+      </article>
+    {{- end -}}
+
+    {{- /* Mount point for Solid.js collection grid */ -}}
+    <div id="collection-app"></div>
+
+    {{- partial "nav.html" . -}}
+
+    {{- /* Load collection JavaScript */ -}}
+    <script type="module" src="/bundled/js/collection.js"></script>
+  </div>
+
+  {{- /* Build collection data for TypeScript */ -}}
+  {{- $collections := slice -}}
+  {{- range .Pages -}}
+    {{- $images := .Resources.ByType "image" -}}
+    {{- if gt (len $images) 0 -}}
+      {{- $heroImage := index $images 0 -}}
+      {{- $loResOpt := site.Params.Page.loResOpt | default "400x webp picture" -}}
+      {{- $hiResOpt := site.Params.Page.hiResOpt | default "1200x webp picture" -}}
+
+      {{- /* Get first 4 images for rotation */ -}}
+      {{- $rotationImages := slice -}}
+      {{- range first 4 $images -}}
+        {{- $loRes := .Resize $loResOpt -}}
+        {{- $hiRes := .Resize $hiResOpt -}}
+        {{- $rotationImages = $rotationImages | append (dict
+          "loRes" $loRes.RelPermalink
+          "hiRes" $hiRes.RelPermalink
+          "width" .Width
+          "height" .Height
+        ) -}}
+      {{- end -}}
+
+      {{- $collections = $collections | append (dict
+        "title" .Title
+        "permalink" .Permalink
+        "heroWidth" $heroImage.Width
+        "heroHeight" $heroImage.Height
+        "images" $rotationImages
+      ) -}}
+    {{- end -}}
+  {{- end -}}
+
+  <script id="collection-data" type="application/json">
+    {{- $collections | jsonify | safeJS -}}
+  </script>
+{{- end -}}

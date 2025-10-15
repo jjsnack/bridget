@@ -72,6 +72,11 @@ function applyCSSVariables(config: PresetConfig, presetName: PresetName): void {
   root.style.setProperty('--collection-top-padding', config.collectionTopPadding)
   root.style.setProperty('--collection-sticky-top', config.collectionStickyTop)
 
+  // Collection Grid
+  root.style.setProperty('--collection-grid-columns', config.collectionGridColumns.toString())
+  root.style.setProperty('--collection-tile-gap', config.collectionTileGap)
+  root.style.setProperty('--collection-tile-max-width', config.collectionTileMaxWidth)
+
   // Spacing
   root.style.setProperty('--space-standard', config.spaceStandard)
 

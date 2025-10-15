@@ -22,6 +22,11 @@ export interface PresetConfig {
   collectionTopPadding: string
   collectionStickyTop: string
 
+  // Collection Grid
+  collectionGridColumns: number
+  collectionTileGap: string
+  collectionTileMaxWidth: string
+
   // Spacing
   spaceStandard: string
 }
@@ -64,6 +69,11 @@ export const PRESETS: Record<PresetName, PresetConfig> = {
     collectionTopPadding: '25vh',
     collectionStickyTop: '25vh',
 
+    // Collection Grid - 1 column for mobile
+    collectionGridColumns: 1,
+    collectionTileGap: '2rem',
+    collectionTileMaxWidth: '100%',
+
     // Spacing
     spaceStandard: '0.5rem'
   },
@@ -82,6 +92,11 @@ export const PRESETS: Record<PresetName, PresetConfig> = {
     collectionImageHeight: '25vh',
     collectionTopPadding: '30vh',
     collectionStickyTop: '30vh',
+
+    // Collection Grid - 2 columns for portrait
+    collectionGridColumns: 2,
+    collectionTileGap: '2.5rem',
+    collectionTileMaxWidth: '100%',
 
     // Spacing
     spaceStandard: '0.5rem'
@@ -102,6 +117,11 @@ export const PRESETS: Record<PresetName, PresetConfig> = {
     collectionTopPadding: '35vh',
     collectionStickyTop: '35vh',
 
+    // Collection Grid - 2 columns for square
+    collectionGridColumns: 2,
+    collectionTileGap: '3rem',
+    collectionTileMaxWidth: '100%',
+
     // Spacing
     spaceStandard: '0.625rem'
   },
@@ -120,6 +140,11 @@ export const PRESETS: Record<PresetName, PresetConfig> = {
     collectionImageHeight: '35vh',
     collectionTopPadding: '40vh',
     collectionStickyTop: '40vh',
+
+    // Collection Grid - 3 columns for landscape
+    collectionGridColumns: 3,
+    collectionTileGap: '3.5rem',
+    collectionTileMaxWidth: '100%',
 
     // Spacing
     spaceStandard: '0.75rem'

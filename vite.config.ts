@@ -9,7 +9,10 @@ export default defineConfig({
       include: 'assets/**'
     },
     rollupOptions: {
-      input: './assets/ts/main.tsx',
+      input: {
+        main: './assets/ts/main.tsx',
+        collection: './assets/ts/collection/collectionMain.tsx'
+      },
       output: {
         format: 'es',
         entryFileNames: 'js/[name].js',
