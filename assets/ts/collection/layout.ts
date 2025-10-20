@@ -123,8 +123,9 @@ export function findNonCollidingPosition(
 
   // Start from the top and work down in rows
   // Scale row height based on tile size - smaller tiles get tighter spacing
+  // Reduced base height for tighter vertical spacing in portrait/square
   const scaleFactor = baseTileWidth / 400 // Normalize to 400px base
-  const approximateRowHeight = Math.max(300, 400 * scaleFactor) // Min 300px, scales with tile size
+  const approximateRowHeight = Math.max(250, 300 * scaleFactor) // Min 250px, reduced base
   const maxRows = Math.ceil(containerHeight / approximateRowHeight)
 
   for (let rowIndex = 0; rowIndex < maxRows; rowIndex++) {
