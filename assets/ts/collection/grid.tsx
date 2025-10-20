@@ -55,6 +55,9 @@ export default function CollectionGrid(props: CollectionGridProps): JSX.Element 
     }
   })
 
+  // Track z-index counter for drag recency ordering
+  let zIndexCounter = 100
+
   // Calculate positions when preset, window dimensions, or collections change
   createEffect(() => {
     const currentPreset = preset()
@@ -86,6 +89,36 @@ export default function CollectionGrid(props: CollectionGridProps): JSX.Element 
     }
   })
 
+  // Update position of a specific tile (for drag)
+  const updateTilePosition = (index: number, x: number, y: number): void => {
+    setPositions((prev) => {
+      const updated = [...prev]
+      if (updated[index]) {
+        updated[index] = {
+          ...updated[index],
+          x,
+          y
+        }
+      }
+      return updated
+    })
+  }
+
+  // Bring tile to front (increment z-index)
+  const bringToFront = (index: number): void => {
+    zIndexCounter++
+    setPositions((prev) => {
+      const updated = [...prev]
+      if (updated[index]) {
+        updated[index] = {
+          ...updated[index],
+          zIndex: zIndexCounter
+        }
+      }
+      return updated
+    })
+  }
+
   // Determine if we should use absolute positioning layout
   const useAbsoluteLayout = (): boolean => {
     return preset() !== 'mobile' && config().collectionBaseTileWidth !== undefined
@@ -112,6 +145,14 @@ export default function CollectionGrid(props: CollectionGridProps): JSX.Element 
             collection={collection}
             isMobile={isMobile}
             position={useAbsoluteLayout() ? positions()[index()] : undefined}
+            onPositionUpdate={
+              useAbsoluteLayout() && !isMobile
+                ? (x: number, y: number) => updateTilePosition(index(), x, y)
+                : undefined
+            }
+            onBringToFront={
+              useAbsoluteLayout() && !isMobile ? () => bringToFront(index()) : undefined
+            }
           />
         )}
       </For>

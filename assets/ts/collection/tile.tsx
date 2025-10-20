@@ -10,13 +10,17 @@ interface TileProps {
   collection: CollectionData
   isMobile: boolean
   position?: TilePosition // Optional absolute positioning
+  onPositionUpdate?: (x: number, y: number) => void // Callback to update position (desktop only)
+  onBringToFront?: () => void // Callback to bring tile to front (desktop only)
 }
 
 export default function CollectionTile(props: TileProps): JSX.Element {
   const [currentImageIndex, setCurrentImageIndex] = createSignal(0)
   const [isHovering, setIsHovering] = createSignal(false)
   const [isTouching, setIsTouching] = createSignal(false)
+  const [isDragging, setIsDragging] = createSignal(false)
   let imageIntervalId: ReturnType<typeof setInterval> | null = null
+  let dragOffset = { x: 0, y: 0 } // Offset from mouse to tile top-left
 
   // Image cycling on hover (desktop) or touch (mobile)
   createEffect(() => {
@@ -73,6 +77,66 @@ export default function CollectionTile(props: TileProps): JSX.Element {
     }
   }
 
+  // Track if we actually dragged (to prevent click navigation)
+  let hasDragged = false
+
+  // Drag handlers (desktop only, with absolute positioning)
+  const handleMouseDown = (e: MouseEvent): void => {
+    // Only enable dragging on desktop with absolute positioning
+    if (props.isMobile || !props.position || !props.onPositionUpdate || !props.onBringToFront) {
+      return
+    }
+
+    // Prevent text selection during drag
+    e.preventDefault()
+
+    // Calculate offset from mouse position to tile's top-left corner
+    dragOffset = {
+      x: e.clientX - props.position.x,
+      y: e.clientY - props.position.y
+    }
+
+    hasDragged = false // Reset drag flag
+    setIsDragging(true)
+    props.onBringToFront() // Bring to front when drag starts
+  }
+
+  const handleMouseMove = (e: MouseEvent): void => {
+    if (!isDragging() || !props.onPositionUpdate || !props.position) {
+      return
+    }
+
+    hasDragged = true // Mark that we've moved
+
+    // Calculate new position based on mouse position and offset
+    const newX = e.clientX - dragOffset.x
+    const newY = e.clientY - dragOffset.y
+
+    props.onPositionUpdate(newX, newY)
+  }
+
+  const handleMouseUp = (): void => {
+    if (isDragging()) {
+      setIsDragging(false)
+    }
+  }
+
+  // Setup global mouse listeners for drag
+  createEffect(() => {
+    if (isDragging()) {
+      const handleGlobalMouseMove = (e: MouseEvent): void => handleMouseMove(e)
+      const handleGlobalMouseUp = (): void => handleMouseUp()
+
+      document.addEventListener('mousemove', handleGlobalMouseMove)
+      document.addEventListener('mouseup', handleGlobalMouseUp)
+
+      onCleanup(() => {
+        document.removeEventListener('mousemove', handleGlobalMouseMove)
+        document.removeEventListener('mouseup', handleGlobalMouseUp)
+      })
+    }
+  })
+
   // Get current image with fallback
   const currentImage = (): string => {
     const img = props.collection.images[currentImageIndex()]
@@ -88,7 +152,8 @@ export default function CollectionTile(props: TileProps): JSX.Element {
       top: `${props.position.y}px`,
       width: `${props.position.width}px`,
       height: 'auto',
-      'z-index': props.position.zIndex.toString()
+      'z-index': props.position.zIndex.toString(),
+      cursor: isDragging() ? 'grabbing' : 'grab' // Show draggable cursor on desktop
     }
   }
 
@@ -120,12 +185,21 @@ export default function CollectionTile(props: TileProps): JSX.Element {
       class="collection-tile"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
+      onMouseDown={handleMouseDown}
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
       onTouchCancel={handleTouchEnd}
       style={tileStyles()}
     >
-      <a href={props.collection.permalink}>
+      <a
+        href={props.collection.permalink}
+        onClick={(e) => {
+          // Prevent navigation if we dragged
+          if (hasDragged) {
+            e.preventDefault()
+          }
+        }}
+      >
         <div
           class="tile-image"
           style={{
