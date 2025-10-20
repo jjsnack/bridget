@@ -98,7 +98,7 @@ export const PRESETS: Record<PresetName, PresetConfig> = {
     collectionGridColumns: 2,
     collectionTileGap: '2.5rem',
     collectionTileMaxWidth: '100%',
-    collectionBaseTileWidth: 280,
+    collectionBaseTileWidth: 350,
 
     // Spacing
     spaceStandard: '0.5rem'
@@ -123,7 +123,7 @@ export const PRESETS: Record<PresetName, PresetConfig> = {
     collectionGridColumns: 2,
     collectionTileGap: '3rem',
     collectionTileMaxWidth: '100%',
-    collectionBaseTileWidth: 320,
+    collectionBaseTileWidth: 400,
 
     // Spacing
     spaceStandard: '0.625rem'
@@ -148,7 +148,7 @@ export const PRESETS: Record<PresetName, PresetConfig> = {
     collectionGridColumns: 3,
     collectionTileGap: '3.5rem',
     collectionTileMaxWidth: '100%',
-    collectionBaseTileWidth: 350,
+    collectionBaseTileWidth: 400,
 
     // Spacing
     spaceStandard: '0.75rem'
