@@ -77,7 +77,7 @@
   }
   .tile-title.position-right {
     top: 50%;
-    left: calc(100% - 6rem);
+    left: calc(100% + 0.1rem);
     transform: translateY(-50%) rotate(90deg);
     transform-origin: center center;
     text-align: center;
@@ -90,7 +90,7 @@
   }
   .tile-title.position-left {
     top: 50%;
-    right: calc(100% - 6rem);
+    right: calc(100% + 0.1rem);
     transform: translateY(-50%) rotate(-90deg);
     transform-origin: center center;
     text-align: center;

@@ -21,9 +21,6 @@
     transform: scale(var(--stage-image-scale));
     opacity: 0;
     pointer-events: none;
-
-    // Smooth transitions for image scaling
-    transition: transform 300ms ease;
   }
 }
 
