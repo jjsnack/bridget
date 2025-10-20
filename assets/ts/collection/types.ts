@@ -17,9 +17,7 @@ export interface CollectionData {
   images: CollectionImage[]
 }
 
-export interface TilePosition {
-  x: number
-  y: number
-  isDragged: boolean
-  zIndex: number
-}
+/**
+ * TilePosition is defined in layout.ts and should be imported from there
+ * when absolute positioning is needed
+ */

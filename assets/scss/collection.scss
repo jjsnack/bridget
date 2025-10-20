@@ -17,6 +17,15 @@
   gap: var(--collection-tile-gap);
   grid-template-columns: repeat(var(--collection-grid-columns), 1fr);
   transition: gap 300ms ease;
+
+  // Absolute positioning layout mode (non-mobile presets)
+  &.collection-grid--absolute {
+    display: block; // Disable grid layout
+    max-width: none; // Use full width for absolute positioning
+    width: 100%;
+    position: relative;
+    padding: 2rem 0; // Vertical padding only
+  }
 }
 
 .collection-tile {
@@ -24,6 +33,7 @@
   width: 100%;
   max-width: var(--collection-tile-max-width);
   justify-self: center;
+  transition: opacity 300ms ease;
 
   a {
     display: block;
@@ -35,6 +45,12 @@
   // Add spacing around tiles on desktop to accommodate external titles
   @media (hover: hover) {
     padding: 2rem;
+  }
+
+  // When in absolute positioning mode, tiles are positioned via inline styles
+  .collection-grid--absolute & {
+    max-width: none; // Width is set via inline styles
+    justify-self: auto;
   }
 }
 

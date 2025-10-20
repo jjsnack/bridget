@@ -66,18 +66,27 @@ export function getTileSizeMultiplier(
 ): number {
   const aspectRatio = width / height
 
-  // Portrait images (taller than wide)
+  // Portrait images (taller than wide) - generally smaller to save vertical space
   if (aspectRatio < 0.8) {
-    return rng.next() > 0.6 ? 1.4 : 1.2 // Larger portrait tiles
+    const rand = rng.next()
+    if (rand > 0.7) return 1.3
+    if (rand > 0.4) return 1.1
+    return 0.95
   }
 
-  // Square-ish images
+  // Square-ish images - medium to large sizes
   if (aspectRatio >= 0.8 && aspectRatio <= 1.2) {
-    return rng.next() > 0.4 ? 1.5 : 1.2 // Larger square tiles
+    const rand = rng.next()
+    if (rand > 0.6) return 1.4
+    if (rand > 0.3) return 1.2
+    return 1.0
   }
 
-  // Landscape images (wider than tall)
-  return rng.next() > 0.5 ? 1.6 : 1.3 // Larger landscape tiles
+  // Landscape images (wider than tall) - can be larger since they take less vertical space
+  const rand = rng.next()
+  if (rand > 0.6) return 1.5
+  if (rand > 0.3) return 1.3
+  return 1.1
 }
 
 /**
@@ -108,26 +117,28 @@ export function findNonCollidingPosition(
   rng: SeededRandom,
   maxAttempts = 100
 ): { x: number; y: number } | null {
-  const buffer = 60 // Increased spacing between tiles for larger sizes
+  const buffer = 80 // Adequate spacing between tiles
   const edgeMargin = 50
 
-  // Start from the top and work down in rows with larger row heights for bigger tiles
-  const approximateRowHeight = 500 // Increased for larger tiles
+  // Start from the top and work down in rows
+  const approximateRowHeight = 500
   const maxRows = Math.ceil(containerHeight / approximateRowHeight)
 
   for (let rowIndex = 0; rowIndex < maxRows; rowIndex++) {
     // More attempts per row for better placement
     for (let attempt = 0; attempt < Math.ceil(maxAttempts / maxRows); attempt++) {
-      // Y position within this row (with random offset)
+      // Y position within this row (with subtle random offset for natural staggering)
       const rowBaseY = edgeMargin + rowIndex * approximateRowHeight
-      const yOffset = rng.nextFloat(-100, 100) // Larger random vertical offset
+      const yOffset = rng.nextFloat(-40, 40) // Subtle vertical stagger
       const y = Math.max(edgeMargin, Math.min(rowBaseY + yOffset, containerHeight - tileHeight - edgeMargin))
 
-      // X position (random across the width)
+      // X position (random across the width with subtle stagger)
       const maxX = containerWidth - tileWidth - edgeMargin
       if (maxX < edgeMargin) continue // Skip if tile doesn't fit
 
-      const x = rng.nextFloat(edgeMargin, maxX)
+      const xOffset = rng.nextFloat(-30, 30) // Subtle horizontal stagger
+      const baseX = edgeMargin + (maxX - edgeMargin) * rng.next()
+      const x = Math.max(edgeMargin, Math.min(baseX + xOffset, maxX))
 
       const newBounds: TileBounds = { x, y, width: tileWidth, height: tileHeight }
 
