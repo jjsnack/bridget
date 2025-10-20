@@ -115,13 +115,16 @@ export function findNonCollidingPosition(
   containerWidth: number,
   containerHeight: number,
   rng: SeededRandom,
-  maxAttempts = 100
+  maxAttempts = 100,
+  baseTileWidth = 400 // Base tile width for scaling spacing
 ): { x: number; y: number } | null {
   const buffer = 80 // Adequate spacing between tiles
   const edgeMargin = 50
 
   // Start from the top and work down in rows
-  const approximateRowHeight = 500
+  // Scale row height based on tile size - smaller tiles get tighter spacing
+  const scaleFactor = baseTileWidth / 400 // Normalize to 400px base
+  const approximateRowHeight = Math.max(300, 400 * scaleFactor) // Min 300px, scales with tile size
   const maxRows = Math.ceil(containerHeight / approximateRowHeight)
 
   for (let rowIndex = 0; rowIndex < maxRows; rowIndex++) {
@@ -192,7 +195,9 @@ export function calculateTilePositions(
       positions,
       containerWidth,
       containerHeight,
-      rng
+      rng,
+      100, // maxAttempts
+      baseTileWidth // Pass base tile width for spacing calculation
     )
 
     if (position) {

@@ -14,11 +14,9 @@ interface TileProps {
 
 export default function CollectionTile(props: TileProps): JSX.Element {
   const [currentImageIndex, setCurrentImageIndex] = createSignal(0)
-  const [titlePositionIndex, setTitlePositionIndex] = createSignal(0)
   const [isHovering, setIsHovering] = createSignal(false)
   const [isTouching, setIsTouching] = createSignal(false)
   let imageIntervalId: ReturnType<typeof setInterval> | null = null
-  let titleIntervalId: ReturnType<typeof setInterval> | null = null
 
   // Image cycling on hover (desktop) or touch (mobile)
   createEffect(() => {
@@ -44,32 +42,10 @@ export default function CollectionTile(props: TileProps): JSX.Element {
     }
   })
 
-  // Title rotation on hover (desktop only)
-  createEffect(() => {
-    const shouldRotate = isHovering() && !props.isMobile
-
-    if (shouldRotate) {
-      // Rotate through 4 positions (bottom, right, top, left)
-      titleIntervalId = setInterval(() => {
-        setTitlePositionIndex((prev) => (prev + 1) % 4)
-      }, CYCLE_DELAY_MS)
-    } else {
-      // Reset to bottom position when not hovering
-      if (titleIntervalId) {
-        clearInterval(titleIntervalId)
-        titleIntervalId = null
-      }
-      setTitlePositionIndex(0)
-    }
-  })
-
-  // Cleanup intervals on unmount
+  // Cleanup interval on unmount
   onCleanup(() => {
     if (imageIntervalId) {
       clearInterval(imageIntervalId)
-    }
-    if (titleIntervalId) {
-      clearInterval(titleIntervalId)
     }
   })
 
@@ -95,13 +71,6 @@ export default function CollectionTile(props: TileProps): JSX.Element {
     if (props.isMobile) {
       setIsTouching(false)
     }
-  }
-
-  // Calculate which edge the title should be on (0=bottom, 1=right, 2=top, 3=left)
-  // On mobile, always return 0 (bottom) to prevent rotation
-  const titlePosition = (): number => {
-    if (props.isMobile) return 0
-    return titlePositionIndex()
   }
 
   // Get current image with fallback
@@ -143,6 +112,9 @@ export default function CollectionTile(props: TileProps): JSX.Element {
     return baseStyles
   }
 
+  // Title text (computed once, not reactive)
+  const titleText = props.collection.title.toUpperCase()
+
   return (
     <div
       class="collection-tile"
@@ -167,18 +139,9 @@ export default function CollectionTile(props: TileProps): JSX.Element {
             style={imageStyles()}
           />
         </div>
-        <div
-          class="tile-title"
-          classList={{
-            'position-bottom': !props.isMobile && titlePosition() === 0,
-            'position-right': !props.isMobile && titlePosition() === 1,
-            'position-top': !props.isMobile && titlePosition() === 2,
-            'position-left': !props.isMobile && titlePosition() === 3,
-            rotating: isHovering() && !props.isMobile
-          }}
-        >
-          {props.collection.title.toUpperCase()}
-        </div>
+
+        {/* Title always at bottom - no rotation */}
+        <div class="tile-title">{titleText}</div>
       </a>
     </div>
   )
