@@ -2,6 +2,7 @@ import { type JSX, createSignal, onCleanup, createEffect } from 'solid-js'
 
 import type { CollectionData } from './types'
 import type { TilePosition } from './layout'
+import type { PresetName } from '../presets'
 
 // Configurable delay for image cycling and title rotation (in milliseconds)
 const CYCLE_DELAY_MS = 500
@@ -9,6 +10,7 @@ const CYCLE_DELAY_MS = 500
 interface TileProps {
   collection: CollectionData
   isMobile: boolean
+  preset: PresetName
   position?: TilePosition // Optional absolute positioning
   onPositionUpdate?: (x: number, y: number) => void // Callback to update position (desktop only)
   onBringToFront?: () => void // Callback to bring tile to front (desktop only)
@@ -180,9 +182,37 @@ export default function CollectionTile(props: TileProps): JSX.Element {
   // Title text (computed once, not reactive)
   const titleText = props.collection.title.toUpperCase()
 
+  // Determine if title should be visible
+  // Mobile and portrait: always show
+  // Square and landscape: only show on hover
+  const shouldShowTitle = (): boolean => {
+    // Always show on mobile devices
+    if (props.isMobile) {
+      return true
+    }
+
+    // Always show on portrait preset
+    if (props.preset === 'portrait') {
+      return true
+    }
+
+    // For square and landscape presets: only show on hover or drag
+    if (props.preset === 'square' || props.preset === 'landscape') {
+      return isHovering() || isDragging()
+    }
+
+    // Fallback: show title (defensive default)
+    return true
+  }
+
   return (
     <div
       class="collection-tile"
+      classList={{
+        'tile--mobile': props.isMobile,
+        'tile--desktop': !props.isMobile,
+        [`tile--${props.preset}`]: true
+      }}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       onMouseDown={handleMouseDown}
@@ -214,8 +244,21 @@ export default function CollectionTile(props: TileProps): JSX.Element {
           />
         </div>
 
-        {/* Title always at bottom - no rotation */}
-        <div class="tile-title">{titleText}</div>
+        {/* Title - visibility based on preset and hover state */}
+        <div
+          class="tile-title"
+          style={{
+            opacity: shouldShowTitle() ? '1' : '0',
+            visibility: shouldShowTitle() ? 'visible' : 'hidden',
+            'pointer-events': shouldShowTitle() ? 'auto' : 'none',
+            // When showing: no delay. When hiding: delay visibility until after opacity fades
+            transition: shouldShowTitle()
+              ? 'opacity 200ms ease, visibility 0ms linear 0ms'
+              : 'opacity 200ms ease, visibility 0ms linear 200ms'
+          }}
+        >
+          {titleText}
+        </div>
       </a>
     </div>
   )

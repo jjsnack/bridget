@@ -144,6 +144,7 @@ export default function CollectionGrid(props: CollectionGridProps): JSX.Element 
           <CollectionTile
             collection={collection}
             isMobile={isMobile}
+            preset={preset()}
             position={useAbsoluteLayout() ? positions()[index()] : undefined}
             onPositionUpdate={
               useAbsoluteLayout() && !isMobile

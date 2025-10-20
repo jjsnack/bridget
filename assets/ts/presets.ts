@@ -72,7 +72,7 @@ export const PRESETS: Record<PresetName, PresetConfig> = {
 
     // Collection Grid - 1 column for mobile
     collectionGridColumns: 1,
-    collectionTileGap: '2rem',
+    collectionTileGap: '4rem', // Increased from 2rem for more vertical space
     collectionTileMaxWidth: '100%',
 
     // Spacing
