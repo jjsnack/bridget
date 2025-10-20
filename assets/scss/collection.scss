@@ -72,33 +72,96 @@
   text-transform: uppercase;
   white-space: nowrap;
 
-  // Title always at bottom center
+  // Default position: bottom center
   margin-top: 0.5rem;
   text-align: center;
   position: relative;
+
+  // Rotation positions for square and landscape layouts (on hover)
+  // Position classes are applied dynamically via JS
+
+  // Bottom (default)
+  &--position-bottom {
+    position: relative;
+    margin-top: 0.5rem;
+    margin-right: 0;
+    margin-bottom: 0;
+    margin-left: 0;
+    text-align: center;
+    writing-mode: horizontal-tb;
+  }
+
+  // Right
+  &--position-right {
+    position: absolute;
+    top: 50%;
+    left: calc(100% - 6.5rem);
+    transform: translateY(-50%) rotate(-90deg);
+    transform-origin: center center;
+    margin: 0;
+    text-align: center;
+    writing-mode: horizontal-tb;
+  }
+
+  // Top
+  &--position-top {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%) translateY(-100%) rotate(180deg);
+    margin: 0;
+    margin-top: - 0.5rem;
+    margin-bottom: 0.5rem;
+    text-align: center;
+    writing-mode: horizontal-tb;
+  }
+
+  // Left
+  &--position-left {
+    position: absolute;
+    top: 50%;
+    right: calc(100% - 6.5rem);
+    transform: translateY(-50%) rotate(90deg);
+    transform-origin: center center;
+    margin: 0;
+    text-align: center;
+    writing-mode: horizontal-tb;
+  }
 }
 
-// Mobile preset: More buffer around title, always visible
+// Mobile preset: More buffer around title, always visible, force bottom position
 body.preset-mobile .tile-title,
 .tile--mobile .tile-title {
-  margin-top: 1.5rem; // Increased from 0.5rem
-  margin-bottom: 1rem; // Additional bottom margin
+  margin-top: 1.5rem !important; // Increased from 0.5rem
+  margin-bottom: 1rem !important; // Additional bottom margin
+  margin-left: 0 !important;
+  margin-right: 0 !important;
   padding: 0 1rem; // Side padding for better spacing
   opacity: 1 !important; // Force visible on mobile
   visibility: visible !important; // Force visible on mobile
+  position: relative !important; // Force relative positioning (no rotation)
+  transform: none !important; // Disable any transforms
 }
 
-// Portrait preset: Always visible
+// Portrait preset: Always visible, force bottom position
 body.preset-portrait .tile--portrait .tile-title,
 .tile--portrait .tile-title {
   opacity: 1 !important; // Force visible on portrait
   visibility: visible !important; // Force visible on portrait
+  position: relative !important; // Force relative positioning (no rotation)
+  transform: none !important; // Disable any transforms
+  margin-top: 0.5rem !important;
+  margin-bottom: 0 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
 }
 
 // Square and landscape: Show on hover (controlled by JS inline styles)
+// Title rotation enabled for these presets
 .tile--square .tile-title,
 .tile--landscape .tile-title {
   // Default hidden state (overridden by inline styles from JS)
   // JS controls opacity and visibility based on hover state
+  // Position classes (--position-bottom, --position-right, etc.) only apply here
 }
 

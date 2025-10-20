@@ -1,1 +1,135 @@
-.collection-container{width:100%;min-height:100vh;position:relative;padding:var(--space-standard)}.collection-grid{width:100%;max-width:1800px;margin:0 auto;display:grid;gap:var(--collection-tile-gap);grid-template-columns:repeat(var(--collection-grid-columns),1fr);transition:gap .3s ease}.collection-grid.collection-grid--absolute{display:block;max-width:none;width:100%;position:relative;padding:2rem 0}.collection-tile{position:relative;width:100%;max-width:var(--collection-tile-max-width);justify-self:center;transition:opacity .3s ease}.collection-tile a{display:block;text-decoration:none;color:inherit;position:relative}.collection-grid--absolute .collection-tile{max-width:none;justify-self:auto}.tile-image{width:100%;background-color:#f5f5f5;overflow:hidden;border-radius:0;position:relative}.tile-image img{width:100%;height:100%;object-fit:cover;display:block;transition:opacity .15s ease}.tile-title{font-size:1.5rem;font-weight:500;letter-spacing:.05em;text-transform:uppercase;white-space:nowrap;margin-top:.5rem;text-align:center;position:relative}body.preset-mobile .tile-title,.tile--mobile .tile-title{margin-top:1.5rem;margin-bottom:1rem;padding:0 1rem;opacity:1!important;visibility:visible!important}body.preset-portrait .tile--portrait .tile-title,.tile--portrait .tile-title{opacity:1!important;visibility:visible!important}
+/**
+ * Collection Grid Styles
+ */
+.collection-container {
+  width: 100%;
+  min-height: 100vh;
+  position: relative;
+  padding: var(--space-standard);
+}
+
+.collection-grid {
+  width: 100%;
+  max-width: 1800px;
+  margin: 0 auto;
+  display: grid;
+  gap: var(--collection-tile-gap);
+  grid-template-columns: repeat(var(--collection-grid-columns), 1fr);
+  transition: gap 300ms ease;
+}
+.collection-grid.collection-grid--absolute {
+  display: block;
+  max-width: none;
+  width: 100%;
+  position: relative;
+  padding: 2rem 0;
+}
+
+.collection-tile {
+  position: relative;
+  width: 100%;
+  max-width: var(--collection-tile-max-width);
+  justify-self: center;
+  transition: opacity 300ms ease;
+}
+.collection-tile a {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  position: relative;
+}
+.collection-grid--absolute .collection-tile {
+  max-width: none;
+  justify-self: auto;
+}
+
+.tile-image {
+  width: 100%;
+  background-color: #f5f5f5;
+  overflow: hidden;
+  border-radius: 0;
+  position: relative;
+}
+.tile-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: opacity 150ms ease;
+}
+
+.tile-title {
+  font-size: 1.5rem;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  margin-top: 0.5rem;
+  text-align: center;
+  position: relative;
+}
+.tile-title--position-bottom {
+  position: relative;
+  margin-top: 0.5rem;
+  margin-right: 0;
+  margin-bottom: 0;
+  margin-left: 0;
+  text-align: center;
+  writing-mode: horizontal-tb;
+}
+.tile-title--position-right {
+  position: absolute;
+  top: 50%;
+  left: calc(100% - 6.5rem);
+  transform: translateY(-50%) rotate(-90deg);
+  transform-origin: center center;
+  margin: 0;
+  text-align: center;
+  writing-mode: horizontal-tb;
+}
+.tile-title--position-top {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%) translateY(-100%) rotate(180deg);
+  margin: 0;
+  margin-top: -0.5rem;
+  margin-bottom: 0.5rem;
+  text-align: center;
+  writing-mode: horizontal-tb;
+}
+.tile-title--position-left {
+  position: absolute;
+  top: 50%;
+  right: calc(100% - 6.5rem);
+  transform: translateY(-50%) rotate(90deg);
+  transform-origin: center center;
+  margin: 0;
+  text-align: center;
+  writing-mode: horizontal-tb;
+}
+
+body.preset-mobile .tile-title,
+.tile--mobile .tile-title {
+  margin-top: 1.5rem !important;
+  margin-bottom: 1rem !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  padding: 0 1rem;
+  opacity: 1 !important;
+  visibility: visible !important;
+  position: relative !important;
+  transform: none !important;
+}
+
+body.preset-portrait .tile--portrait .tile-title,
+.tile--portrait .tile-title {
+  opacity: 1 !important;
+  visibility: visible !important;
+  position: relative !important;
+  transform: none !important;
+  margin-top: 0.5rem !important;
+  margin-bottom: 0 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}

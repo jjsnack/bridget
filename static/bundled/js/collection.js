@@ -1,1 +1,486 @@
-import{c as t,e,o as i,g as o,h as n,j as s,s as l,k as r,t as c,m as a,n as d,p as h,a as u,q as v,F as p,r as m,V as g,f as y}from"./Ct3nbt.js";var x=c("<div class=collection-tile><a><div class=tile-image><img loading=lazy></div><div class=tile-title>");function f(c){const[a,d]=t(0),[h,u]=t(!1),[v,p]=t(!1),[m,g]=t(!1);let y=null,f={x:0,y:0};e((()=>{c.collection.images.length>1&&(h()&&!c.isMobile||v()&&c.isMobile)?y=setInterval((()=>{d((t=>(t+1)%Math.min(4,c.collection.images.length)))}),500):(y&&(clearInterval(y),y=null),d(0))})),i((()=>{y&&clearInterval(y)}));const w=()=>{c.isMobile&&p(!1)};let b=!1;e((()=>{if(m()){const t=t=>(t=>{if(!m()||!c.onPositionUpdate||!c.position)return;b=!0;const e=t.clientX-f.x,i=t.clientY-f.y;c.onPositionUpdate(e,i)})(t),e=()=>{m()&&g(!1)};document.addEventListener("mousemove",t),document.addEventListener("mouseup",e),i((()=>{document.removeEventListener("mousemove",t),document.removeEventListener("mouseup",e)}))}}));const M=c.collection.title.toUpperCase(),$=()=>!!c.isMobile||"portrait"===c.preset||"square"!==c.preset&&"landscape"!==c.preset||h()||m();return P=x(),E=P.firstChild,I=E.firstChild,L=I.firstChild,W=I.nextSibling,P.addEventListener("touchcancel",w),P.$$touchend=w,P.$$touchstart=()=>{c.isMobile&&p(!0)},P.$$mousedown=t=>{!c.isMobile&&c.position&&c.onPositionUpdate&&c.onBringToFront&&(t.preventDefault(),f={x:t.clientX-c.position.x,y:t.clientY-c.position.y},b=!1,g(!0),c.onBringToFront())},P.addEventListener("mouseleave",(()=>{c.isMobile||u(!1)})),P.addEventListener("mouseenter",(()=>{c.isMobile||u(!0)})),E.$$click=t=>{b&&t.preventDefault()},o(W,M),n((t=>{var e={"tile--mobile":c.isMobile,"tile--desktop":!c.isMobile,[`tile--${c.preset}`]:!0},i=(()=>{if(c.position)return{position:"absolute",left:`${c.position.x}px`,top:`${c.position.y}px`,width:`${c.position.width}px`,height:"auto","z-index":c.position.zIndex.toString(),cursor:m()?"grabbing":"grab"}})(),o=c.collection.permalink,n=`${c.collection.heroWidth} / ${c.collection.heroHeight}`,d=(()=>{var t;const e=c.collection.images[a()];return(null==e?void 0:e.loRes)||(null==(t=c.collection.images[0])?void 0:t.loRes)||""})(),h=c.collection.title,u=(()=>{var t,e;const i={"object-position":a()>0?((null==(t=c.collection.images[a()])?void 0:t.width)||c.collection.heroWidth,(null==(e=c.collection.images[a()])?void 0:e.height)||c.collection.heroHeight,"50% 50%"):"50% 50%"};return c.position?{...i,width:`${c.position.width}px`,height:`${c.position.height}px`}:i})(),v=$()?"1":"0",p=$()?"visible":"hidden",g=$()?"auto":"none",y=$()?"opacity 200ms ease, visibility 0ms linear 0ms":"opacity 200ms ease, visibility 0ms linear 200ms";return t.e=s(P,e,t.e),t.t=l(P,i,t.t),o!==t.a&&r(E,"href",t.a=o),n!==t.o&&(null!=(t.o=n)?I.style.setProperty("aspect-ratio",n):I.style.removeProperty("aspect-ratio")),d!==t.i&&r(L,"src",t.i=d),h!==t.n&&r(L,"alt",t.n=h),t.s=l(L,u,t.s),v!==t.h&&(null!=(t.h=v)?W.style.setProperty("opacity",v):W.style.removeProperty("opacity")),p!==t.r&&(null!=(t.r=p)?W.style.setProperty("visibility",p):W.style.removeProperty("visibility")),g!==t.d&&(null!=(t.d=g)?W.style.setProperty("pointer-events",g):W.style.removeProperty("pointer-events")),y!==t.l&&(null!=(t.l=y)?W.style.setProperty("transition",y):W.style.removeProperty("transition")),t}),{e:void 0,t:void 0,a:void 0,o:void 0,i:void 0,n:void 0,s:void 0,h:void 0,r:void 0,d:void 0,l:void 0}),P;var P,E,I,L,W}a(["mousedown","touchstart","touchend","click"]);class w{constructor(t){this.seed=t}next(){let t=this.seed+=1831565813;return t=Math.imul(t^t>>>15,1|t),t^=t+Math.imul(t^t>>>7,61|t),((t^t>>>14)>>>0)/4294967296}nextInt(t,e){return Math.floor(this.next()*(e-t+1))+t}nextFloat(t,e){return this.next()*(e-t)+t}}function b(t,e,i){const o=t/e;if(o<.8){const t=i.next();return t>.7?1.3:t>.4?1.1:.95}if(o>=.8&&o<=1.2){const t=i.next();return t>.6?1.4:t>.3?1.2:1}const n=i.next();return n>.6?1.5:n>.3?1.3:1.1}function M(t,e,i,o,n,s,l=100,r=400){const c=50,a=r/400,d=Math.max(250,300*a),h=Math.ceil(n/d);for(let p=0;p<h;p++)for(let r=0;r<Math.ceil(l/h);r++){const l=c+p*d,r=s.nextFloat(-40,40),a=Math.max(c,Math.min(l+r,n-e-c)),h=o-t-c;if(h<c)continue;const m=s.nextFloat(-30,30),g=c+(h-c)*s.next(),y=Math.max(c,Math.min(g+m,h)),x={x:y,y:a,width:t,height:e};let f=!1;for(const t of i)if(v=t,!((u=x).x+u.width+80<v.x||u.x>v.x+v.width+80||u.y+u.height+80<v.y||u.y>v.y+v.height+80)){f=!0;break}if(!f)return{x:y,y:a}}var u,v;return null}var $=c("<div class=collection-grid>");function P(i){const s=window.matchMedia("(hover: none)").matches&&!window.navigator.userAgent.includes("Win"),[r,c]=d(),[a,m]=t([]),[g,y]=t(3e3),[x,P]=t({width:window.innerWidth,height:window.innerHeight});h((()=>{let t=null;const e=()=>{t&&clearTimeout(t),t=setTimeout((()=>{P({width:window.innerWidth,height:window.innerHeight})}),200)};return window.addEventListener("resize",e),()=>{t&&clearTimeout(t),window.removeEventListener("resize",e)}}));let E=100;e((()=>{const t=r(),e=c(),o=x();if("mobile"!==t&&e.collectionBaseTileWidth){const t=o.width,n=Math.max(3e3,600*i.collections.length),s=function(t,e,i,o){const n=new w(12345),s=[];for(const l of t){const t=l.heroWidth/l.heroHeight,r=o*b(l.heroWidth,l.heroHeight,n),c=r/t,a=M(r,c,s,e,i,n,100,o);if(a)s.push({x:a.x,y:a.y,width:r,height:c,zIndex:1});else{const t=400*s.length;s.push({x:100,y:t,width:r,height:c,zIndex:1})}}return s}(i.collections,t,n,e.collectionBaseTileWidth);m(s);const l=s.reduce(((t,e)=>Math.max(t,e.y+e.height)),0);y(l+100)}}));const I=()=>"mobile"!==r()&&void 0!==c().collectionBaseTileWidth;return L=$(),o(L,u(p,{get each(){return i.collections},children:(t,e)=>u(f,{collection:t,isMobile:s,get preset(){return r()},get position(){return v((()=>!!I()))()?a()[e()]:void 0},get onPositionUpdate(){return I()&&!s?(t,i)=>((t,e,i)=>{m((o=>{const n=[...o];return n[t]&&(n[t]={...n[t],x:e,y:i}),n}))})(e(),t,i):void 0},get onBringToFront(){return I()&&!s?()=>(t=>{E++,m((e=>{const i=[...e];return i[t]&&(i[t]={...i[t],zIndex:E}),i}))})(e()):void 0}})})),n((t=>{var e=!!I(),i=I()?{position:"relative","min-height":`${g()}px`}:void 0;return e!==t.e&&L.classList.toggle("collection-grid--absolute",t.e=e),t.t=l(L,i,t.t),t}),{e:void 0,t:void 0}),L;var L}function E(){const[e,i]=t([]);return h((()=>{const t=document.getElementById("collection-data");if(null==t?void 0:t.textContent)try{const e=JSON.parse(t.textContent);i(e)}catch(e){console.error("Failed to parse collection data:",e)}})),u(y,{get when(){return e().length>0},get children(){return u(g,{get children(){return u(P,{get collections(){return e()}})}})}})}const I=document.getElementById("collection-app");I&&m((()=>u(E,{})),I);
+import { c as createSignal, e as createEffect, o as onCleanup, g as insert, h as createRenderEffect, j as classList, s as style, k as setAttribute, t as template, m as delegateEvents, n as useViewport, p as onMount, a as createComponent, q as createMemo, F as For, r as render, V as ViewportProvider, f as Show } from "./BsD8YY.js";
+var _tmpl$$1 = /* @__PURE__ */ template(`<div class=collection-tile><a><div class=tile-image><img loading=lazy></div><div class=tile-title>`);
+const CYCLE_DELAY_MS = 500;
+function CollectionTile(props) {
+  const [currentImageIndex, setCurrentImageIndex] = createSignal(0);
+  const [isHovering, setIsHovering] = createSignal(false);
+  const [isTouching, setIsTouching] = createSignal(false);
+  const [isDragging, setIsDragging] = createSignal(false);
+  const [titlePositionIndex, setTitlePositionIndex] = createSignal(0);
+  let imageIntervalId = null;
+  let titleRotationIntervalId = null;
+  let dragOffset = {
+    x: 0,
+    y: 0
+  };
+  createEffect(() => {
+    const shouldCycle = props.collection.images.length > 1 && (isHovering() && !props.isMobile || isTouching() && props.isMobile);
+    if (shouldCycle) {
+      imageIntervalId = setInterval(() => {
+        setCurrentImageIndex((prev) => {
+          const maxIndex = Math.min(4, props.collection.images.length);
+          return (prev + 1) % maxIndex;
+        });
+      }, CYCLE_DELAY_MS);
+    } else {
+      if (imageIntervalId) {
+        clearInterval(imageIntervalId);
+        imageIntervalId = null;
+      }
+      setCurrentImageIndex(0);
+    }
+  });
+  onCleanup(() => {
+    if (imageIntervalId) {
+      clearInterval(imageIntervalId);
+    }
+    if (titleRotationIntervalId) {
+      clearInterval(titleRotationIntervalId);
+    }
+  });
+  createEffect(() => {
+    const shouldRotateTitle = (props.preset === "square" || props.preset === "landscape") && isHovering() && !props.isMobile;
+    if (shouldRotateTitle) {
+      titleRotationIntervalId = setInterval(() => {
+        setTitlePositionIndex((prev) => (prev + 1) % 4);
+      }, CYCLE_DELAY_MS);
+    } else {
+      if (titleRotationIntervalId) {
+        clearInterval(titleRotationIntervalId);
+        titleRotationIntervalId = null;
+      }
+      setTitlePositionIndex(0);
+    }
+  });
+  const handleMouseEnter = () => {
+    if (!props.isMobile) {
+      setIsHovering(true);
+    }
+  };
+  const handleMouseLeave = () => {
+    if (!props.isMobile) {
+      setIsHovering(false);
+    }
+  };
+  const handleTouchStart = () => {
+    if (props.isMobile) {
+      setIsTouching(true);
+    }
+  };
+  const handleTouchEnd = () => {
+    if (props.isMobile) {
+      setIsTouching(false);
+    }
+  };
+  let hasDragged = false;
+  const handleMouseDown = (e) => {
+    if (props.isMobile || !props.position || !props.onPositionUpdate || !props.onBringToFront) {
+      return;
+    }
+    e.preventDefault();
+    dragOffset = {
+      x: e.clientX - props.position.x,
+      y: e.clientY - props.position.y
+    };
+    hasDragged = false;
+    setIsDragging(true);
+    props.onBringToFront();
+  };
+  const handleMouseMove = (e) => {
+    if (!isDragging() || !props.onPositionUpdate || !props.position) {
+      return;
+    }
+    hasDragged = true;
+    const newX = e.clientX - dragOffset.x;
+    const newY = e.clientY - dragOffset.y;
+    props.onPositionUpdate(newX, newY);
+  };
+  const handleMouseUp = () => {
+    if (isDragging()) {
+      setIsDragging(false);
+    }
+  };
+  createEffect(() => {
+    if (isDragging()) {
+      const handleGlobalMouseMove = (e) => handleMouseMove(e);
+      const handleGlobalMouseUp = () => handleMouseUp();
+      document.addEventListener("mousemove", handleGlobalMouseMove);
+      document.addEventListener("mouseup", handleGlobalMouseUp);
+      onCleanup(() => {
+        document.removeEventListener("mousemove", handleGlobalMouseMove);
+        document.removeEventListener("mouseup", handleGlobalMouseUp);
+      });
+    }
+  });
+  const currentImage = () => {
+    var _a;
+    const img = props.collection.images[currentImageIndex()];
+    return (img == null ? void 0 : img.loRes) || ((_a = props.collection.images[0]) == null ? void 0 : _a.loRes) || "";
+  };
+  const tileStyles = () => {
+    if (!props.position) return void 0;
+    return {
+      position: "absolute",
+      left: `${props.position.x}px`,
+      top: `${props.position.y}px`,
+      width: `${props.position.width}px`,
+      height: "auto",
+      "z-index": props.position.zIndex.toString(),
+      cursor: isDragging() ? "grabbing" : "grab"
+      // Show draggable cursor on desktop
+    };
+  };
+  const imageStyles = () => {
+    var _a, _b;
+    const baseStyles = {
+      "object-position": currentImageIndex() > 0 ? `${(((_a = props.collection.images[currentImageIndex()]) == null ? void 0 : _a.width) || props.collection.heroWidth) > (((_b = props.collection.images[currentImageIndex()]) == null ? void 0 : _b.height) || props.collection.heroHeight) ? "50%" : "50%"} 50%` : "50% 50%"
+    };
+    if (props.position) {
+      return {
+        ...baseStyles,
+        width: `${props.position.width}px`,
+        height: `${props.position.height}px`
+      };
+    }
+    return baseStyles;
+  };
+  const titleText = props.collection.title.toUpperCase();
+  const shouldShowTitle = () => {
+    if (props.isMobile) {
+      return true;
+    }
+    if (props.preset === "portrait") {
+      return true;
+    }
+    if (props.preset === "square" || props.preset === "landscape") {
+      return isHovering() || isDragging();
+    }
+    return true;
+  };
+  return (() => {
+    var _el$ = _tmpl$$1(), _el$2 = _el$.firstChild, _el$3 = _el$2.firstChild, _el$4 = _el$3.firstChild, _el$5 = _el$3.nextSibling;
+    _el$.addEventListener("touchcancel", handleTouchEnd);
+    _el$.$$touchend = handleTouchEnd;
+    _el$.$$touchstart = handleTouchStart;
+    _el$.$$mousedown = handleMouseDown;
+    _el$.addEventListener("mouseleave", handleMouseLeave);
+    _el$.addEventListener("mouseenter", handleMouseEnter);
+    _el$2.$$click = (e) => {
+      if (hasDragged) {
+        e.preventDefault();
+      }
+    };
+    insert(_el$5, titleText);
+    createRenderEffect((_p$) => {
+      var _v$ = {
+        "tile--mobile": props.isMobile,
+        "tile--desktop": !props.isMobile,
+        [`tile--${props.preset}`]: true
+      }, _v$2 = tileStyles(), _v$3 = props.collection.permalink, _v$4 = `${props.collection.heroWidth} / ${props.collection.heroHeight}`, _v$5 = currentImage(), _v$6 = props.collection.title, _v$7 = imageStyles(), _v$8 = !!(titlePositionIndex() === 0), _v$9 = !!(titlePositionIndex() === 1), _v$10 = !!(titlePositionIndex() === 2), _v$11 = !!(titlePositionIndex() === 3), _v$12 = shouldShowTitle() ? "1" : "0", _v$13 = shouldShowTitle() ? "visible" : "hidden", _v$14 = shouldShowTitle() ? "auto" : "none", _v$15 = shouldShowTitle() ? "opacity 200ms ease, visibility 0ms linear 0ms" : "opacity 200ms ease, visibility 0ms linear 200ms";
+      _p$.e = classList(_el$, _v$, _p$.e);
+      _p$.t = style(_el$, _v$2, _p$.t);
+      _v$3 !== _p$.a && setAttribute(_el$2, "href", _p$.a = _v$3);
+      _v$4 !== _p$.o && ((_p$.o = _v$4) != null ? _el$3.style.setProperty("aspect-ratio", _v$4) : _el$3.style.removeProperty("aspect-ratio"));
+      _v$5 !== _p$.i && setAttribute(_el$4, "src", _p$.i = _v$5);
+      _v$6 !== _p$.n && setAttribute(_el$4, "alt", _p$.n = _v$6);
+      _p$.s = style(_el$4, _v$7, _p$.s);
+      _v$8 !== _p$.h && _el$5.classList.toggle("tile-title--position-bottom", _p$.h = _v$8);
+      _v$9 !== _p$.r && _el$5.classList.toggle("tile-title--position-right", _p$.r = _v$9);
+      _v$10 !== _p$.d && _el$5.classList.toggle("tile-title--position-top", _p$.d = _v$10);
+      _v$11 !== _p$.l && _el$5.classList.toggle("tile-title--position-left", _p$.l = _v$11);
+      _v$12 !== _p$.u && ((_p$.u = _v$12) != null ? _el$5.style.setProperty("opacity", _v$12) : _el$5.style.removeProperty("opacity"));
+      _v$13 !== _p$.c && ((_p$.c = _v$13) != null ? _el$5.style.setProperty("visibility", _v$13) : _el$5.style.removeProperty("visibility"));
+      _v$14 !== _p$.w && ((_p$.w = _v$14) != null ? _el$5.style.setProperty("pointer-events", _v$14) : _el$5.style.removeProperty("pointer-events"));
+      _v$15 !== _p$.m && ((_p$.m = _v$15) != null ? _el$5.style.setProperty("transition", _v$15) : _el$5.style.removeProperty("transition"));
+      return _p$;
+    }, {
+      e: void 0,
+      t: void 0,
+      a: void 0,
+      o: void 0,
+      i: void 0,
+      n: void 0,
+      s: void 0,
+      h: void 0,
+      r: void 0,
+      d: void 0,
+      l: void 0,
+      u: void 0,
+      c: void 0,
+      w: void 0,
+      m: void 0
+    });
+    return _el$;
+  })();
+}
+delegateEvents(["mousedown", "touchstart", "touchend", "click"]);
+class SeededRandom {
+  constructor(seed) {
+    this.seed = seed;
+  }
+  /**
+   * Generate next random number between 0 and 1
+   */
+  next() {
+    let t = this.seed += 1831565813;
+    t = Math.imul(t ^ t >>> 15, t | 1);
+    t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  }
+  /**
+   * Generate random integer between min (inclusive) and max (inclusive)
+   */
+  nextInt(min, max) {
+    return Math.floor(this.next() * (max - min + 1)) + min;
+  }
+  /**
+   * Generate random float between min and max
+   */
+  nextFloat(min, max) {
+    return this.next() * (max - min) + min;
+  }
+}
+function getTileSizeMultiplier(width, height, rng) {
+  const aspectRatio = width / height;
+  if (aspectRatio < 0.8) {
+    const rand2 = rng.next();
+    if (rand2 > 0.7) return 1.3;
+    if (rand2 > 0.4) return 1.1;
+    return 0.95;
+  }
+  if (aspectRatio >= 0.8 && aspectRatio <= 1.2) {
+    const rand2 = rng.next();
+    if (rand2 > 0.6) return 1.4;
+    if (rand2 > 0.3) return 1.2;
+    return 1;
+  }
+  const rand = rng.next();
+  if (rand > 0.6) return 1.5;
+  if (rand > 0.3) return 1.3;
+  return 1.1;
+}
+function checkCollision(bounds1, bounds2, buffer) {
+  return !(bounds1.x + bounds1.width + buffer < bounds2.x || bounds1.x > bounds2.x + bounds2.width + buffer || bounds1.y + bounds1.height + buffer < bounds2.y || bounds1.y > bounds2.y + bounds2.height + buffer);
+}
+function findNonCollidingPosition(tileWidth, tileHeight, existingPositions, containerWidth, containerHeight, rng, maxAttempts = 100, baseTileWidth = 400) {
+  const buffer = 80;
+  const edgeMargin = 50;
+  const scaleFactor = baseTileWidth / 400;
+  const approximateRowHeight = Math.max(250, 300 * scaleFactor);
+  const maxRows = Math.ceil(containerHeight / approximateRowHeight);
+  for (let rowIndex = 0; rowIndex < maxRows; rowIndex++) {
+    for (let attempt = 0; attempt < Math.ceil(maxAttempts / maxRows); attempt++) {
+      const rowBaseY = edgeMargin + rowIndex * approximateRowHeight;
+      const yOffset = rng.nextFloat(-40, 40);
+      const y = Math.max(edgeMargin, Math.min(rowBaseY + yOffset, containerHeight - tileHeight - edgeMargin));
+      const maxX = containerWidth - tileWidth - edgeMargin;
+      if (maxX < edgeMargin) continue;
+      const xOffset = rng.nextFloat(-30, 30);
+      const baseX = edgeMargin + (maxX - edgeMargin) * rng.next();
+      const x = Math.max(edgeMargin, Math.min(baseX + xOffset, maxX));
+      const newBounds = { x, y, width: tileWidth, height: tileHeight };
+      let hasCollision = false;
+      for (const existing of existingPositions) {
+        if (checkCollision(newBounds, existing, buffer)) {
+          hasCollision = true;
+          break;
+        }
+      }
+      if (!hasCollision) {
+        return { x, y };
+      }
+    }
+  }
+  return null;
+}
+function calculateTilePositions(collections, containerWidth, containerHeight, baseTileWidth) {
+  const rng = new SeededRandom(12345);
+  const positions = [];
+  for (const collection of collections) {
+    const aspectRatio = collection.heroWidth / collection.heroHeight;
+    const sizeMultiplier = getTileSizeMultiplier(
+      collection.heroWidth,
+      collection.heroHeight,
+      rng
+    );
+    const tileWidth = baseTileWidth * sizeMultiplier;
+    const tileHeight = tileWidth / aspectRatio;
+    const position = findNonCollidingPosition(
+      tileWidth,
+      tileHeight,
+      positions,
+      containerWidth,
+      containerHeight,
+      rng,
+      100,
+      // maxAttempts
+      baseTileWidth
+      // Pass base tile width for spacing calculation
+    );
+    if (position) {
+      positions.push({
+        x: position.x,
+        y: position.y,
+        width: tileWidth,
+        height: tileHeight,
+        zIndex: 1
+      });
+    } else {
+      const fallbackY = positions.length * 400;
+      positions.push({
+        x: 100,
+        y: fallbackY,
+        width: tileWidth,
+        height: tileHeight,
+        zIndex: 1
+      });
+    }
+  }
+  return positions;
+}
+var _tmpl$ = /* @__PURE__ */ template(`<div class=collection-grid>`);
+function CollectionGrid(props) {
+  const isMobile = window.matchMedia("(hover: none)").matches && !window.navigator.userAgent.includes("Win");
+  const [preset, config] = useViewport();
+  const [positions, setPositions] = createSignal([]);
+  const [containerHeight, setContainerHeight] = createSignal(3e3);
+  const [windowDimensions, setWindowDimensions] = createSignal({
+    width: window.innerWidth,
+    height: window.innerHeight
+  });
+  onMount(() => {
+    let resizeTimeout = null;
+    const handleResize = () => {
+      if (resizeTimeout) {
+        clearTimeout(resizeTimeout);
+      }
+      resizeTimeout = setTimeout(() => {
+        setWindowDimensions({
+          width: window.innerWidth,
+          height: window.innerHeight
+        });
+      }, 200);
+    };
+    window.addEventListener("resize", handleResize);
+    return () => {
+      if (resizeTimeout) {
+        clearTimeout(resizeTimeout);
+      }
+      window.removeEventListener("resize", handleResize);
+    };
+  });
+  let zIndexCounter = 100;
+  createEffect(() => {
+    const currentPreset = preset();
+    const currentConfig = config();
+    const dimensions = windowDimensions();
+    if (currentPreset !== "mobile" && currentConfig.collectionBaseTileWidth) {
+      const containerWidth = dimensions.width;
+      const estimatedHeight = Math.max(3e3, props.collections.length * 600);
+      const calculatedPositions = calculateTilePositions(props.collections, containerWidth, estimatedHeight, currentConfig.collectionBaseTileWidth);
+      setPositions(calculatedPositions);
+      const maxY = calculatedPositions.reduce((max, pos) => Math.max(max, pos.y + pos.height), 0);
+      setContainerHeight(maxY + 100);
+    }
+  });
+  const updateTilePosition = (index, x, y) => {
+    setPositions((prev) => {
+      const updated = [...prev];
+      if (updated[index]) {
+        updated[index] = {
+          ...updated[index],
+          x,
+          y
+        };
+      }
+      return updated;
+    });
+  };
+  const bringToFront = (index) => {
+    zIndexCounter++;
+    setPositions((prev) => {
+      const updated = [...prev];
+      if (updated[index]) {
+        updated[index] = {
+          ...updated[index],
+          zIndex: zIndexCounter
+        };
+      }
+      return updated;
+    });
+  };
+  const useAbsoluteLayout = () => {
+    return preset() !== "mobile" && config().collectionBaseTileWidth !== void 0;
+  };
+  return (() => {
+    var _el$ = _tmpl$();
+    insert(_el$, createComponent(For, {
+      get each() {
+        return props.collections;
+      },
+      children: (collection, index) => createComponent(CollectionTile, {
+        collection,
+        isMobile,
+        get preset() {
+          return preset();
+        },
+        get position() {
+          return createMemo(() => !!useAbsoluteLayout())() ? positions()[index()] : void 0;
+        },
+        get onPositionUpdate() {
+          return useAbsoluteLayout() && !isMobile ? (x, y) => updateTilePosition(index(), x, y) : void 0;
+        },
+        get onBringToFront() {
+          return useAbsoluteLayout() && !isMobile ? () => bringToFront(index()) : void 0;
+        }
+      })
+    }));
+    createRenderEffect((_p$) => {
+      var _v$ = !!useAbsoluteLayout(), _v$2 = useAbsoluteLayout() ? {
+        position: "relative",
+        "min-height": `${containerHeight()}px`
+      } : void 0;
+      _v$ !== _p$.e && _el$.classList.toggle("collection-grid--absolute", _p$.e = _v$);
+      _p$.t = style(_el$, _v$2, _p$.t);
+      return _p$;
+    }, {
+      e: void 0,
+      t: void 0
+    });
+    return _el$;
+  })();
+}
+function CollectionApp() {
+  const [collections, setCollections] = createSignal([]);
+  onMount(() => {
+    const dataElement = document.getElementById("collection-data");
+    if (dataElement == null ? void 0 : dataElement.textContent) {
+      try {
+        const data = JSON.parse(dataElement.textContent);
+        setCollections(data);
+      } catch (error) {
+        console.error("Failed to parse collection data:", error);
+      }
+    }
+  });
+  return createComponent(Show, {
+    get when() {
+      return collections().length > 0;
+    },
+    get children() {
+      return createComponent(ViewportProvider, {
+        get children() {
+          return createComponent(CollectionGrid, {
+            get collections() {
+              return collections();
+            }
+          });
+        }
+      });
+    }
+  });
+}
+const container = document.getElementById("collection-app");
+if (container) {
+  render(() => createComponent(CollectionApp, {}), container);
+}

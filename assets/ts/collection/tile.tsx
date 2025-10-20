@@ -21,7 +21,9 @@ export default function CollectionTile(props: TileProps): JSX.Element {
   const [isHovering, setIsHovering] = createSignal(false)
   const [isTouching, setIsTouching] = createSignal(false)
   const [isDragging, setIsDragging] = createSignal(false)
+  const [titlePositionIndex, setTitlePositionIndex] = createSignal(0) // 0=bottom, 1=right, 2=top, 3=left
   let imageIntervalId: ReturnType<typeof setInterval> | null = null
+  let titleRotationIntervalId: ReturnType<typeof setInterval> | null = null
   let dragOffset = { x: 0, y: 0 } // Offset from mouse to tile top-left
 
   // Image cycling on hover (desktop) or touch (mobile)
@@ -52,6 +54,31 @@ export default function CollectionTile(props: TileProps): JSX.Element {
   onCleanup(() => {
     if (imageIntervalId) {
       clearInterval(imageIntervalId)
+    }
+    if (titleRotationIntervalId) {
+      clearInterval(titleRotationIntervalId)
+    }
+  })
+
+  // Title rotation on hover (square and landscape presets only)
+  createEffect(() => {
+    const shouldRotateTitle =
+      (props.preset === 'square' || props.preset === 'landscape') &&
+      isHovering() &&
+      !props.isMobile
+
+    if (shouldRotateTitle) {
+      // Rotate through 4 positions in sync with image cycling
+      titleRotationIntervalId = setInterval(() => {
+        setTitlePositionIndex((prev) => (prev + 1) % 4)
+      }, CYCLE_DELAY_MS)
+    } else {
+      // Reset to bottom position when not hovering
+      if (titleRotationIntervalId) {
+        clearInterval(titleRotationIntervalId)
+        titleRotationIntervalId = null
+      }
+      setTitlePositionIndex(0)
     }
   })
 
@@ -247,6 +274,12 @@ export default function CollectionTile(props: TileProps): JSX.Element {
         {/* Title - visibility based on preset and hover state */}
         <div
           class="tile-title"
+          classList={{
+            'tile-title--position-bottom': titlePositionIndex() === 0,
+            'tile-title--position-right': titlePositionIndex() === 1,
+            'tile-title--position-top': titlePositionIndex() === 2,
+            'tile-title--position-left': titlePositionIndex() === 3
+          }}
           style={{
             opacity: shouldShowTitle() ? '1' : '0',
             visibility: shouldShowTitle() ? 'visible' : 'hidden',
