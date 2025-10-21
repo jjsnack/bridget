@@ -1,7 +1,7 @@
 {{- $currentPage := . -}}
 
 {{- $identifier := "" -}}
-{{- $title := "404" -}}
+{{- $title := $currentPage.Title -}}
 {{- $weight := -1 -}}
 
 {{- range site.Menus.main -}}

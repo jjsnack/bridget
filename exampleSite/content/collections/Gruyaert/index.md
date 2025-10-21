@@ -2,5 +2,5 @@
 title: Gruyaert Collection
 type: collection
 layout: single
-url: /test-2/
+url: /collections/gruyaert/
 ---

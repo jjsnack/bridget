@@ -9,6 +9,7 @@ import '../../scss/collection-single.scss'
 
 interface CollectionSingleData {
   title: string
+  content: string
   images: CollectionImage[]
 }
 
@@ -31,7 +32,11 @@ function CollectionSingleApp(): JSX.Element {
   return (
     <Show when={data()}>
       <ViewportProvider>
-        <CollectionSingleView title={data()!.title} images={data()!.images} />
+        <CollectionSingleView
+          title={data()!.title}
+          content={data()!.content}
+          images={data()!.images}
+        />
       </ViewportProvider>
     </Show>
   )

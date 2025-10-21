@@ -7,6 +7,7 @@ export interface CollectionImage {
   hiRes: string
   width: number
   height: number
+  name?: string
 }
 
 export interface CollectionData {

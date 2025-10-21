@@ -11,8 +11,7 @@ export default defineConfig({
     rollupOptions: {
       input: {
         main: './assets/ts/main.tsx',
-        collection: './assets/ts/collection/collectionMain.tsx',
-        collectionSingle: './assets/ts/collection/collectionSingle.tsx'
+        collection: './assets/ts/collection/collectionMain.tsx'
       },
       output: {
         format: 'es',
