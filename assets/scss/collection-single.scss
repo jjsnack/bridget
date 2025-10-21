@@ -4,23 +4,31 @@
  */
 
 // Force white background on nav for collection single pages
-.collection-single-page nav {
-  background: white !important;
+.collection-single-page {
+  overflow-x: hidden; // Prevent horizontal scrolling
+
+  nav {
+    background: white !important;
+  }
 }
 
-// Center the entire collection post
+// Left-aligned collection post
 .collection-post {
   padding-bottom: 4rem;
-  max-width: 50em; // Wider max-width for more space
-  margin: 0 auto; // Center horizontally
+  padding-left: 100px; // Left margin
+  width: 100%;
+  max-width: none;
+  margin: 0;
   display: flex;
   flex-direction: column;
-  align-items: center; // Center children
-  text-align: center; // Center text
+  align-items: flex-start;
+  text-align: left;
 
   .collection-back-link {
-    margin-bottom: 2rem; // More spacing
-    align-self: flex-start; // Keep back link at left
+    position: fixed;
+    top: 1rem;
+    left: 1rem;
+    z-index: 100;
     text-align: left;
 
     a {
@@ -36,7 +44,7 @@
 
   .collection-post-title {
     font-size: 1.6em;
-    margin: 2rem 0; // More vertical spacing
+    margin: 0; // Spacing controlled by JS
     user-select: none; // Prevent text selection while dragging
     position: relative; // Enable transform
   }
@@ -45,19 +53,24 @@
     width: 100%;
   }
 
-  // Draggable elements with more spacing
+  // Draggable elements
   p, h1, h2, h3, h4, h5, h6 {
     user-select: none; // Prevent text selection while dragging
     position: relative; // Enable transform
-    margin-bottom: 2.5rem; // Increased vertical spacing
+    margin-bottom: 0; // Spacing controlled by JS
     cursor: default; // No cursor change
   }
 
   img {
     user-select: none; // Prevent text selection while dragging
     position: relative; // Enable transform
-    margin-bottom: 3rem; // More spacing between images
+    margin-bottom: 0; // No bottom margin, spacing controlled by JS
     cursor: default; // No cursor change
+    max-width: 800px; // Max width for images
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    display: block;
 
     &:hover {
       opacity: 1; // No opacity change
@@ -84,7 +97,7 @@
 
   h1, h2, h3, h4, h5, h6 {
     font-weight: normal;
-    margin-top: 2.5rem; // More spacing above headings
+    margin-top: 0; // Spacing controlled by JS
   }
 }
 
