@@ -1,6 +1,6 @@
 /**
  * Collection Single View Styles
- * Extends blog single styling for consistency
+ * Centered layout with draggable elements and spacious positioning
  */
 
 // Force white background on nav for collection single pages
@@ -8,14 +8,20 @@
   background: white !important;
 }
 
-// Collection posts use the same styles as blog posts
+// Center the entire collection post
 .collection-post {
-  // Extend all blog-post styles
   padding-bottom: 4rem;
-  max-width: 35em;
+  max-width: 50em; // Wider max-width for more space
+  margin: 0 auto; // Center horizontally
+  display: flex;
+  flex-direction: column;
+  align-items: center; // Center children
+  text-align: center; // Center text
 
   .collection-back-link {
-    margin-bottom: 1.2rem;
+    margin-bottom: 2rem; // More spacing
+    align-self: flex-start; // Keep back link at left
+    text-align: left;
 
     a {
       color: inherit;
@@ -30,19 +36,31 @@
 
   .collection-post-title {
     font-size: 1.6em;
-    margin: 1.2rem 0;
+    margin: 2rem 0; // More vertical spacing
+    user-select: none; // Prevent text selection while dragging
+    position: relative; // Enable transform
   }
 
-  h1, h2, h3, h4, h5, h6 {
-    font-weight: normal;
+  .collection-content-wrapper {
+    width: 100%;
+  }
+
+  // Draggable elements with more spacing
+  p, h1, h2, h3, h4, h5, h6 {
+    user-select: none; // Prevent text selection while dragging
+    position: relative; // Enable transform
+    margin-bottom: 2.5rem; // Increased vertical spacing
+    cursor: default; // No cursor change
   }
 
   img {
-    cursor: pointer;
+    user-select: none; // Prevent text selection while dragging
+    position: relative; // Enable transform
+    margin-bottom: 3rem; // More spacing between images
+    cursor: default; // No cursor change
 
     &:hover {
-      opacity: 0.8;
-      transition: opacity 0.2s ease;
+      opacity: 1; // No opacity change
     }
 
     &[src=""],
@@ -63,9 +81,14 @@
       }
     }
   }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-weight: normal;
+    margin-top: 2.5rem; // More spacing above headings
+  }
 }
 
-// Full page collection image gallery (same as blog gallery)
+// Full page collection image gallery
 .collection-gallery {
   position: fixed;
   top: 0;
@@ -77,6 +100,7 @@
   display: none;
   align-items: center;
   justify-content: center;
+  cursor: none; // Hide default cursor when active
 
   &.active {
     display: flex;
@@ -86,26 +110,31 @@
     max-width: 100vw;
     max-height: 100vh;
     object-fit: contain;
+    pointer-events: none; // Prevent image from blocking cursor
+  }
+}
+
+// Custom cursor for collection gallery (matching stageNav style)
+.collection-cursor {
+  position: fixed;
+  z-index: 1001;
+  top: 0;
+  left: 0;
+  display: none;
+  cursor: none;
+  pointer-events: none;
+
+  // Match stageNav cursor styling
+  color: white;
+  mix-blend-mode: difference;
+
+  &.active {
+    display: block;
   }
 
-  .close-button {
-    position: absolute;
-    top: 20px;
-    left: 20px;
-    background: none;
-    border: none;
-    font-size: 25px;
-    cursor: pointer;
-    color: black;
-    z-index: 1001;
-    width: 40px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    &:hover {
-      opacity: 0.7;
-    }
+  .collection-cursor-inner {
+    transform: translate3d(-50%, -50%, 0);
+    white-space: nowrap;
+    // No additional styling - inherits from body typography
   }
 }
