@@ -1,0 +1,42 @@
+{{- define "main" -}}
+  {{- /* Load collection single CSS */ -}}
+  <link rel="stylesheet" href="/bundled/css/collection-single.css">
+
+  <div class="collection-single-container">
+    {{- with .Content -}}
+      <article>
+        {{- . -}}
+      </article>
+    {{- end -}}
+
+    {{- /* Mount point for Solid.js collection single view */ -}}
+    <div id="collection-single-app"></div>
+
+    {{- partial "nav.html" . -}}
+
+    {{- /* Load collection single JavaScript */ -}}
+    <script type="module" src="/bundled/js/collectionSingle.js"></script>
+  </div>
+
+  {{- /* Build collection single data for TypeScript */ -}}
+  {{- $images := .Resources.ByType "image" -}}
+  {{- $imageList := slice -}}
+  {{- $loResOpt := site.Params.Page.loResOpt | default "400x webp picture" -}}
+  {{- $hiResOpt := site.Params.Page.hiResOpt | default "1200x webp picture" -}}
+
+  {{- range $images -}}
+    {{- $loRes := .Resize $loResOpt -}}
+    {{- $hiRes := .Resize $hiResOpt -}}
+    {{- $imageList = $imageList | append (dict
+      "loRes" $loRes.RelPermalink
+      "hiRes" $hiRes.RelPermalink
+      "width" .Width
+      "height" .Height
+      "title" .Title
+    ) -}}
+  {{- end -}}
+
+  <script id="collection-single-data" type="application/json">
+    {{- dict "title" .Title "images" $imageList | jsonify | safeJS -}}
+  </script>
+{{- end -}}

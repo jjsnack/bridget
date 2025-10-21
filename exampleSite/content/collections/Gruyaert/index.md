@@ -1,5 +1,6 @@
 ---
 title: Gruyaert Collection
-type: gallery
+type: collection
 layout: single
+url: /test-2/
 ---

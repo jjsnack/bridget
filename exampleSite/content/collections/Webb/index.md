@@ -1,5 +1,6 @@
 ---
 title: Webb Collection
-type: gallery
+type: collection
 layout: single
+url: /test-3/
 ---

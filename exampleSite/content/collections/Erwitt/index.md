@@ -1,5 +1,6 @@
 ---
 title: Erwitt Collection
-type: gallery
+type: collection
 layout: single
+url: /test-1/
 ---
