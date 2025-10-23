@@ -141,54 +141,70 @@
         isAnimating = true;
 
         clickedImage = img;
+
+        // Get the current visual position of the image (including any transforms)
         originalRect = img.getBoundingClientRect();
 
         // Set gallery image
         galleryImg.src = img.src;
         galleryImg.alt = img.alt || 'Collection image';
 
-        // Position gallery image at original image location
-        gsap.set(galleryImg, {
-          position: 'fixed',
-          top: originalRect.top,
-          left: originalRect.left,
-          width: originalRect.width,
-          height: originalRect.height,
-          opacity: 0
-        });
-
-        // Show gallery
+        // Show gallery first (but image will be invisible initially)
         gallery.classList.add('active');
         cursor.classList.add('active');
         document.body.style.overflow = 'hidden';
         document.body.style.cursor = 'none';
 
-        // Animate expansion
-        const tl = gsap.timeline();
+        // Calculate center position
+        const centerX = window.innerWidth / 2;
+        const centerY = window.innerHeight / 2;
 
-        // Fade in
-        tl.to(galleryImg, {
-          opacity: 1,
-          duration: 0.3,
-          ease: 'power3.out'
-        });
+        // Start position: at the clicked image's visual location
+        const startX = originalRect.left + originalRect.width / 2;
+        const startY = originalRect.top + originalRect.height / 2;
 
-        // Move to center and scale up
-        tl.to(galleryImg, {
+        // Position gallery image at original image's center using transforms
+        gsap.set(galleryImg, {
+          position: 'fixed',
           top: '50%',
           left: '50%',
+          x: startX - centerX,
+          y: startY - centerY,
           xPercent: -50,
           yPercent: -50,
+          width: originalRect.width,
+          height: originalRect.height,
+          maxWidth: originalRect.width,
+          maxHeight: originalRect.height,
+          opacity: 1
+        });
+
+        // Animate expansion with smooth timeline
+        const tl = gsap.timeline();
+
+        // Small delay for visual stability
+        tl.to({}, { duration: 0.1 });
+
+        // Move to center
+        tl.to(galleryImg, {
+          x: 0,
+          y: 0,
+          duration: 0.7,
+          ease: 'power3.inOut'
+        });
+
+        // Expand to full size
+        tl.to(galleryImg, {
           width: 'auto',
           height: 'auto',
-          maxWidth: '100vw',
-          maxHeight: '100vh',
-          duration: 0.7,
+          maxWidth: '90vw',
+          maxHeight: '90vh',
+          duration: 0.5,
           ease: 'power3.inOut',
           onComplete: () => {
             isAnimating = false;
           }
-        });
+        }, '<0.2'); // Start 0.2s into the previous animation
       };
 
       // Minimize image animation
@@ -196,26 +212,36 @@
         if (isAnimating || !clickedImage || !originalRect) return;
         isAnimating = true;
 
+        // Calculate positions
+        const centerX = window.innerWidth / 2;
+        const centerY = window.innerHeight / 2;
+        const startX = originalRect.left + originalRect.width / 2;
+        const startY = originalRect.top + originalRect.height / 2;
+
         const tl = gsap.timeline();
 
-        // Move back to original position and size
+        // Shrink to original size
         tl.to(galleryImg, {
-          top: originalRect.top,
-          left: originalRect.left,
-          xPercent: 0,
-          yPercent: 0,
           width: originalRect.width,
           height: originalRect.height,
-          maxWidth: 'none',
-          maxHeight: 'none',
-          duration: 0.7,
+          maxWidth: originalRect.width,
+          maxHeight: originalRect.height,
+          duration: 0.5,
           ease: 'power3.inOut'
         });
 
+        // Move back to original position
+        tl.to(galleryImg, {
+          x: startX - centerX,
+          y: startY - centerY,
+          duration: 0.7,
+          ease: 'power3.inOut'
+        }, '<0.2'); // Start 0.2s into the previous animation
+
         // Fade out
         tl.to(galleryImg, {
-          opacity: 0,
-          duration: 0.3,
+          opacity: 1,
+          duration: 0.2,
           ease: 'power3.in',
           onComplete: () => {
             gallery.classList.remove('active');
