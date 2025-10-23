@@ -22,7 +22,7 @@
   flex-direction: column;
   align-items: center; // Center all children horizontally
   text-align: left;
-  gap: 0; // No gap - spacing controlled by element padding
+  gap: 3rem; // Even spacing between all elements
 
   .collection-back-link {
     position: fixed;
@@ -55,7 +55,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0; // No gap - spacing controlled by element padding
+    gap: 2.5rem; // Even spacing between content elements
   }
 
   // Draggable elements

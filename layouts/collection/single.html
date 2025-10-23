@@ -116,17 +116,7 @@
         return () => hasDragged;
       };
 
-      // === Pseudorandom Number Generator (Seeded) ===
-      const createSeededRandom = (seed) => {
-        let state = seed;
-        return () => {
-          // Linear congruential generator
-          state = (state * 1664525 + 1013904223) % 4294967296;
-          return state / 4294967296;
-        };
-      };
-
-      // === Initialize Draggable Elements with Natural Layout ===
+      // === Initialize Draggable Elements ===
       const initializeDraggables = () => {
         const draggableChecks = new Map();
 
@@ -144,30 +134,8 @@
           contentElements.forEach(el => allElements.push(el));
         }
 
-        // Create seeded random generator (seed based on page title for consistency)
-        const pageTitle = document.title || 'default';
-        let seed = 0;
-        for (let i = 0; i < pageTitle.length; i++) {
-          seed = (seed << 5) - seed + pageTitle.charCodeAt(i);
-          seed = seed & seed; // Convert to 32-bit integer
-        }
-        const random = createSeededRandom(Math.abs(seed));
-
-        // Apply natural, varied positioning to each element
-        allElements.forEach((element, index) => {
-          // Generate horizontal offset: random value between -250px and +250px
-          const rawOffset = (random() - 0.5) * 2; // -1 to 1
-          const horizontalOffset = Math.round(rawOffset * 250);
-
-          // Generate vertical spacing variation
-          // Base padding + random additional padding (0 to 120px)
-          const basePadding = index === 0 ? 0 : 40;
-          const additionalPadding = Math.round(random() * 120);
-          const topPadding = basePadding + additionalPadding;
-
-          // Apply padding to element
-          element.style.paddingTop = `${topPadding}px`;
-
+        // Setup each element
+        allElements.forEach((element) => {
           let draggableTarget;
 
           // Handle images differently from text elements
@@ -194,12 +162,6 @@
             element.appendChild(wrapper);
             draggableTarget = wrapper;
           }
-
-          // Apply horizontal offset using transform
-          gsap.set(draggableTarget, {
-            x: horizontalOffset,
-            y: 0
-          });
 
           // Make target draggable
           draggableChecks.set(element, makeDraggable(draggableTarget));
