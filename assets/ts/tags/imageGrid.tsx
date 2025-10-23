@@ -1,16 +1,14 @@
 /**
  * Image Grid Component
- * Displays filtered images in a grid with infinite scroll
+ * Displays filtered images in a square grid with infinite scroll
  */
 
 import { type Component, For, createSignal, createEffect, onMount, Show } from 'solid-js'
 import { GridTile } from './gridTile'
-import type { TaggedImage, AspectRatioMode } from './types'
+import type { TaggedImage } from './types'
 
 interface ImageGridProps {
   filteredImages: TaggedImage[]
-  aspectRatioMode: AspectRatioMode
-  onToggleAspectRatio: () => void
   onImageClick: (image: TaggedImage, index: number) => void
 }
 
@@ -66,34 +64,16 @@ export const ImageGrid: Component<ImageGridProps> = (props) => {
 
   return (
     <div class="image-grid" ref={gridRef}>
-      {/* Controls Bar */}
-      <div class="image-grid__controls">
-        <div class="image-grid__count">
-          {props.filteredImages.length} {props.filteredImages.length === 1 ? 'image' : 'images'}
-        </div>
-        <button class="image-grid__toggle" onClick={props.onToggleAspectRatio}>
-          <span class="image-grid__toggle-label">Aspect ratio:</span>
-          <span class="image-grid__toggle-value">
-            {props.aspectRatioMode === 'natural' ? 'Natural' : 'Square'}
-          </span>
-        </button>
+      {/* Image count */}
+      <div class="image-grid__count">
+        {props.filteredImages.length} {props.filteredImages.length === 1 ? 'image' : 'images'}
       </div>
 
       {/* Grid */}
-      <div
-        class="image-grid__container"
-        classList={{
-          'image-grid__container--natural': props.aspectRatioMode === 'natural',
-          'image-grid__container--square': props.aspectRatioMode === 'square',
-        }}
-      >
+      <div class="image-grid__container">
         <For each={visibleImages()}>
           {(image, index) => (
-            <GridTile
-              image={image}
-              aspectRatioMode={props.aspectRatioMode}
-              onClick={() => props.onImageClick(image, index())}
-            />
+            <GridTile image={image} onClick={() => props.onImageClick(image, index())} />
           )}
         </For>
 

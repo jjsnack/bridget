@@ -6,12 +6,15 @@
 import { type Component, createSignal, createMemo, createEffect, lazy, Show } from 'solid-js'
 import { TagFilter } from './tagFilter'
 import { ImageGrid } from './imageGrid'
-import type { TagsData, TaggedImage, FilterState, AspectRatioMode } from './types'
+import type { TagsData, TaggedImage, FilterState } from './types'
 import type { ImageJSON } from '../resources'
+import type { HistoryItem } from '../desktop/layout'
+import type { Vector } from '../utils'
 
-// Lazy load stage/gallery for better initial load
+// Lazy load components for better initial load
 const Stage = lazy(() => import('../desktop/stage'))
 const StageNav = lazy(() => import('../desktop/stageNav'))
+const CustomCursor = lazy(() => import('../desktop/customCursor'))
 const Gallery = lazy(() => import('../mobile/gallery'))
 
 interface TagBrowserProps {
@@ -30,25 +33,35 @@ export const TagBrowser: Component<TagBrowserProps> = (props) => {
     searchQuery: '',
   })
 
-  // Grid display mode
-  const [aspectRatioMode, setAspectRatioMode] = createSignal<AspectRatioMode>('natural')
-
-  // Stage/Gallery state
-  const [isStageOpen, setIsStageOpen] = createSignal(false)
+  // Desktop Stage state (matching desktop/layout.tsx pattern)
+  const [cordHist, setCordHist] = createSignal<HistoryItem[]>([])
+  const [isLoading, setIsLoading] = createSignal(false)
+  const [isOpen, setIsOpen] = createSignal(false)
   const [isAnimating, setIsAnimating] = createSignal(false)
-  const [currentImageIndex, setCurrentImageIndex] = createSignal(0)
+  const [hoverText, setHoverText] = createSignal('')
+  const [navVector, setNavVector] = createSignal<Vector>('none')
+
+  // Mobile state
   const [scrollable, setScrollable] = createSignal(true)
 
-  // Filter images based on selected tags
+  // Computed values for Stage
+  const active = createMemo(() => isOpen() && !isAnimating())
+  const cursorText = createMemo(() => (isLoading() ? props.loadingText : hoverText()))
+
+  // Filter images based on selected tags and sort by recency
   const filteredImages = createMemo(() => {
     const state = filterState()
-    if (state.selectedTags.size === 0) {
-      return props.data.images
+    let images = props.data.images
+
+    // Filter by tags if any are selected
+    if (state.selectedTags.size > 0) {
+      images = images.filter((image) =>
+        Array.from(state.selectedTags).every((tag) => image.tags.includes(tag)),
+      )
     }
 
-    return props.data.images.filter((image) =>
-      Array.from(state.selectedTags).every((tag) => image.tags.includes(tag)),
-    )
+    // Sort by date (most recent first)
+    return [...images].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
   })
 
   // Convert TaggedImage[] to ImageJSON[] for Stage/Gallery components
@@ -87,13 +100,14 @@ export const TagBrowser: Component<TagBrowserProps> = (props) => {
   }
 
   // Grid handlers
-  const handleToggleAspectRatio = () => {
-    setAspectRatioMode((prev) => (prev === 'natural' ? 'square' : 'natural'))
-  }
+  const handleImageClick = (image: TaggedImage, index: number) => {
+    // Initialize cordHist with the clicked image position
+    const centerX = window.innerWidth / 2
+    const centerY = window.innerHeight / 2
+    setCordHist([{ i: index, x: centerX, y: centerY }])
 
-  const handleImageClick = (_image: TaggedImage, index: number) => {
-    setCurrentImageIndex(index)
-    setIsStageOpen(true)
+    setIsOpen(true)
+
     if (props.isMobile) {
       setScrollable(false)
     }
@@ -116,43 +130,51 @@ export const TagBrowser: Component<TagBrowserProps> = (props) => {
         onClearFilters={handleClearFilters}
       />
 
-      <ImageGrid
-        filteredImages={filteredImages()}
-        aspectRatioMode={aspectRatioMode()}
-        onToggleAspectRatio={handleToggleAspectRatio}
-        onImageClick={handleImageClick}
-      />
+      <ImageGrid filteredImages={filteredImages()} onImageClick={handleImageClick} />
 
-      {/* Desktop Stage View */}
-      <Show when={!props.isMobile && isStageOpen()}>
+      {/* Desktop Stage View with Custom Cursor */}
+      <Show when={!props.isMobile}>
         <Stage
           ijs={imageJSONArray()}
-          initialIndex={currentImageIndex()}
-          isOpen={isStageOpen}
-          setIsOpen={setIsStageOpen}
+          setIsLoading={setIsLoading}
+          isOpen={isOpen}
+          setIsOpen={setIsOpen}
           isAnimating={isAnimating}
           setIsAnimating={setIsAnimating}
-          loadingText={props.loadingText}
+          cordHist={cordHist}
+          setCordHist={setCordHist}
+          navVector={navVector}
+          setNavVector={setNavVector}
         />
-        <StageNav
-          prevText={props.prevText}
-          closeText={props.closeText}
-          nextText={props.nextText}
-          isOpen={isStageOpen}
-          setIsOpen={setIsStageOpen}
-        />
+        <Show when={isOpen()}>
+          <CustomCursor cursorText={cursorText} active={active} isOpen={isOpen} />
+          <StageNav
+            prevText={props.prevText}
+            closeText={props.closeText}
+            nextText={props.nextText}
+            loadingText={props.loadingText}
+            active={active}
+            isAnimating={isAnimating}
+            setCordHist={setCordHist}
+            isOpen={isOpen}
+            setIsOpen={setIsOpen}
+            setHoverText={setHoverText}
+            navVector={navVector}
+            setNavVector={setNavVector}
+          />
+        </Show>
       </Show>
 
       {/* Mobile Gallery View */}
-      <Show when={props.isMobile && isStageOpen()}>
+      <Show when={props.isMobile && isOpen()}>
         <Gallery
           ijs={imageJSONArray()}
           closeText={props.closeText}
           loadingText={props.loadingText}
           isAnimating={isAnimating}
           setIsAnimating={setIsAnimating}
-          isOpen={isStageOpen}
-          setIsOpen={setIsStageOpen}
+          isOpen={isOpen}
+          setIsOpen={setIsOpen}
           setScrollable={setScrollable}
         />
       </Show>

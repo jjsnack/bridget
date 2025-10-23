@@ -14,6 +14,7 @@ export interface TaggedImage {
   source: string // Gallery or collection name
   sourceType: 'gallery' | 'collection'
   sourcePermalink: string
+  date: string // Publication date for sorting
 
   // Tags
   tags: string[]
@@ -26,8 +27,6 @@ export interface FilterState {
   selectedTags: Set<string>
   searchQuery: string
 }
-
-export type AspectRatioMode = 'natural' | 'square'
 
 export interface TagsData {
   images: TaggedImage[]

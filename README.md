@@ -108,9 +108,14 @@ The `/tags/` page provides:
 - **Multi-select Filtering**: Click multiple tags to filter images (shows images matching ALL selected tags)
 - **Tag Chips**: Selected tags appear as removable chips
 - **Expandable Tag List**: "Open tags" button reveals all available tags
+- **Square Grid Layout**: Clean 4-column grid (responsive: 3 columns on tablets, 2 on mobile) with generous spacing
+- **Sorted by Recency**: Images automatically sorted by publication date (newest first)
 - **Infinite Scroll**: Automatically loads more images as you scroll
-- **Aspect Ratio Toggle**: Switch between natural aspect ratios (masonry layout) and square grid
-- **Stage Integration**: Click any image to view in the full stage (desktop) or gallery viewer (mobile)
+- **Enhanced Hover Effects**: Smooth lift and scale animations with image zoom on hover
+- **Full Stage Integration**:
+  - Desktop: Click any image to open in full stage view with custom cursor navigation
+  - Mobile: Opens touch-optimized gallery with swipe navigation
+  - Navigate through filtered images with arrow keys or prev/next controls
 
 All images from galleries and collections with matching tags will be automatically collected and made browsable through the tags page.
 
