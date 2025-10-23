@@ -8,6 +8,7 @@ menu:
     identifier: Webb
     title: Webb
 unifiedAlt: '© Alex Webb'
+tags: [color, documentary, tropical]
 build:
   publishResources: false
 ---

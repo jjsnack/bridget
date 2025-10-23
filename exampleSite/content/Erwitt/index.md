@@ -8,6 +8,7 @@ menu:
     identifier: Erwitt
     title: Erwitt
 unifiedAlt: '© Elliott Erwitt'
+tags: [street, black & white, documentary]
 build:
   publishResources: false
 ---

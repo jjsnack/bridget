@@ -8,6 +8,7 @@ menu:
     identifier: Gruyaert
     title: Gruyaert
 unifiedAlt: '© Harry Gruyaert'
+tags: [color, urban, architectural]
 build:
   publishResources: false
 ---

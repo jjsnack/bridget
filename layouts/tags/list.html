@@ -1,0 +1,97 @@
+{{- define "main" -}}
+  {{- /* Load tags CSS */ -}}
+  <link rel="stylesheet" href="/bundled/css/tags.css">
+
+  <div class="tags-container">
+    {{- with .Content -}}
+      <article>
+        {{- . -}}
+      </article>
+    {{- end -}}
+
+    {{- /* Mount point for Solid.js tags browser */ -}}
+    <div
+      id="tags-app"
+      data-prev="{{ i18n "previous" }}"
+      data-close="{{ i18n "close" }}"
+      data-next="{{ i18n "next" }}"
+      data-loading="{{ i18n "loading" }}"
+    ></div>
+
+    {{- partial "nav.html" . -}}
+
+    {{- /* Load tags JavaScript */ -}}
+    <script type="module" src="/bundled/js/tags.js"></script>
+  </div>
+
+  {{- /* Build tags data for TypeScript */ -}}
+  {{- $allImages := slice -}}
+  {{- $allTagsMap := dict -}}
+  {{- $loResOpt := site.Params.Page.loResOpt | default "400x webp picture" -}}
+  {{- $hiResOpt := site.Params.Page.hiResOpt | default "1200x webp picture" -}}
+
+  {{- /* Iterate through all pages in the site */ -}}
+  {{- range site.Pages -}}
+    {{- $page := . -}}
+    {{- $tags := .Params.tags -}}
+
+    {{- /* Only process pages with tags and images */ -}}
+    {{- if $tags -}}
+      {{- $images := .Resources.ByType "image" -}}
+      {{- if gt (len $images) 0 -}}
+        {{- /* Determine source type */ -}}
+        {{- $sourceType := "gallery" -}}
+        {{- if eq .Type "collection" -}}
+          {{- $sourceType = "collection" -}}
+        {{- end -}}
+
+        {{- /* Process each image in the page */ -}}
+        {{- range $idx, $img := $images -}}
+          {{- $loRes := $img.Resize $loResOpt -}}
+          {{- $hiRes := $img.Resize $hiResOpt -}}
+
+          {{- /* Get alt text from params or use default */ -}}
+          {{- $alt := index $page.Params "unifiedAlt" | default "" -}}
+
+          {{- /* Create tagged image object */ -}}
+          {{- $taggedImage := dict
+            "loRes" $loRes.RelPermalink
+            "hiRes" $hiRes.RelPermalink
+            "width" $img.Width
+            "height" $img.Height
+            "alt" $alt
+            "source" $page.Title
+            "sourceType" $sourceType
+            "sourcePermalink" $page.Permalink
+            "tags" $tags
+            "sourceIndex" $idx
+          -}}
+
+          {{- $allImages = $allImages | append $taggedImage -}}
+
+          {{- /* Collect all unique tags */ -}}
+          {{- range $tags -}}
+            {{- $allTagsMap = merge $allTagsMap (dict . true) -}}
+          {{- end -}}
+        {{- end -}}
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
+
+  {{- /* Convert tags map to sorted array */ -}}
+  {{- $allTags := slice -}}
+  {{- range $tag, $_ := $allTagsMap -}}
+    {{- $allTags = $allTags | append $tag -}}
+  {{- end -}}
+  {{- $allTags = sort $allTags -}}
+
+  {{- /* Build final data structure */ -}}
+  {{- $tagsData := dict
+    "images" $allImages
+    "allTags" $allTags
+  -}}
+
+  <script id="tags-data" type="application/json">
+    {{- $tagsData | jsonify | safeJS -}}
+  </script>
+{{- end -}}

@@ -11,7 +11,8 @@ export default defineConfig({
     rollupOptions: {
       input: {
         main: './assets/ts/main.tsx',
-        collection: './assets/ts/collection/collectionMain.tsx'
+        collection: './assets/ts/collection/collectionMain.tsx',
+        tags: './assets/ts/tags/tagsMain.tsx'
       },
       output: {
         format: 'es',

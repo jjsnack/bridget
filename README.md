@@ -66,6 +66,54 @@ For a gallery of photos in a blog post, place your images in the same directory 
 
 The theme's responsive image handling will automatically optimize and display your photos appropriately.
 
+## Tags & Filtering
+
+Bridget includes a powerful tag-based filtering system that lets visitors browse and discover photos across all your galleries and collections.
+
+### Creating the Tags Page
+
+1. Create a tags page using Hugo's archetype:
+   ```bash
+   hugo new tags/index.md --kind tags
+   ```
+
+2. This creates `content/tags/index.md` with the proper configuration. The page will automatically aggregate all tagged images from your site.
+
+### Adding Tags to Galleries and Collections
+
+Add tags to any gallery or collection by including them in the front matter of the `index.md` file:
+
+```yaml
+---
+title: Street Photography
+type: gallery
+tags: [street, urban, black & white]  # Add your tags here
+---
+```
+
+**Example for collections:**
+```yaml
+---
+title: Documentary Work
+type: collection
+tags: [documentary, portraits, editorial]
+---
+```
+
+### Tags Browser Features
+
+The `/tags/` page provides:
+
+- **Search & Filter**: Type to search tags with autocomplete suggestions
+- **Multi-select Filtering**: Click multiple tags to filter images (shows images matching ALL selected tags)
+- **Tag Chips**: Selected tags appear as removable chips
+- **Expandable Tag List**: "Open tags" button reveals all available tags
+- **Infinite Scroll**: Automatically loads more images as you scroll
+- **Aspect Ratio Toggle**: Switch between natural aspect ratios (masonry layout) and square grid
+- **Stage Integration**: Click any image to view in the full stage (desktop) or gallery viewer (mobile)
+
+All images from galleries and collections with matching tags will be automatically collected and made browsable through the tags page.
+
 ## Features
 
 - **Blazingly fast**: 100/100 on both desktop and mobile in [Google PageSpeed Insights](https://developers.google.com/speed/pagespeed/insights)
