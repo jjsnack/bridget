@@ -45,8 +45,10 @@ This document provides a description of every file in the codebase.
 ### `archetypes/`
 
 - **`blog.md`** - Template for creating new blog posts with front matter
+- **`collection.md`** - Template for creating new collection pages with front matter (type: collection, layout: list)
 - **`default.md`** - Default template for new Hugo content
 - **`gallery.md`** - Template for creating new photo galleries with navigation config
+- **`tags.md`** - Template for creating tags page with front matter (type: tags, layout: list)
 
 ## Assets - SCSS Styles
 
@@ -73,8 +75,11 @@ This document provides a description of every file in the codebase.
 ### `assets/scss/`
 
 - **`_variables.scss`** - CSS custom properties for dynamic viewport presets and z-index layers
+- **`collection.scss`** - Collection grid and tile styling with responsive layout and title rotation
+- **`collection-single.scss`** - Collection single-item page styling with draggable elements, gallery overlay, and custom cursor
 - **`critical.scss`** - Critical above-the-fold CSS loaded inline
 - **`style.scss`** - Main stylesheet importing all partials and core styles
+- **`tags.scss`** - Tags browser styling with filter UI, search, tag chips, image grid, and infinite scroll
 
 ## Assets - TypeScript/Solid.js
 
@@ -93,6 +98,25 @@ This document provides a description of every file in the codebase.
 - **`galleryImage.tsx`** - Individual gallery image component with lazy loading
 - **`galleryNav.tsx`** - Gallery navigation bar showing image counter and close button
 - **`layout.tsx`** - Mobile layout coordinator managing collection and gallery views
+
+### `assets/ts/collection/`
+
+- **`collectionMain.tsx`** - Entry point for collection grid page (renders CollectionGrid component)
+- **`collectionSingle.tsx`** - Entry point for collection single-item view page
+- **`grid.tsx`** - Collection grid component with responsive layout switching (grid/absolute positioning)
+- **`layout.ts`** - Seeded random positioning algorithm using Mulberry32 PRNG for deterministic tile placement
+- **`singleView.tsx`** - Single collection item view component with draggable interactions
+- **`tile.tsx`** - Individual collection tile with image cycling, title rotation, and hover effects
+- **`types.ts`** - TypeScript interfaces for collection data (CollectionImage, CollectionData, TilePosition, TileBounds)
+
+### `assets/ts/tags/`
+
+- **`tagsMain.tsx`** - Entry point for tags browser page (renders TagBrowser component)
+- **`tagBrowser.tsx`** - Main coordinator component managing filtering, grid, and stage/gallery integration
+- **`tagFilter.tsx`** - Tag search/filter UI with autocomplete, tag chips, and expandable tag list
+- **`imageGrid.tsx`** - Image grid component with infinite scroll and aspect ratio toggle
+- **`gridTile.tsx`** - Individual image tile in the tags grid
+- **`types.ts`** - TypeScript interfaces for tags data (TaggedImage, FilterState, AspectRatioMode, TagsData)
 
 ### `assets/ts/`
 
@@ -136,6 +160,16 @@ This document provides a description of every file in the codebase.
 - **`photography-tips/example2.jpg`** - Example image for blog post
 - **`photography-tips/example3.jpg`** - Example image for blog post
 
+### `exampleSite/content/collections/`
+
+- **`_index.md`** - Collections section index page configuration
+- **`Erwitt/index.md`** - Example collection metadata and configuration
+- **`Erwitt/1.jpg` through `Erwitt/4.jpg`** - Sample collection images
+- **`Gruyaert/index.md`** - Example collection metadata and configuration
+- **`Gruyaert/1.jpg` through `Gruyaert/4.jpg`** - Sample collection images
+- **`Webb/index.md`** - Example collection metadata and configuration
+- **`Webb/1.jpg` through `Webb/4.jpg`** - Sample collection images
+
 ### `exampleSite/content/Erwitt/`
 
 - **`index.md`** - Gallery configuration and metadata for Erwitt photo collection
@@ -175,9 +209,18 @@ This document provides a description of every file in the codebase.
 - **`list.html`** - Blog list page template showing all blog posts
 - **`single.html`** - Individual blog post template with article content
 
+### `layouts/collection/`
+
+- **`list.html`** - Collection listing page with Solid.js grid component and embedded JSON data
+- **`single.html`** - Individual collection detail page with draggable content, image gallery, custom cursor, and inline GSAP script
+
 ### `layouts/gallery/`
 
 - **`single.html`** - Photo gallery template with Solid.js container and image JSON data
+
+### `layouts/tags/`
+
+- **`list.html`** - Tags browser page with Solid.js tag filter, image grid, and embedded JSON data of all tagged images
 
 ### `layouts/partials/function/`
 
