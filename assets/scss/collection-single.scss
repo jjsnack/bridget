@@ -22,7 +22,7 @@
   flex-direction: column;
   align-items: center; // Center all children horizontally
   text-align: left;
-  gap: 3rem; // Even spacing between all elements
+  gap: 0; // No gap - spacing controlled by element padding
 
   .collection-back-link {
     position: fixed;
@@ -43,7 +43,7 @@
   }
 
   .collection-post-title {
-    font-size: 1.6em;
+    font-size: 2em;
     margin: 0;
     user-select: none; // Prevent text selection while dragging
     position: relative; // Enable transform for dragging
@@ -55,7 +55,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 2.5rem; // Even spacing between content elements
+    gap: 0; // No gap - spacing controlled by element padding
   }
 
   // Draggable elements

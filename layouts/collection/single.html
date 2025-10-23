@@ -41,7 +41,16 @@
         let isDragging = false;
         let startMousePos = { x: 0, y: 0 };
         let startTransform = { x: 0, y: 0 };
-        let currentTransform = { x: 0, y: 0 };
+
+        // Read initial transform from element (if already positioned by layout)
+        const initialRect = element.getBoundingClientRect();
+        const parentRect = element.parentElement?.getBoundingClientRect() || { left: 0, top: 0 };
+
+        // Get current GSAP transform values if they exist
+        const gsapX = gsap.getProperty(element, 'x') || 0;
+        const gsapY = gsap.getProperty(element, 'y') || 0;
+        let currentTransform = { x: Number(gsapX), y: Number(gsapY) };
+
         let hasDragged = false;
         const moveThreshold = 5; // Minimum pixels to move before considering it a drag
 
@@ -107,7 +116,17 @@
         return () => hasDragged;
       };
 
-      // === Initialize Draggable Elements ===
+      // === Pseudorandom Number Generator (Seeded) ===
+      const createSeededRandom = (seed) => {
+        let state = seed;
+        return () => {
+          // Linear congruential generator
+          state = (state * 1664525 + 1013904223) % 4294967296;
+          return state / 4294967296;
+        };
+      };
+
+      // === Initialize Draggable Elements with Natural Layout ===
       const initializeDraggables = () => {
         const draggableChecks = new Map();
 
@@ -125,9 +144,65 @@
           contentElements.forEach(el => allElements.push(el));
         }
 
-        // Make all elements draggable (they stay in their natural flexbox positions)
-        allElements.forEach((element) => {
-          draggableChecks.set(element, makeDraggable(element));
+        // Create seeded random generator (seed based on page title for consistency)
+        const pageTitle = document.title || 'default';
+        let seed = 0;
+        for (let i = 0; i < pageTitle.length; i++) {
+          seed = (seed << 5) - seed + pageTitle.charCodeAt(i);
+          seed = seed & seed; // Convert to 32-bit integer
+        }
+        const random = createSeededRandom(Math.abs(seed));
+
+        // Apply natural, varied positioning to each element
+        allElements.forEach((element, index) => {
+          // Generate horizontal offset: random value between -250px and +250px
+          const rawOffset = (random() - 0.5) * 2; // -1 to 1
+          const horizontalOffset = Math.round(rawOffset * 250);
+
+          // Generate vertical spacing variation
+          // Base padding + random additional padding (0 to 120px)
+          const basePadding = index === 0 ? 0 : 40;
+          const additionalPadding = Math.round(random() * 120);
+          const topPadding = basePadding + additionalPadding;
+
+          // Apply padding to element
+          element.style.paddingTop = `${topPadding}px`;
+
+          let draggableTarget;
+
+          // Handle images differently from text elements
+          if (element.tagName === 'IMG') {
+            // For images, make the image itself draggable (no wrapper needed)
+            draggableTarget = element;
+            element.style.display = 'block';
+
+            // Mark for click handling
+            element.dataset.isCollectionImg = 'true';
+          } else {
+            // For text elements, wrap their content
+            const wrapper = document.createElement('div');
+            wrapper.className = 'draggable-content-wrapper';
+            wrapper.style.display = 'inline-block';
+            wrapper.style.position = 'relative';
+
+            // Move element's children into wrapper
+            while (element.firstChild) {
+              wrapper.appendChild(element.firstChild);
+            }
+
+            // Add wrapper to element
+            element.appendChild(wrapper);
+            draggableTarget = wrapper;
+          }
+
+          // Apply horizontal offset using transform
+          gsap.set(draggableTarget, {
+            x: horizontalOffset,
+            y: 0
+          });
+
+          // Make target draggable
+          draggableChecks.set(element, makeDraggable(draggableTarget));
         });
 
         // Store for image click prevention
@@ -142,11 +217,14 @@
       }
 
       // === Image Gallery with Animation ===
-      const collectionImages = document.querySelectorAll('.collection-post img:not([src=""])');
-
       // Custom cursor tracking
       const updateCursor = (e) => {
         gsap.set(cursor, { x: e.clientX, y: e.clientY });
+      };
+
+      // Get all collection images
+      const getCollectionImages = () => {
+        return document.querySelectorAll('.collection-post img[data-is-collection-img="true"]');
       };
 
       // Expand image animation
@@ -306,21 +384,34 @@
         });
       };
 
-      // Add click listeners to collection images
-      collectionImages.forEach(img => {
-        img.addEventListener('click', (e) => {
-          e.preventDefault();
-          e.stopPropagation();
+      // Add click listeners to collection images after initialization
+      const setupImageClickHandlers = () => {
+        const images = getCollectionImages();
+        images.forEach((img) => {
+          img.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
 
-          // Check if this image was dragged
-          const wasDragged = window.draggableChecks?.get(img)?.();
-          if (wasDragged) return;
+            // Check if this image was dragged
+            const wasDragged = window.draggableChecks?.get(img)?.();
+            if (wasDragged) return;
 
-          if (img.src && !img.src.includes('data:image/svg+xml')) {
-            expandImage(img);
-          }
+            if (img.src && !img.src.includes('data:image/svg+xml')) {
+              expandImage(img);
+            }
+          });
         });
-      });
+      };
+
+      // Setup image handlers after draggables are initialized
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => {
+          // Small delay to ensure draggables are set up first
+          setTimeout(setupImageClickHandlers, 100);
+        });
+      } else {
+        setTimeout(setupImageClickHandlers, 100);
+      }
 
       // Close gallery function
       const closeGallery = () => {
