@@ -61,7 +61,6 @@
           // Store current transform values
           startTransform = { ...currentTransform };
 
-          element.style.cursor = 'grabbing';
           document.addEventListener('mousemove', handleMouseMove);
           document.addEventListener('mouseup', handleMouseUp);
         };
@@ -96,7 +95,6 @@
 
         const handleMouseUp = () => {
           isDragging = false;
-          element.style.cursor = 'grab';
           document.removeEventListener('mousemove', handleMouseMove);
           document.removeEventListener('mouseup', handleMouseUp);
 
