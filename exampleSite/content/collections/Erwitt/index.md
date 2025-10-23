@@ -22,4 +22,3 @@ The photographer's unique perspective brings warmth and wit to ordinary scenes.
 Each photograph tells a story of human connection and spontaneity.
 
 ![Fourth image](4.jpg)
-The 

@@ -12,17 +12,17 @@
   }
 }
 
-// Left-aligned collection post
+// Centered collection post with flexbox
 .collection-post {
   padding-bottom: 4rem;
-  padding-left: 100px; // Left margin
   width: 100%;
-  max-width: none;
-  margin: 0;
+  max-width: 900px; // Max width for readability
+  margin: 0 auto; // Center the container
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center; // Center all children horizontally
   text-align: left;
+  gap: 3rem; // Even spacing between all elements
 
   .collection-back-link {
     position: fixed;
@@ -44,33 +44,51 @@
 
   .collection-post-title {
     font-size: 1.6em;
-    margin: 0; // Spacing controlled by JS
+    margin: 0;
     user-select: none; // Prevent text selection while dragging
-    position: relative; // Enable transform
+    position: relative; // Enable transform for dragging
+    cursor: grab;
+
+    &:active {
+      cursor: grabbing;
+    }
   }
 
   .collection-content-wrapper {
     width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2.5rem; // Even spacing between content elements
   }
 
   // Draggable elements
   p, h1, h2, h3, h4, h5, h6 {
     user-select: none; // Prevent text selection while dragging
-    position: relative; // Enable transform
-    margin-bottom: 0; // Spacing controlled by JS
-    cursor: default; // No cursor change
+    position: relative; // Enable transform for dragging
+    margin: 0; // Use gap from flex container
+    cursor: grab;
+    width: 100%; // Take full width of container
+
+    &:active {
+      cursor: grabbing;
+    }
   }
 
   img {
     user-select: none; // Prevent text selection while dragging
-    position: relative; // Enable transform
-    margin-bottom: 0; // No bottom margin, spacing controlled by JS
-    cursor: default; // No cursor change
-    max-width: 800px; // Max width for images
+    position: relative; // Enable transform for dragging
+    margin: 0; // Use gap from flex container
+    cursor: grab;
+    max-width: 100%; // Responsive width
     width: auto;
     height: auto;
     object-fit: contain;
     display: block;
+
+    &:active {
+      cursor: grabbing;
+    }
 
     &:hover {
       opacity: 1; // No opacity change

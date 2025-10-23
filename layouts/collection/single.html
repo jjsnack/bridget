@@ -37,26 +37,24 @@
       let originalRect = null;
 
       // === Draggable Elements ===
-      const makeDraggable = (element, initialX, initialY) => {
+      const makeDraggable = (element) => {
         let isDragging = false;
-        let dragOffset = { x: 0, y: 0 };
+        let startPos = { x: 0, y: 0 };
+        let currentTransform = { x: 0, y: 0 };
         let hasDragged = false;
-        let currentPosition = { x: initialX, y: initialY };
-
-        // Set initial position
-        gsap.set(element, { x: initialX, y: initialY });
 
         const handleMouseDown = (e) => {
           e.preventDefault();
           isDragging = true;
           hasDragged = false;
 
-          // Calculate offset from mouse to element position
-          dragOffset = {
-            x: e.clientX - currentPosition.x,
-            y: e.clientY - currentPosition.y
+          // Store starting mouse position
+          startPos = {
+            x: e.clientX - currentTransform.x,
+            y: e.clientY - currentTransform.y
           };
 
+          element.style.cursor = 'grabbing';
           document.addEventListener('mousemove', handleMouseMove);
           document.addEventListener('mouseup', handleMouseUp);
         };
@@ -66,34 +64,26 @@
 
           hasDragged = true;
 
-          // Calculate new position with viewport constraints
-          const rect = element.getBoundingClientRect();
-          const viewportWidth = window.innerWidth;
-          const viewportHeight = window.innerHeight;
+          // Calculate new transform relative to natural position
+          currentTransform = {
+            x: e.clientX - startPos.x,
+            y: e.clientY - startPos.y
+          };
 
-          let newX = e.clientX - dragOffset.x;
-          let newY = e.clientY - dragOffset.y;
-
-          // Constrain to viewport bounds (with some padding)
-          const padding = 20;
-          const maxX = viewportWidth - rect.width - padding;
-          const maxY = viewportHeight - rect.height - padding;
-
-          newX = Math.max(-padding, Math.min(newX, maxX));
-          newY = Math.max(-padding, Math.min(newY, maxY));
-
-          currentPosition = { x: newX, y: newY };
-
-          // Use GSAP for smooth movement
-          gsap.set(element, { x: newX, y: newY });
+          // Apply transform
+          gsap.set(element, {
+            x: currentTransform.x,
+            y: currentTransform.y
+          });
         };
 
         const handleMouseUp = () => {
           isDragging = false;
+          element.style.cursor = 'grab';
           document.removeEventListener('mousemove', handleMouseMove);
           document.removeEventListener('mouseup', handleMouseUp);
 
-          // Return hasDragged status for click prevention
+          // Reset hasDragged after a short delay for click prevention
           setTimeout(() => { hasDragged = false; }, 10);
         };
 
@@ -103,63 +93,39 @@
         return () => hasDragged;
       };
 
-      // === Left-Aligned Layout ===
-      const applyNaturalLayout = () => {
+      // === Initialize Draggable Elements ===
+      const initializeDraggables = () => {
         const draggableChecks = new Map();
 
-        // Collect all elements in DOM order
+        // Collect all draggable elements
         const allElements = [];
 
-        // Add title first
+        // Add title
         const title = collectionPost.querySelector('.collection-post-title');
         if (title) allElements.push(title);
 
-        // Add content elements in order
+        // Add content elements
         const contentWrapper = collectionPost.querySelector('.collection-content-wrapper');
         if (contentWrapper) {
           const contentElements = contentWrapper.querySelectorAll('p, h1, h2, h3, h4, h5, h6, img');
           contentElements.forEach(el => allElements.push(el));
         }
 
-        // Layout parameters - simple left-aligned column
-        const leftMargin = 100; // Left margin from viewport edge
-        let currentY = 150; // Top padding
-        const spacing = 150; // Fixed spacing between elements
-
-        // Position elements vertically in left-aligned column
+        // Make all elements draggable (they stay in their natural flexbox positions)
         allElements.forEach((element) => {
-          // X position: fixed left margin
-          const x = 0; // No horizontal offset needed, CSS handles left margin
-          const y = currentY;
-
-          // Make element draggable with calculated position
-          draggableChecks.set(element, makeDraggable(element, x, y));
-
-          // Get element height after positioning for accurate measurement
-          const rect = element.getBoundingClientRect();
-          const elementHeight = rect.height || 100;
-
-          // Update Y for next element (element height + fixed spacing)
-          currentY += elementHeight + spacing; // 150px spacing between elements
+          draggableChecks.set(element, makeDraggable(element));
         });
 
         // Store for image click prevention
         window.draggableChecks = draggableChecks;
       };
 
-      // Wait for content to load, then apply
+      // Wait for content to load, then initialize
       if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', applyNaturalLayout);
+        document.addEventListener('DOMContentLoaded', initializeDraggables);
       } else {
-        applyNaturalLayout();
+        initializeDraggables();
       }
-
-      // Reapply layout on window resize (debounced)
-      let resizeTimeout;
-      window.addEventListener('resize', () => {
-        clearTimeout(resizeTimeout);
-        resizeTimeout = setTimeout(applyNaturalLayout, 300);
-      });
 
       // === Image Gallery with Animation ===
       const collectionImages = document.querySelectorAll('.collection-post img:not([src=""])');
