@@ -145,11 +145,7 @@
         // Get the current visual position of the image (including any transforms)
         originalRect = img.getBoundingClientRect();
 
-        // Set gallery image
-        galleryImg.src = img.src;
-        galleryImg.alt = img.alt || 'Collection image';
-
-        // Show gallery first (but image will be invisible initially)
+        // Show gallery and hide original image
         gallery.classList.add('active');
         cursor.classList.add('active');
         document.body.style.overflow = 'hidden';
@@ -163,7 +159,7 @@
         const startX = originalRect.left + originalRect.width / 2;
         const startY = originalRect.top + originalRect.height / 2;
 
-        // Position gallery image at original image's center using transforms
+        // Position gallery image at original image's center using transforms (invisible initially)
         gsap.set(galleryImg, {
           position: 'fixed',
           top: '50%',
@@ -179,11 +175,51 @@
           opacity: 1
         });
 
-        // Animate expansion with smooth timeline
+        // Set gallery image source
+        galleryImg.src = img.src;
+        galleryImg.alt = img.alt || 'Collection image';
+
+        // Wait for image to load before animating
+        const imageLoadPromise = new Promise((resolve) => {
+          if (galleryImg.complete) {
+            resolve();
+          } else {
+            galleryImg.onload = () => resolve();
+            galleryImg.onerror = () => resolve(); // Continue even if error
+          }
+        });
+
+        await imageLoadPromise;
+
+        // Calculate target dimensions for the expanded image
+        const naturalWidth = galleryImg.naturalWidth;
+        const naturalHeight = galleryImg.naturalHeight;
+        const maxWidth = window.innerWidth * 0.9;
+        const maxHeight = window.innerHeight * 0.9;
+
+        // Calculate final size maintaining aspect ratio
+        const aspectRatio = naturalWidth / naturalHeight;
+        let targetWidth, targetHeight;
+
+        if (naturalWidth / maxWidth > naturalHeight / maxHeight) {
+          // Width is the limiting factor
+          targetWidth = Math.min(naturalWidth, maxWidth);
+          targetHeight = targetWidth / aspectRatio;
+        } else {
+          // Height is the limiting factor
+          targetHeight = Math.min(naturalHeight, maxHeight);
+          targetWidth = targetHeight * aspectRatio;
+        }
+
+        // Now animate with the loaded image
         const tl = gsap.timeline();
 
-        // Small delay for visual stability
-        tl.to({}, { duration: 0.1 });
+        // Fade in the image
+        tl.to(galleryImg, {
+          opacity: 1,
+          duration: 0.2,
+          ease: 'power3.out'
+        });
 
         // Move to center
         tl.to(galleryImg, {
@@ -191,14 +227,14 @@
           y: 0,
           duration: 0.7,
           ease: 'power3.inOut'
-        });
+        }, '<');
 
-        // Expand to full size
+        // Expand to full size with calculated dimensions
         tl.to(galleryImg, {
-          width: 'auto',
-          height: 'auto',
-          maxWidth: '90vw',
-          maxHeight: '90vh',
+          width: targetWidth,
+          height: targetHeight,
+          maxWidth: maxWidth,
+          maxHeight: maxHeight,
           duration: 0.5,
           ease: 'power3.inOut',
           onComplete: () => {
