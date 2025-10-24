@@ -114,9 +114,10 @@ This document provides a description of every file in the codebase.
 - **`tagsMain.tsx`** - Entry point for tags browser page (renders TagBrowser component)
 - **`tagBrowser.tsx`** - Main coordinator component managing filtering, grid, and stage/gallery integration
 - **`tagFilter.tsx`** - Tag search/filter UI with autocomplete, tag chips, and expandable tag list
-- **`imageGrid.tsx`** - Image grid component with infinite scroll and aspect ratio toggle
-- **`gridTile.tsx`** - Individual image tile in the tags grid
-- **`types.ts`** - TypeScript interfaces for tags data (TaggedImage, FilterState, AspectRatioMode, TagsData)
+- **`imageGrid.tsx`** - Image grid component with infinite scroll in square layout
+- **`gridTile.tsx`** - Individual image tile in the tags grid (always square aspect ratio)
+- **`scrollToTop.tsx`** - Scroll-to-top button that appears when user scrolls down
+- **`types.ts`** - TypeScript interfaces for tags data (TaggedImage, FilterState, TagsData)
 
 ### `assets/ts/`
 
