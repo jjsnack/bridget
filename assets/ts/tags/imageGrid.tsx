@@ -88,7 +88,7 @@ export const ImageGrid: Component<ImageGridProps> = (props) => {
 
       {/* End Message */}
       <Show when={!hasMore() && props.filteredImages.length > ITEMS_PER_PAGE}>
-        <div class="image-grid__end">All images loaded</div>
+        <div class="image-grid__end">End</div>
       </Show>
 
       {/* Empty State */}

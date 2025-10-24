@@ -6,6 +6,7 @@
 import { type Component, createSignal, createMemo, createEffect, lazy, Show } from 'solid-js'
 import { TagFilter } from './tagFilter'
 import { ImageGrid } from './imageGrid'
+import { ScrollToTop } from './scrollToTop'
 import type { TagsData, TaggedImage, FilterState } from './types'
 import type { ImageJSON } from '../resources'
 import type { HistoryItem } from '../desktop/layout'
@@ -178,6 +179,9 @@ export const TagBrowser: Component<TagBrowserProps> = (props) => {
           setScrollable={setScrollable}
         />
       </Show>
+
+      {/* Scroll to Top Button */}
+      <ScrollToTop />
     </div>
   )
 }
