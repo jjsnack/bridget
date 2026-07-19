@@ -1,7 +1,3 @@
-@use 'sass:map';
-
-@use '_core/mixins' as *;
-
 // no scroll on the error page — the view is a single fixed cover.
 // .container is the mobile scroller (position:fixed; overflow-y:scroll), so
 // body overflow:hidden doesn't reach it — lock it explicitly.
