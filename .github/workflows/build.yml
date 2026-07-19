@@ -16,7 +16,6 @@ jobs:
     timeout-minutes: 30
     runs-on: ubuntu-latest
     name: Build (Hugo ${{ matrix.hugo_variant_to_install }})
-    if: github.event.repository.fork == false
     strategy:
       matrix:
         hugo_variant_to_install: ['Minimum', 'Latest']
@@ -24,7 +23,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
         with:
-          token: ${{ secrets.PAT }}
+          # github.token as a fallback, since other user might trigger this
+          # workflow in their pull request
+          token: ${{ secrets.PAT || github.token }}
 
       - name: Resolve Hugo variant to install
         id: resolve_hugo_variant_to_install
