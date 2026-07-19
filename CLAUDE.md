@@ -7,7 +7,7 @@ Minimal Hugo theme for photographers/visual artists. Hugo (Go templates) drives 
 - **Hugo** — templates in `layouts/`, theme module mounts defined in `hugo.toml`. Demo/test content lives in `exampleSite/`.
 - **SolidJS + TypeScript** — components in `assets/ts/`, split into `desktop/` and `mobile/` variants (separate layout trees, not just responsive CSS).
 - **Vite** — bundles `assets/ts/main.tsx` and `assets/ts/critical.ts` into `bundled/js/`. `vite-plugin-solid` handles JSX.
-- **Sass** — `assets/scss/`, split into `_core/` (foundation, reset, typography, mixins, fonts) and `_partial/` (one file per feature: nav, gallery, stage, postStage, customCursor, collection, article, container, postList).
+- **Sass** — `assets/scss/`, split into `_core/` (foundation, reset, typography, mixins, fonts) and `_partial/` (one file per feature: nav, gallery, stage, stageNav, customCursor, collection, article, container, post, postList).
 - **GSAP** — used for animations (`stageAnimations.ts`, gallery transitions).
 - **Swiper** — gallery/carousel.
 - Package manager: **pnpm**.
@@ -30,6 +30,9 @@ pnpm lint:check     # eslint + prettier --check (CI-equivalent, no writes)
 - `configState.tsx` / `imageState.tsx` hold shared reactive state consumed by both trees.
 - Gallery navigation, "stage" (single-image) view, and custom cursor are the three interactive centerpieces — most feature work touches one of these.
 - SCSS partials map roughly 1:1 to the TSX components under `_partial/`; keep that pairing when adding new components (new component → new partial, not appended to an existing one).
+- **Post archetype** (`type: post`, `layouts/post/single.html`) is a separate blog-style flow from the scatter gallery: server-rendered prose + a click-to-open lightbox (`assets/ts/post.tsx`), with an optional desktop-only drag flourish (`postDrag.ts`). `type: postlist` (`layouts/postlist/single.html`) is the scattered index of posts, hover-cycling on desktop (`postList.ts`) and a static column on mobile (no JS). Inline post images go through the `render-image.html` render hook (size keyword in the markdown title) and the `row` shortcode for side-by-side layout.
+- `main.tsx` reads `data-page` off `.container` (`post` / `postlist` / unset) to decide which module to boot instead of always mounting the gallery `<Main />`. `isMobile()` is centralized in `utils.ts` and shared across all three entry paths.
+- `layouts/_default/single.html` picks the nav variant per page: image-bearing pages get the full gallery `nav.html`; text-only pages (Info, post, postlist) get the quiet `postNav.html`.
 
 ## Design system (existing, don't reinvent)
 
