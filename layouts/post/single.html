@@ -1,0 +1,27 @@
+{{- define "main" -}}
+  <div class="container" data-page="post" data-close="{{- site.Params.labels.close -}}">
+    {{- partial "postNav.html" . -}}
+
+    <article class="postArticle">
+      <header class="postHeader">
+        {{- with .Params.eyebrow -}}<p class="postEyebrow">{{- . -}}</p>{{- end -}}
+        <h1 class="postTitle">{{- .Title -}}</h1>
+        {{- with .Params.lede -}}<p class="postLede">{{- . -}}</p>{{- end -}}
+        {{- with .Params.meta -}}
+          <dl class="postMeta">
+            {{- range . -}}
+              <div>
+                <dt>{{- .label -}}</dt>
+                <dd>{{- .value -}}</dd>
+              </div>
+            {{- end -}}
+          </dl>
+        {{- end -}}
+      </header>
+
+      <div class="postBody">
+        {{- .Content -}}
+      </div>
+    </article>
+  </div>
+{{- end -}}
