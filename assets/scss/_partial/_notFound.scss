@@ -1,0 +1,43 @@
+@use 'sass:map';
+
+@use '_core/mixins' as *;
+
+// no scroll on the error page — the view is a single fixed cover.
+// .container is the mobile scroller (position:fixed; overflow-y:scroll), so
+// body overflow:hidden doesn't reach it — lock it explicitly.
+html:has(.notFound),
+html:has(.notFound) body,
+html:has(.notFound) .container {
+  height: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+.notFound {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+
+  height: var(--window-height);
+  background: white;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+
+  padding: var(--space-standard);
+  text-align: center;
+
+  &__code {
+    font-size: clamp(3rem, 12vw, 7rem);
+    font-weight: bold;
+    line-height: 0.9;
+    letter-spacing: -0.02em;
+  }
+
+  &__label {
+    font-size: 0.875em;
+  }
+}

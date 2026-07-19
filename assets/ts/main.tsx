@@ -89,7 +89,9 @@ function Main(): JSX.Element {
 
 const page = container?.dataset.page
 
-if (page === 'post') {
+if (page === '404') {
+  // static error page — no scatter gallery, no image fetch.
+} else if (page === 'post') {
   // blog-style post: augment server-rendered prose with the click-to-open
   // lightbox instead of booting the scatter gallery.
   void import('./post').then((m) => {
