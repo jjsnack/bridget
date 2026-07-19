@@ -43,6 +43,7 @@ function Lightbox(props: {
     const img = btn.querySelector('img')
     if (img == null) return
 
+    animating = true
     origin = rectOf(img)
     setShot({
       url: btn.dataset.hiUrl ?? '',
@@ -52,8 +53,10 @@ function Lightbox(props: {
     setOpen(true)
 
     const g = await ensureGsap()
-    if (frame === undefined) return
-    animating = true
+    if (frame === undefined) {
+      animating = false
+      return
+    }
     g.fromTo(
       frame,
       { ...origin },
@@ -73,12 +76,14 @@ function Lightbox(props: {
 
   const close = async (): Promise<void> => {
     if (animating || !open()) return
+    animating = true
     const g = await ensureGsap()
     if (frame === undefined) {
+      animating = false
       setOpen(false)
+      setShot(null)
       return
     }
-    animating = true
     g.to(frame, {
       ...origin,
       duration: prefersReducedMotion() ? 0 : 0.45,
