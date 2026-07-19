@@ -18,12 +18,14 @@ const prefersReducedMotion = (): boolean =>
 function Lightbox(props: {
   buttons: HTMLButtonElement[]
   closeText: string
+  root: HTMLElement
 }): JSX.Element {
   let overlay: HTMLDivElement | undefined
   let frame: HTMLDivElement | undefined
   let _gsap: typeof gsap
   let origin = { top: 0, left: 0, width: 0, height: 0 }
   let animating = false
+  let trigger: HTMLButtonElement | null = null
 
   const [open, setOpen] = createSignal(false)
   const [shot, setShot] = createSignal<Shot | null>(null)
@@ -44,6 +46,7 @@ function Lightbox(props: {
     if (img == null) return
 
     animating = true
+    trigger = btn
     origin = rectOf(img)
     setShot({
       url: btn.dataset.hiUrl ?? '',
@@ -82,6 +85,7 @@ function Lightbox(props: {
       animating = false
       setOpen(false)
       setShot(null)
+      trigger?.focus()
       return
     }
     g.to(frame, {
@@ -92,6 +96,7 @@ function Lightbox(props: {
         animating = false
         setOpen(false)
         setShot(null)
+        trigger?.focus()
       }
     })
   }
@@ -107,6 +112,22 @@ function Lightbox(props: {
   })
   onCleanup(() => {
     document.body.style.overflow = ''
+  })
+
+  // trap focus/AT inside the dialog while it's open: `inert` pulls every
+  // other top-level element out of both the tab order and the a11y tree in
+  // one shot, so nothing hidden behind the overlay stays reachable
+  createEffect(() => {
+    const isOpen = open()
+    Array.from(document.body.children).forEach((el) => {
+      if (el !== props.root) el.toggleAttribute('inert', isOpen)
+    })
+    if (isOpen) overlay?.focus()
+  })
+  onCleanup(() => {
+    Array.from(document.body.children).forEach((el) => {
+      el.toggleAttribute('inert', false)
+    })
   })
 
   onMount(() => {
@@ -130,6 +151,8 @@ function Lightbox(props: {
         onClick={() => void close()}
         role="dialog"
         aria-modal="true"
+        aria-label="Image viewer"
+        tabIndex={-1}
       >
         <div ref={frame} class="postLightboxFrame">
           {shot() != null && (
@@ -162,5 +185,5 @@ export function initPost(): void {
   root.className = 'postOverlayRoot'
   document.body.appendChild(root)
 
-  render(() => <Lightbox buttons={buttons} closeText={closeText} />, root)
+  render(() => <Lightbox buttons={buttons} closeText={closeText} root={root} />, root)
 }
