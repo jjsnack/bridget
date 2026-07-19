@@ -40,13 +40,15 @@ function Lightbox(props: {
     return { top: r.top, left: r.left, width: r.width, height: r.height }
   }
 
-  const openShot = async (btn: HTMLButtonElement): Promise<void> => {
+  const openShot = async (btn: HTMLButtonElement, keyboard: boolean): Promise<void> => {
     if (animating || open()) return
     const img = btn.querySelector('img')
     if (img == null) return
 
     animating = true
-    trigger = btn
+    // only reclaim focus on close for a keyboard-opened shot — restoring it
+    // for a mouse click paints a focus-visible outline nobody asked for
+    trigger = keyboard ? btn : null
     origin = rectOf(img)
     setShot({
       url: btn.dataset.hiUrl ?? '',
@@ -134,7 +136,10 @@ function Lightbox(props: {
     const controller = new AbortController()
     const { signal } = controller
     props.buttons.forEach((btn) => {
-      btn.addEventListener('click', () => void openShot(btn), { signal })
+      // click.detail is 0 for a keyboard-activated click (Enter/Space), >=1 for mouse
+      btn.addEventListener('click', (e) => void openShot(btn, e.detail === 0), {
+        signal
+      })
     })
     window.addEventListener('keydown', onKey, { signal })
     onCleanup(() => {
