@@ -24,8 +24,11 @@ export interface Container extends HTMLDivElement {
   }
 }
 
-// disable right-click / context menu site-wide
-document.addEventListener('contextmenu', (e) => e.preventDefault())
+// disable right-click / context menu over photos only (leaves text, links,
+// devtools etc. alone elsewhere on the page)
+document.addEventListener('contextmenu', (e) => {
+  if (e.target instanceof HTMLImageElement) e.preventDefault()
+})
 
 // container
 const container = document.getElementsByClassName('container')[0] as Container
