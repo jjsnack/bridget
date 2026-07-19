@@ -52,6 +52,7 @@ When touching UI, use the `frontend-design`/`frontend-ui-engineering` skills to 
 - TypeScript + ESLint (`eslint-config-love`, `eslint-plugin-solid`) + Prettier (`prettier-plugin-organize-imports`, `prettier-plugin-go-template` for Go templates). Run `pnpm lint` before considering frontend work done.
 - Go templates in `layouts/` are also formatted by Prettier — don't hand-diverge from its formatting.
 - **New features go on a feature branch**, never directly on `main`.
+- **Never push or open PRs to `upstream`/parent repo (`Sped0n/bridget`).** This is a fork — push only to `origin` (`jjsnack/bridget`). `gh pr create` defaults its base to the parent; always target `origin`/the `jjsnack` fork explicitly.
 - **After building a feature, add an example for it in `exampleSite/`** (content in `exampleSite/content/`, config in `exampleSite/config/`) so `pnpm hugo:dev`/`pnpm dev` can exercise it — this is the test fixture for the theme, not just a demo.
 
 ## Before calling any change done
