@@ -12,7 +12,7 @@
     {{- $len := len $menus -}}
     {{- range $menus -}}
       <a href="{{- .URL | relURL -}}" class="link">{{- .Title -}}</a>
-      {{- if ne (add $index 1) $len -}},&nbsp{{- end -}}
+      {{- if ne (add $index 1) $len -}},&nbsp;{{- end -}}
       {{- $index = add $index 1 -}}
     {{- end -}}
   </div>
