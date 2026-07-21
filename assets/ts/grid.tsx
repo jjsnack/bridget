@@ -105,7 +105,7 @@ function setupColumns(main: HTMLElement): void {
 function setCounter(current: number, total: number): void {
   const el = document.querySelector<HTMLElement>('.gridCount')
   if (el == null) return
-  const digits = String(current).padStart(3, '0') + String(total).padStart(3, '0')
+  const digits = String(current).padStart(4, '0') + String(total).padStart(4, '0')
   el.querySelectorAll<HTMLElement>('.num').forEach((span, i) => {
     span.innerText = digits[i] ?? '0'
   })

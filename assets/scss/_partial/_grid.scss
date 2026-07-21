@@ -53,25 +53,15 @@ $desktop: map.get($breakpoints, 'desktop');
   }
 }
 
-// The nav's right cluster holds two controls in one fixed slot: the column
-// stepper while browsing, the live image counter while the viewer is open.
-// They're stacked in the same grid cell so the slot is always as wide as the
-// larger one — toggling by visibility keeps the menu from shifting.
-.gridControls {
-  display: grid;
-  justify-items: end;
-  align-items: center;
-
-  // both children occupy the same cell
-  > * {
-    grid-area: 1 / 1;
-  }
-}
-
+// The nav's right cluster reuses the gallery nav's threshold + index slots:
+// the column stepper sits in the threshold slot, the image counter in the
+// index slot. Both keep their space (visibility, not display) so the menu
+// never shifts — while browsing the stepper shows, while viewing the counter.
 .gridColumns {
   display: inline-flex;
   align-items: center;
   gap: 0.5em;
+  visibility: visible; // shown over the reserved (hidden) threshold slot
 
   .dec,
   .inc {
@@ -90,10 +80,6 @@ $desktop: map.get($breakpoints, 'desktop');
   display: inline-flex;
   align-items: center;
   visibility: hidden;
-
-  .sep {
-    margin: 0 0.4em;
-  }
 }
 
 body.gridViewing {

@@ -66,7 +66,7 @@ function setupColumns(main) {
 function setCounter(current, total) {
 	const el = document.querySelector(".gridCount");
 	if (el == null) return;
-	const digits = String(current).padStart(3, "0") + String(total).padStart(3, "0");
+	const digits = String(current).padStart(4, "0") + String(total).padStart(4, "0");
 	el.querySelectorAll(".num").forEach((span, i) => {
 		span.innerText = digits[i] ?? "0";
 	});

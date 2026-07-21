@@ -41,10 +41,28 @@ html:has(.postArticle) {
   .index {
     visibility: hidden;
     pointer-events: none;
+    position: relative; // anchor the grid stepper / counter overlays
+  }
+
+  // grid pages overlay the real controls on the reserved (hidden) slots, out
+  // of flow, right-aligned to the slot edge — so the nav layout is identical
+  // to the gallery's and nothing shifts
+  .gridColumns,
+  .gridCount {
+    position: absolute;
+    inset: 0;
+    justify-content: flex-start; // align to the slot's left edge, like the placeholder
+    align-items: center;
+    pointer-events: auto;
   }
 
   .link {
     text-decoration: none;
+  }
+  // the active menu item stays italic + underlined (matches the gallery nav);
+  // re-assert underline since `.link` clears it above
+  .link.current {
+    text-decoration: underline;
   }
 }
 
