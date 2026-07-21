@@ -430,7 +430,9 @@ body.gridViewing {
 
   .gridStage {
     order: 0;
-    padding: 4vh 6vw calc(var(--nav-height) + 4vh);
+    // rail column (16rem) pushes the 1fr stage right of viewport centre; the
+    // extra right padding pulls the centred image back toward screen centre
+    padding: 4vh 11vw calc(var(--nav-height) + 4vh) 3vw;
   }
 
   .gridStageFrame img {
