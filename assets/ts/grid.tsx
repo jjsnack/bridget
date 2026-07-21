@@ -12,7 +12,7 @@
  */
 
 import {
-  For,
+  Index,
   Show,
   createEffect,
   createMemo,
@@ -411,23 +411,32 @@ function Grid(props: {
         tabIndex={-1}
       >
         <ol ref={rail} class="gridRail" aria-label="Thumbnails">
-          <For each={railRows()}>
+          {/* Index (not For): railRows repeats the set RAIL_REPEAT times, so it
+              holds duplicate item references — Index keys by position, which is
+              exactly what a repeated loop is. */}
+          <Index each={railRows()}>
             {(row, i) => {
-              const active = (): boolean => i() === railIndex()
+              const active = (): boolean => i === railIndex()
+              // only the middle copy is exposed to assistive tech / tab order;
+              // the other RAIL_REPEAT-1 copies exist solely for the visual loop,
+              // so hide them or a screen reader hears every thumb RAIL_REPEAT times
+              const primary = (): boolean =>
+                Math.floor(i / filtered().length) === RAIL_MID
               return (
-                <li>
+                <li aria-hidden={primary() ? undefined : 'true'}>
                   <button
                     class="gridRailItem"
                     classList={{ active: active() }}
                     type="button"
+                    tabindex={primary() ? undefined : -1}
                     aria-current={active() ? 'true' : undefined}
-                    onClick={() => goTo(i())}
+                    onClick={() => goTo(i)}
                   >
                     <img
-                      src={row.thumbUrl}
-                      width={row.hiW}
-                      height={row.hiH}
-                      alt={row.caption}
+                      src={row().thumbUrl}
+                      width={row().hiW}
+                      height={row().hiH}
+                      alt={row().caption}
                       loading="lazy"
                       draggable="false"
                     />
@@ -435,7 +444,7 @@ function Grid(props: {
                 </li>
               )
             }}
-          </For>
+          </Index>
         </ol>
 
         {/* clicking the stage closes (journal-lightbox style); the custom

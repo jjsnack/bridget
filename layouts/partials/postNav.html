@@ -56,7 +56,10 @@
     >
     {{- if eq .Type "grid" -}}
       {{- $total := len (.Resources.ByType "image") -}}
-      <div class="gridCount" aria-live="polite" aria-label="Image counter">
+      {{- /* decorative counter mirroring the gallery's index digits; the stage
+             image carries the real content, so this is hidden from AT rather
+             than announced digit-by-digit on every rail settle */ -}}
+      <div class="gridCount" aria-hidden="true">
         <span class="num">0</span><span class="num">0</span><span class="num">0</span
         ><span class="num">1</span>
         <span>/</span>

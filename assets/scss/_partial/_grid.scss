@@ -106,6 +106,21 @@ body.gridViewing {
   }
 }
 
+// grid pages overlay the real controls on postNav's reserved (hidden)
+// threshold/index slots, out of flow — so the nav layout is byte-identical to
+// the gallery's and nothing shifts. (The slots get position:relative in
+// _post.scss to anchor these.)
+.postNav {
+  .gridColumns,
+  .gridCount {
+    position: absolute;
+    inset: 0;
+    justify-content: flex-start; // align to the slot's left edge, like the placeholder
+    align-items: center;
+    pointer-events: auto;
+  }
+}
+
 .gridItems {
   columns: 1;
   column-gap: 8vw;
