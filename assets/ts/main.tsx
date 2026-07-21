@@ -105,6 +105,12 @@ if (page === '404') {
       m.initPostList()
     })
   }
+} else if (page === 'grid') {
+  // tag-filtered image grid + rail viewer. Grid/filter are server-rendered;
+  // both desktop and mobile need the module for filtering and the viewer.
+  void import('./grid').then((m) => {
+    m.initGrid()
+  })
 } else {
   render(() => <Main />, container)
 }

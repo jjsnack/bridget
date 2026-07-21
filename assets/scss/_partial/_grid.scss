@@ -1,0 +1,443 @@
+@use 'sass:map';
+
+@use '_core/mixins' as *;
+
+$tablet: map.get($breakpoints, 'tablet');
+$desktop: map.get($breakpoints, 'desktop');
+
+/* ======================================================================
+   Grid + filter + column stepper (server-rendered). Mobile-first: a
+   single centred column — the photographs set the rhythm.
+   ====================================================================== */
+.grid {
+  padding: calc(var(--nav-height) + 6vh) 6vw 14vh;
+}
+
+.gridFilter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.4em;
+  margin-bottom: 6vh;
+
+  font-family: 'FW', sans-serif;
+  font-size: 0.8rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.gridTag {
+  position: relative;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+
+  font: inherit;
+  letter-spacing: inherit;
+  color: rgba(0, 0, 0, 0.4);
+  transition: color 0.25s ease;
+
+  &:hover,
+  &.active {
+    color: #000;
+  }
+  // active tag underlined so state never rides on colour alone
+  &.active::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -0.45em;
+    height: 1px;
+    background: #000;
+  }
+}
+
+// column stepper — same look as the gallery nav's threshold control
+.gridColumns {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+
+  .dec,
+  .inc {
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+    font: inherit;
+    color: inherit;
+  }
+}
+
+.gridItems {
+  columns: 1;
+  column-gap: 8vw;
+  max-width: 34rem;
+  margin: 0 auto;
+}
+
+.gridItem {
+  display: block;
+  width: 100%;
+  margin: 0 0 8vh;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+
+  break-inside: avoid;
+
+  &.hidden {
+    display: none;
+  }
+}
+
+.gridThumb {
+  display: block;
+  width: 100%;
+  height: auto;
+
+  @include broken-image-placeholder;
+
+  transition: opacity 0.3s ease;
+
+  .gridItem:hover & {
+    opacity: 0.78;
+  }
+}
+
+/* ======================================================================
+   Viewer overlay (JS island). Mobile: full-size stage on top, a
+   horizontal thumbnail strip below.
+   ====================================================================== */
+.gridViewer {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+
+  display: grid;
+  grid-template-rows: 1fr auto;
+
+  background: #fff;
+  animation: gridIn 0.3s ease;
+}
+
+.gridClose {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 3;
+  margin: 2.4vh 4vw;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+
+  font-family: 'FW', sans-serif;
+  font-size: 0.8rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #000;
+}
+
+.gridRail {
+  order: 2;
+  display: flex;
+  gap: 1rem;
+  margin: 0;
+  padding: 2vh 4vw;
+  list-style: none;
+  overflow-x: auto;
+
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.gridRailItem {
+  display: block;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  opacity: 0.5;
+  transition: opacity 0.25s ease;
+
+  &:hover {
+    opacity: 0.85;
+  }
+  // active thumb: full opacity + a hairline frame so the marker isn't
+  // opacity-only (survives high-contrast / reduced transparency)
+  &.active {
+    opacity: 1;
+  }
+  &.active img {
+    outline: 1px solid #000;
+    outline-offset: -1px;
+  }
+
+  img {
+    display: block;
+    height: 13vh;
+    width: auto;
+  }
+}
+
+.gridStage {
+  order: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 9vh 4vw 2vh;
+  overflow: hidden;
+}
+
+.gridStageFrame {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  margin: 0;
+  max-height: 100%;
+
+  img {
+    max-width: 100%;
+    max-height: 74vh;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    animation: gridFade 0.35s ease;
+  }
+
+  figcaption {
+    font-family: 'Geist', sans-serif;
+    font-size: 0.8rem;
+    color: rgba(0, 0, 0, 0.55);
+    text-align: center;
+  }
+}
+
+.gridNav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 3;
+  padding: 0.2em 0.4em;
+  border: 0;
+  background: none;
+  cursor: pointer;
+
+  font-size: 2.2rem;
+  line-height: 1;
+  color: #000;
+
+  &.prev {
+    left: 1vw;
+  }
+  &.next {
+    right: 1vw;
+  }
+}
+
+@keyframes gridIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes gridFade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* ======================================================================
+   Tablet and up: multi-column masonry, count driven by the stepper
+   (--grid-cols, default 3). Viewer rail becomes a quiet left column.
+   ====================================================================== */
+@media (min-width: $tablet) {
+  /* Multi-column masonry, count driven by the nav stepper (--grid-cols).
+     Within each column the frames scatter — varied width, alternating
+     alignment, irregular vertical rhythm — so it reads editorial, not gridded.
+     Multicol reflows on filter, so hiding a frame never leaves a hole. */
+  .gridItems {
+    columns: var(--grid-cols, 3);
+    // gap tracks the viewport: wider screen, more air; narrower, tighter
+    column-gap: clamp(1.5rem, 3vw, 4.5rem);
+    // Cap the field to ~one column-width per column, so stepping up adds a
+    // column of roughly constant size instead of shrinking every frame —
+    // each step reads as only slightly denser. Narrows to fit when the
+    // viewport is smaller than the cap.
+    max-width: calc(var(--grid-cols, 3) * 24rem);
+    margin: 0 auto;
+  }
+  .gridItem {
+    width: 96%;
+    margin: 0 0 5vw;
+
+    // five-frame scatter cycle: width + horizontal pull + vertical gap
+    &:nth-child(5n + 2) {
+      width: 78%;
+      margin-left: auto; // pull right
+      margin-bottom: 8vw;
+    }
+    &:nth-child(5n + 3) {
+      width: 90%;
+      margin-bottom: 3vw;
+    }
+    &:nth-child(5n + 4) {
+      width: 66%;
+      margin: 2vw auto 9vw; // centred, extra breathing room
+    }
+    &:nth-child(5n + 5) {
+      width: 84%;
+      margin-left: auto; // pull right
+      margin-bottom: 6vw;
+    }
+  }
+
+  /* One column = the old focus look: not a narrow strip but a wide, airy
+     single flow across the full content width — frames at varied sizes pushed
+     left / centre / right with generous vertical whitespace. */
+  .gridItems[data-cols='1'] {
+    columns: auto;
+    max-width: none;
+    margin: 0;
+
+    .gridItem {
+      margin: 0 0 12vh;
+
+      &:nth-child(6n + 1) {
+        width: 46%;
+        margin-left: 2%;
+      }
+      &:nth-child(6n + 2) {
+        width: 33%;
+        margin-left: 60%;
+      }
+      &:nth-child(6n + 3) {
+        width: 40%;
+        margin-left: 28%;
+      }
+      &:nth-child(6n + 4) {
+        width: 29%;
+        margin-left: 7%;
+      }
+      &:nth-child(6n + 5) {
+        width: 43%;
+        margin-left: 50%;
+      }
+      &:nth-child(6n + 6) {
+        width: 36%;
+        margin-left: 23%;
+      }
+    }
+  }
+
+  /* Two columns: let the frames claim more horizontal space — a wider field
+     and near-full-column widths, so the pair reads big and generous. */
+  .gridItems[data-cols='2'] {
+    max-width: calc(2 * 33rem);
+
+    .gridItem {
+      width: 100%;
+
+      &:nth-child(5n + 2) {
+        width: 88%;
+      }
+      &:nth-child(5n + 4) {
+        width: 78%;
+      }
+      &:nth-child(5n + 5) {
+        width: 94%;
+      }
+    }
+  }
+
+  /* Five columns: tighten the gaps and centre a slimmer field so the frames
+     sit larger and clustered, not strung edge to edge. */
+  .gridItems[data-cols='5'] {
+    column-gap: clamp(0.75rem, 1.5vw, 2rem);
+    max-width: calc(5 * 19rem);
+
+    .gridItem {
+      width: 100%;
+      margin-bottom: 1.6vw;
+
+      &:nth-child(5n + 2) {
+        width: 92%;
+        margin-bottom: 2.6vw;
+      }
+      &:nth-child(5n + 3) {
+        width: 98%;
+      }
+      &:nth-child(5n + 4) {
+        width: 86%;
+        margin-bottom: 3.2vw;
+      }
+      &:nth-child(5n + 5) {
+        width: 94%;
+        margin-bottom: 2.2vw;
+      }
+    }
+  }
+
+  .gridViewer {
+    grid-template-rows: none;
+    grid-template-columns: 8.5rem 1fr;
+  }
+
+  .gridRail {
+    order: 0;
+    flex-direction: column;
+    gap: 0.9rem;
+    height: 100vh;
+    padding: calc(var(--nav-height)) 1.5rem 4vh;
+    overflow-x: hidden;
+    overflow-y: auto;
+
+    img {
+      width: 100%;
+      height: auto;
+    }
+  }
+
+  .gridStage {
+    order: 0;
+    padding: calc(var(--nav-height)) 6vw 6vh;
+    // desktop swaps the system cursor for the custom "next" cursor over
+    // the stage image (grid.tsx); rail + close keep the pointer
+    cursor: none;
+  }
+
+  .gridStageFrame img {
+    max-height: 82vh;
+  }
+}
+
+// single column on mobile/touch — the stepper is meaningless there
+@media (max-width: ($tablet - 1px)), (hover: none) {
+  .gridColumns {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gridViewer,
+  .gridStageFrame img {
+    animation: none;
+  }
+  .gridThumb,
+  .gridTag,
+  .gridRailItem {
+    transition: none;
+  }
+}
