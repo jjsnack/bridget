@@ -210,18 +210,16 @@ function Grid(props) {
 		document.body.style.overflow = "";
 		document.body.classList.remove("gridViewing");
 	});
+	const inertBehind = (on) => {
+		document.querySelector(".grid")?.toggleAttribute("inert", on);
+		document.querySelector(".analytics")?.toggleAttribute("inert", on);
+	};
 	createEffect(() => {
 		const isOpen = open();
-		Array.from(document.body.children).forEach((el) => {
-			if (el !== props.root) el.toggleAttribute("inert", isOpen);
-		});
+		inertBehind(isOpen);
 		if (isOpen) closeBtn?.focus();
 	});
-	onCleanup(() => {
-		Array.from(document.body.children).forEach((el) => {
-			el.toggleAttribute("inert", false);
-		});
-	});
+	onCleanup(() => inertBehind(false));
 	createEffect(() => {
 		if (!open() || rail == null) return;
 		const el = rail;
@@ -272,17 +270,21 @@ function Grid(props) {
 						var _el$0 = _tmpl$6(), _el$1 = _el$0.firstChild, _el$10 = _el$1.firstChild;
 						_el$1.$$click = () => goTo(i());
 						createRenderEffect((_p$) => {
-							var _v$5 = !!active(), _v$6 = active() ? "true" : void 0, _v$7 = row.thumbUrl, _v$8 = row.caption;
+							var _v$5 = !!active(), _v$6 = active() ? "true" : void 0, _v$7 = row.thumbUrl, _v$8 = row.hiW, _v$9 = row.hiH, _v$0 = row.caption;
 							_v$5 !== _p$.e && _el$1.classList.toggle("active", _p$.e = _v$5);
 							_v$6 !== _p$.t && setAttribute(_el$1, "aria-current", _p$.t = _v$6);
 							_v$7 !== _p$.a && setAttribute(_el$10, "src", _p$.a = _v$7);
-							_v$8 !== _p$.o && setAttribute(_el$10, "alt", _p$.o = _v$8);
+							_v$8 !== _p$.o && setAttribute(_el$10, "width", _p$.o = _v$8);
+							_v$9 !== _p$.i && setAttribute(_el$10, "height", _p$.i = _v$9);
+							_v$0 !== _p$.n && setAttribute(_el$10, "alt", _p$.n = _v$0);
 							return _p$;
 						}, {
 							e: void 0,
 							t: void 0,
 							a: void 0,
-							o: void 0
+							o: void 0,
+							i: void 0,
+							n: void 0
 						});
 						return _el$0;
 					})();

@@ -305,20 +305,21 @@ function Grid(props: {
     document.body.classList.remove('gridViewing')
   })
 
-  // trap focus/AT inside the viewer: `inert` pulls every other top-level
-  // element out of the tab order + a11y tree while open (mirrors post.tsx)
+  // trap focus/AT inside the viewer, but keep the site nav live: the grid
+  // viewer intentionally overlays the nav (counter + menu links stay usable),
+  // so inert only the content *behind* it — the grid/filter (all inside
+  // `.grid`) plus analytics — not the whole page. inert on an ancestor can't
+  // be undone on a child, so inert-ing `#main` would kill the nested nav.
+  const inertBehind = (on: boolean): void => {
+    document.querySelector('.grid')?.toggleAttribute('inert', on)
+    document.querySelector('.analytics')?.toggleAttribute('inert', on)
+  }
   createEffect(() => {
     const isOpen = open()
-    Array.from(document.body.children).forEach((el) => {
-      if (el !== props.root) el.toggleAttribute('inert', isOpen)
-    })
+    inertBehind(isOpen)
     if (isOpen) closeBtn?.focus()
   })
-  onCleanup(() => {
-    Array.from(document.body.children).forEach((el) => {
-      el.toggleAttribute('inert', false)
-    })
-  })
+  onCleanup(() => inertBehind(false))
 
   // on open: centre the starting thumb instantly, then follow the rail's own
   // scrolling (wheel/touch) to move the stage and keep the loop seamless
@@ -377,6 +378,8 @@ function Grid(props: {
                   >
                     <img
                       src={row.thumbUrl}
+                      width={row.hiW}
+                      height={row.hiH}
                       alt={row.caption}
                       loading="lazy"
                       draggable="false"
