@@ -15,6 +15,9 @@ import { D as createEffect, I as onCleanup, L as onMount, O as createMemo, R as 
 var _tmpl$ = /*#__PURE__*/ template(`<figcaption>`), _tmpl$2 = /*#__PURE__*/ template(`<figure class=gridStageFrame><img draggable=false>`), _tmpl$3 = /*#__PURE__*/ template(`<button class="gridNav prev"type=button>&#x2039;`), _tmpl$4 = /*#__PURE__*/ template(`<button class="gridNav next"type=button>&#x203A;`), _tmpl$5 = /*#__PURE__*/ template(`<div class=gridViewer role=dialog aria-modal=true aria-label="Image viewer"><button class=gridClose type=button></button><ol class=gridRail aria-label=Thumbnails></ol><div class=gridStage>`), _tmpl$6 = /*#__PURE__*/ template(`<li><button class=gridRailItem type=button><img loading=lazy draggable=false>`, true, false, false);
 var RAIL_REPEAT = 5;
 var RAIL_MID = Math.floor(RAIL_REPEAT / 2);
+var RAIL_GROW = .3;
+var RAIL_LIFT = 30;
+var RAIL_FADE = .55;
 var COL_MIN = 1;
 var COL_MAX = 5;
 var COL_DEFAULT = 3;
@@ -79,6 +82,7 @@ function Grid(props) {
 	let closeBtn;
 	let rail;
 	const vertical = !mobile;
+	const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 	let noRebaseUntil = 0;
 	let scrollRAF = 0;
 	const filtered = createMemo(() => activeTag() === "*" ? items() : items().filter((it) => it.tags.includes(activeTag())));
@@ -132,12 +136,23 @@ function Grid(props) {
 			const kids = el.children;
 			if (kids.length <= n) return;
 			const oneSet = kidStart(kids[n]) - kidStart(kids[0]);
+			let wrapped = false;
 			if (oneSet > 0 && performance.now() >= noRebaseUntil) {
 				const p = railPos(el);
-				if (p < oneSet) setRailPos(el, p + oneSet);
-				else if (p >= oneSet * (RAIL_REPEAT - 1)) setRailPos(el, p - oneSet);
+				if (p < oneSet) {
+					setRailPos(el, p + oneSet);
+					wrapped = true;
+				} else if (p >= oneSet * (RAIL_REPEAT - 1)) {
+					setRailPos(el, p - oneSet);
+					wrapped = true;
+				}
+			}
+			if (wrapped) {
+				el.classList.add("noAnim");
+				requestAnimationFrame(() => el.classList.remove("noAnim"));
 			}
 			const mid = railPos(el) + railViewport(el) / 2;
+			const range = oneSet / n * 1.3;
 			let best = 0;
 			let bestDist = Infinity;
 			for (let i = 0; i < kids.length; i++) {
@@ -147,6 +162,14 @@ function Grid(props) {
 					bestDist = dist;
 					best = i;
 				}
+				const near = Math.max(0, 1 - dist / range);
+				const t = near * near * (3 - 2 * near);
+				if (!reduceMotion) {
+					const lift = RAIL_LIFT * t;
+					k.style.transform = vertical ? `translateX(${lift}px) scale(${1 + RAIL_GROW * t})` : `translateY(${-lift}px) scale(${1 + RAIL_GROW * t})`;
+				}
+				k.style.opacity = String(RAIL_FADE + (1 - RAIL_FADE) * t);
+				k.style.zIndex = t > .02 ? String(Math.round(t * 100) + 1) : "0";
 			}
 			setRailIndex(best);
 			setPos(best % n);
@@ -204,6 +227,7 @@ function Grid(props) {
 		const el = rail;
 		requestAnimationFrame(() => {
 			scrollToRail(untrack(railIndex), false);
+			onRailScroll();
 		});
 		el.addEventListener("scroll", onRailScroll, { passive: true });
 		onCleanup(() => {

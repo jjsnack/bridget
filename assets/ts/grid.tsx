@@ -41,6 +41,9 @@ interface Item {
 // silent rebase re-centres it
 const RAIL_REPEAT = 5
 const RAIL_MID = Math.floor(RAIL_REPEAT / 2) // copy the loop rebases back into
+const RAIL_GROW = 0.3 // extra scale on the centred thumb (→ ~1.3×)
+const RAIL_LIFT = 30 // px the centred thumb rises out of the strip toward the stage
+const RAIL_FADE = 0.55 // resting opacity of an off-centre thumb
 
 const COL_MIN = 1
 const COL_MAX = 5
@@ -132,6 +135,7 @@ function Grid(props: {
   let closeBtn: HTMLButtonElement | undefined
   let rail: HTMLOListElement | undefined
   const vertical = !mobile // rail runs down on desktop, across on mobile
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
   let noRebaseUntil = 0 // suppress the seamless rebase during a programmatic glide
   let scrollRAF = 0
 
@@ -209,13 +213,29 @@ function Grid(props: {
 
       const oneSet = kidStart(kids[n] as HTMLElement) - kidStart(kids[0] as HTMLElement)
       // seamless rebase: wrap the scroll offset by one set when it nears an end
+      let wrapped = false
       if (oneSet > 0 && performance.now() >= noRebaseUntil) {
         const p = railPos(el)
-        if (p < oneSet) setRailPos(el, p + oneSet)
-        else if (p >= oneSet * (RAIL_REPEAT - 1)) setRailPos(el, p - oneSet)
+        if (p < oneSet) {
+          setRailPos(el, p + oneSet)
+          wrapped = true
+        } else if (p >= oneSet * (RAIL_REPEAT - 1)) {
+          setRailPos(el, p - oneSet)
+          wrapped = true
+        }
+      }
+      // the rebase swaps which DOM thumb is centred; paint that frame without
+      // the damping transition so it doesn't animate into a visible pop
+      if (wrapped) {
+        el.classList.add('noAnim')
+        requestAnimationFrame(() => el.classList.remove('noAnim'))
       }
 
+      // each thumb rises out of the strip as it nears centre: scale up, lift
+      // toward the stage, and fade in — a proximity effect, so it reads as a
+      // continuous response to the scroll rather than a binary highlight
       const mid = railPos(el) + railViewport(el) / 2
+      const range = (oneSet / n) * 1.3 // falloff over ~1.3 thumbs
       let best = 0
       let bestDist = Infinity
       for (let i = 0; i < kids.length; i++) {
@@ -225,6 +245,17 @@ function Grid(props: {
           bestDist = dist
           best = i
         }
+        // smoothstep of nearness in [0,1]
+        const near = Math.max(0, 1 - dist / range)
+        const t = near * near * (3 - 2 * near)
+        if (!reduceMotion) {
+          const lift = RAIL_LIFT * t
+          k.style.transform = vertical
+            ? `translateX(${lift}px) scale(${1 + RAIL_GROW * t})`
+            : `translateY(${-lift}px) scale(${1 + RAIL_GROW * t})`
+        }
+        k.style.opacity = String(RAIL_FADE + (1 - RAIL_FADE) * t)
+        k.style.zIndex = t > 0.02 ? String(Math.round(t * 100) + 1) : '0'
       }
       setRailIndex(best)
       setPos(best % n)
@@ -296,6 +327,7 @@ function Grid(props: {
     const el = rail
     requestAnimationFrame(() => {
       scrollToRail(untrack(railIndex), false)
+      onRailScroll() // paint the initial rise even if the scroll didn't move
     })
     el.addEventListener('scroll', onRailScroll, { passive: true })
     onCleanup(() => {

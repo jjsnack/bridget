@@ -177,18 +177,36 @@ body.gridViewing {
   color: #000;
 }
 
+// Mobile: horizontal strip at the bottom; thumbs rise upward out of it.
 .gridRail {
   order: 2;
   display: flex;
+  align-items: flex-end; // thumbs sit at the strip's edge and grow away from it
   gap: 1rem;
   margin: 0;
-  padding: 2vh 4vw;
+  padding: 9vh 4vw 2vh; // top room for the rise
   list-style: none;
   overflow-x: auto;
 
   scrollbar-width: none;
   &::-webkit-scrollbar {
     display: none;
+  }
+
+  // grid.tsx drives transform / opacity / z-index per thumb on scroll; the
+  // transition low-passes those per-frame writes so the rise reads as damped,
+  // eased motion rather than tracking the raw (chunky) scroll 1:1
+  li {
+    position: relative; // so z-index stacks the risen thumb over its neighbours
+    transform-origin: center bottom;
+    transition:
+      transform 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 0.6s ease-out;
+    will-change: transform, opacity;
+  }
+  // the rebase frame repaints instantly (no damping) to stay seamless
+  &.noAnim li {
+    transition: none;
   }
 }
 
@@ -198,25 +216,10 @@ body.gridViewing {
   border: 0;
   background: none;
   cursor: pointer;
-  opacity: 0.5;
-  transition: opacity 0.25s ease;
-
-  &:hover {
-    opacity: 0.85;
-  }
-  // active thumb: full opacity + a hairline frame so the marker isn't
-  // opacity-only (survives high-contrast / reduced transparency)
-  &.active {
-    opacity: 1;
-  }
-  &.active img {
-    outline: 1px solid #000;
-    outline-offset: -1px;
-  }
 
   img {
     display: block;
-    height: 13vh;
+    height: 9vh;
     width: auto;
   }
 }
@@ -412,21 +415,29 @@ body.gridViewing {
 
   .gridViewer {
     grid-template-rows: none;
-    grid-template-columns: 8.5rem 1fr;
+    // wide lane: small thumbs hug the left, the centred one rises into the
+    // empty space toward the stage
+    grid-template-columns: 16rem 1fr;
   }
 
   .gridRail {
     order: 0;
     flex-direction: column;
-    gap: 0.9rem;
+    align-items: flex-start;
+    gap: 1.7rem;
     height: 100vh;
     // bottom clears the fixed nav (counter) that overlays the viewer
-    padding: 4vh 1.5rem calc(var(--nav-height) + 3vh);
+    padding: 6vh 1.5rem calc(var(--nav-height) + 3vh);
     overflow-x: hidden;
     overflow-y: auto;
 
+    // thumbs rise rightward, out of the strip toward the stage
+    li {
+      transform-origin: left center;
+    }
+
     img {
-      width: 100%;
+      width: 5.5rem;
       height: auto;
     }
   }
@@ -455,7 +466,8 @@ body.gridViewing {
   }
   .gridThumb,
   .gridTag,
-  .gridRailItem {
+  .gridRailItem,
+  .gridRail li {
     transition: none;
   }
 }
