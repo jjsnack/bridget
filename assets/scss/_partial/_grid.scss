@@ -80,7 +80,8 @@ $desktop: map.get($breakpoints, 'desktop');
 .gridItem {
   display: block;
   width: 100%;
-  margin: 0 0 8vh;
+  // width-tracking gap: tightens on narrow screens, opens up on wider ones
+  margin: 0 0 clamp(1.5rem, 7vw, 4rem);
   padding: 0;
   border: 0;
   background: none;
@@ -313,7 +314,8 @@ $desktop: map.get($breakpoints, 'desktop');
     margin: 0;
 
     .gridItem {
-      margin: 0 0 12vh;
+      // vertical gap tracks width so a narrow window doesn't leave big voids
+      margin: 0 0 clamp(2.5rem, 10vw, 12rem);
 
       &:nth-child(6n + 1) {
         width: 46%;
@@ -362,31 +364,19 @@ $desktop: map.get($breakpoints, 'desktop');
     }
   }
 
-  /* Five columns: tighten the gaps and centre a slimmer field so the frames
-     sit larger and clustered, not strung edge to edge. */
+  /* Five columns: fill the full page and stay centred. No max-width (so it
+     never sits off-centre), and a symmetric negative inline margin trims the
+     page's 6vw side padding down to ~2vw so the five columns reach edge to
+     edge. Frames fill their columns — a clean full-width grid, not a scatter
+     that leaves ragged side gaps. */
   .gridItems[data-cols='5'] {
     column-gap: clamp(0.75rem, 1.5vw, 2rem);
-    max-width: calc(5 * 19rem);
+    max-width: none;
+    margin-inline: -4vw;
 
     .gridItem {
       width: 100%;
-      margin-bottom: 1.6vw;
-
-      &:nth-child(5n + 2) {
-        width: 92%;
-        margin-bottom: 2.6vw;
-      }
-      &:nth-child(5n + 3) {
-        width: 98%;
-      }
-      &:nth-child(5n + 4) {
-        width: 86%;
-        margin-bottom: 3.2vw;
-      }
-      &:nth-child(5n + 5) {
-        width: 94%;
-        margin-bottom: 2.2vw;
-      }
+      margin: 0 0 clamp(0.75rem, 1.5vw, 2rem);
     }
   }
 
