@@ -24,6 +24,7 @@ import {
 } from 'solid-js'
 import { render } from 'solid-js/web'
 
+import CustomCursor from './desktop/customCursor'
 import { isMobile } from './utils'
 
 interface Item {
@@ -137,8 +138,11 @@ function Grid(props: {
   // glides one thumb at a time; a silent rebase keeps it near the middle copy.
   const [railIndex, setRailIndex] = createSignal(0)
   let trigger: HTMLButtonElement | null = null
-  let closeBtn: HTMLButtonElement | undefined
+  let viewer: HTMLDivElement | undefined
   let rail: HTMLOListElement | undefined
+  // custom "close" cursor is shown only over the stage (clicking it closes);
+  // the rail stays a normal pointer since its thumbs navigate
+  const [overStage, setOverStage] = createSignal(false)
   const vertical = !mobile // rail runs down on desktop, across on mobile
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
   let noRebaseUntil = 0 // suppress the seamless rebase during a programmatic glide
@@ -345,7 +349,7 @@ function Grid(props: {
   createEffect(() => {
     const isOpen = open()
     inertBehind(isOpen)
-    if (isOpen) closeBtn?.focus()
+    if (isOpen) viewer?.focus()
   })
   onCleanup(() => inertBehind(false))
 
@@ -398,11 +402,14 @@ function Grid(props: {
 
   return (
     <Show when={open()}>
-      <div class="gridViewer" role="dialog" aria-modal="true" aria-label="Image viewer">
-        <button ref={closeBtn} class="gridClose" type="button" onClick={close}>
-          {props.closeText}
-        </button>
-
+      <div
+        ref={viewer}
+        class="gridViewer"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Image viewer"
+        tabIndex={-1}
+      >
         <ol ref={rail} class="gridRail" aria-label="Thumbnails">
           <For each={railRows()}>
             {(row, i) => {
@@ -431,7 +438,14 @@ function Grid(props: {
           </For>
         </ol>
 
-        <div class="gridStage">
+        {/* clicking the stage closes (journal-lightbox style); the custom
+            "close" cursor supplies the affordance in place of a button */}
+        <div
+          class="gridStage"
+          onClick={close}
+          onMouseEnter={() => setOverStage(true)}
+          onMouseLeave={() => setOverStage(false)}
+        >
           {/* not keyed: the <img> persists and its src swaps as the rail
               scrolls, so the stage tracks the motion without a remount flash */}
           <Show when={current()}>
@@ -454,7 +468,10 @@ function Grid(props: {
               class="gridNav prev"
               type="button"
               aria-label={props.prevText}
-              onClick={prev}
+              onClick={(e) => {
+                e.stopPropagation() // don't let the arrow click close the stage
+                prev()
+              }}
             >
               &#x2039;
             </button>
@@ -462,12 +479,19 @@ function Grid(props: {
               class="gridNav next"
               type="button"
               aria-label={props.nextText}
-              onClick={next}
+              onClick={(e) => {
+                e.stopPropagation()
+                next()
+              }}
             >
               &#x203A;
             </button>
           </Show>
         </div>
+        <CustomCursor
+          active={() => open() && overStage()}
+          cursorText={() => props.closeText}
+        />
       </div>
     </Show>
   )

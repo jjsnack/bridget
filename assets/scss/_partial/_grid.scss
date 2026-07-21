@@ -160,24 +160,6 @@ body.gridViewing {
   animation: gridIn 0.3s ease;
 }
 
-.gridClose {
-  position: absolute;
-  top: 0;
-  right: 0;
-  z-index: 3;
-  display: inline-flex;
-  align-items: center;
-  height: var(--nav-height);
-  margin: 0;
-  padding: 0 var(--space-standard);
-  border: 0;
-  background: white; // keeps the label off the stage image behind it
-  cursor: pointer;
-
-  font: inherit; // Geist at the body-scaled size — matches the nav bar
-  color: #000;
-}
-
 // Mobile: horizontal strip at the bottom; thumbs rise upward out of it.
 .gridRail {
   order: 2;
@@ -233,6 +215,7 @@ body.gridViewing {
   justify-content: center;
   padding: 9vh 4vw 2vh;
   overflow: hidden;
+  cursor: none; // custom "close" cursor supplies the affordance; click to close
 }
 
 .gridStageFrame {
