@@ -18,38 +18,27 @@ $desktop: map.get($breakpoints, 'desktop');
   flex-wrap: wrap;
   gap: 1.4em;
   margin-bottom: 6vh;
-
-  font-family: 'FW', sans-serif;
-  font-size: 0.8rem;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
+  // font inherits the body (Geist, body-scaled size) so the tags read as
+  // nav-bar text; positioning to the top-left corner happens at tablet+
 }
 
 .gridTag {
-  position: relative;
   padding: 0;
   border: 0;
   background: none;
   cursor: pointer;
 
   font: inherit;
-  letter-spacing: inherit;
-  color: rgba(0, 0, 0, 0.4);
-  transition: color 0.25s ease;
+  color: #000;
+  transition: opacity 0.25s ease;
 
-  &:hover,
-  &.active {
-    color: #000;
+  &:not(.active):hover {
+    opacity: 0.55;
   }
-  // active tag underlined so state never rides on colour alone
-  &.active::after {
-    content: '';
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: -0.45em;
-    height: 1px;
-    background: #000;
+  // active tag mirrors the nav's current-page marker (italic + underline)
+  &.active {
+    font-style: italic;
+    text-decoration: underline;
   }
 }
 
@@ -150,16 +139,16 @@ body.gridViewing {
   top: 0;
   right: 0;
   z-index: 3;
-  margin: 2.4vh 4vw;
-  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  height: var(--nav-height);
+  margin: 0;
+  padding: 0 var(--space-standard);
   border: 0;
-  background: none;
+  background: white; // keeps the label off the stage image behind it
   cursor: pointer;
 
-  font-family: 'FW', sans-serif;
-  font-size: 0.8rem;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
+  font: inherit; // Geist at the body-scaled size — matches the nav bar
   color: #000;
 }
 
@@ -289,6 +278,24 @@ body.gridViewing {
    (--grid-cols, default 3). Viewer rail becomes a quiet left column.
    ====================================================================== */
 @media (min-width: $tablet) {
+  // Tags pin to the top as a full-width white bar mirroring the bottom nav —
+  // the white background keeps them off the scrolling imagery. z-index sits
+  // above the grid images (whose hover-opacity forms stacking contexts) but
+  // below the viewer (z 100) so the viewer still covers them while focused.
+  .gridFilter {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 10;
+    flex-wrap: nowrap;
+    align-items: center;
+    height: var(--nav-height);
+    margin: 0;
+    padding: 0 var(--space-standard);
+    background: white;
+  }
+
   /* Multi-column masonry, count driven by the nav stepper (--grid-cols).
      Within each column the frames scatter — varied width, alternating
      alignment, irregular vertical rhythm — so it reads editorial, not gridded.
