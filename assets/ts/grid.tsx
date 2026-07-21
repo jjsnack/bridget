@@ -212,15 +212,19 @@ function Grid(props: {
       if (kids.length <= n) return
 
       const oneSet = kidStart(kids[n] as HTMLElement) - kidStart(kids[0] as HTMLElement)
-      // seamless rebase: wrap the scroll offset by one set when it nears an end
+      // seamless loop: re-home the scroll to the middle copy whenever the
+      // centred thumb crosses into an adjacent copy. This keeps (RAIL_REPEAT-1)/2
+      // copies of runway on *both* sides, so neither direction ever reaches the
+      // scroll wall. (A fixed near-the-end threshold could sit past the maximum
+      // scroll offset when the thumbs are tall — that stranded downward scroll.)
       let wrapped = false
       if (oneSet > 0 && performance.now() >= noRebaseUntil) {
         const p = railPos(el)
-        if (p < oneSet) {
-          setRailPos(el, p + oneSet)
-          wrapped = true
-        } else if (p >= oneSet * (RAIL_REPEAT - 1)) {
-          setRailPos(el, p - oneSet)
+        const centre = p + railViewport(el) / 2
+        const copy = Math.floor((centre - kidStart(kids[0] as HTMLElement)) / oneSet)
+        const shift = copy - RAIL_MID
+        if (shift !== 0) {
+          setRailPos(el, p - shift * oneSet)
           wrapped = true
         }
       }

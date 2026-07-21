@@ -139,11 +139,10 @@ function Grid(props) {
 			let wrapped = false;
 			if (oneSet > 0 && performance.now() >= noRebaseUntil) {
 				const p = railPos(el);
-				if (p < oneSet) {
-					setRailPos(el, p + oneSet);
-					wrapped = true;
-				} else if (p >= oneSet * (RAIL_REPEAT - 1)) {
-					setRailPos(el, p - oneSet);
+				const centre = p + railViewport(el) / 2;
+				const shift = Math.floor((centre - kidStart(kids[0])) / oneSet) - RAIL_MID;
+				if (shift !== 0) {
+					setRailPos(el, p - shift * oneSet);
 					wrapped = true;
 				}
 			}
