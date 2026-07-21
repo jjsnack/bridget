@@ -1,4 +1,4 @@
-import { A as createRenderEffect, L as onCleanup, M as createSignal, R as onMount, _ as template, d as insert, h as setStyleProperty } from "./BAeMdM.js";
+import { I as onCleanup, L as onMount, g as template, j as createSignal, k as createRenderEffect, m as setStyleProperty, u as insert } from "./C3xGhw.js";
 //#region assets/ts/desktop/customCursor.tsx
 var _tmpl$ = /*#__PURE__*/ template(`<div class=cursor><div class=cursorInner>`);
 function CustomCursor(props) {

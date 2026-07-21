@@ -1,16 +1,14 @@
 /**
  * Grid archetype (`type: grid`, `layouts/grid/single.html`).
- * A tag-filtered image grid; clicking a frame opens a viewer with a vertical
- * thumbnail rail of the current (filtered) set beside a full-size stage —
- * prev/next cycle within the filtered set, matching gregorcollienne.com/focus.
- * A column stepper (mirroring the gallery's threshold control) adjusts the
- * masonry column count on desktop.
+ * A tag-filtered image grid; clicking a frame opens a viewer with a looping
+ * vertical thumbnail rail beside a full-size stage. Scrolling advances the
+ * image (wheel on desktop, arrows on touch); a live counter in the nav shows
+ * current / total.
  *
- * Grid + filter bar + stepper are server-rendered; this module is a
- * progressive enhancement (mirrors post.tsx): it wires those existing DOM
- * nodes and portals the viewer overlay. No desktop/mobile split — one CSS
- * layout swaps the rail from a left column to a bottom strip at the tablet
- * breakpoint.
+ * Grid + filter bar are server-rendered; this module is a progressive
+ * enhancement (mirrors post.tsx): it wires those existing DOM nodes and
+ * portals the viewer overlay. No desktop/mobile split — one CSS layout swaps
+ * the rail from a left column to a bottom strip at the tablet breakpoint.
  */
 
 import {
@@ -21,11 +19,11 @@ import {
   createSignal,
   onCleanup,
   onMount,
+  untrack,
   type JSX
 } from 'solid-js'
 import { render } from 'solid-js/web'
 
-import CustomCursor from './desktop/customCursor'
 import { isMobile } from './utils'
 
 interface Item {
@@ -37,6 +35,14 @@ interface Item {
   thumbUrl: string // ponytail: reuse the grid's lo-res src (already cached), no separate rail resize
   caption: string
 }
+
+// how many times the rail repeats the set — enough copies above/below the
+// active thumb that a burst of advances never runs off either end before the
+// silent rebase re-centres it
+const RAIL_REPEAT = 5
+const RAIL_MID = Math.floor(RAIL_REPEAT / 2) // copy the loop rebases back into
+const WHEEL_COOLDOWN = 340 // ms between wheel-driven advances
+const WHEEL_THRESHOLD = 8 // ignore tiny trackpad jitter
 
 const COL_MIN = 1
 const COL_MAX = 5
@@ -55,11 +61,9 @@ function parseItems(buttons: HTMLButtonElement[]): Item[] {
   }))
 }
 
-// Column stepper: sets --grid-cols on the masonry container (CSS only honours
-// it at tablet+, where the grid is multi-column). Choice persists per session,
-// like the gallery's threshold. Plain DOM — no reactivity needed.
+// Column stepper (nav, shown while browsing): sets --grid-cols on the masonry
+// container. Persists per session, like the gallery's threshold. Plain DOM.
 function setupColumns(main: HTMLElement): void {
-  // the stepper lives in the nav (outside .grid), the masonry inside it
   const control = document.querySelector<HTMLElement>('.gridColumns')
   const items = main.querySelector<HTMLElement>('.gridItems')
   if (control == null || items == null) return
@@ -75,8 +79,8 @@ function setupColumns(main: HTMLElement): void {
 
   const apply = (): void => {
     items.style.setProperty('--grid-cols', String(cols))
-    items.dataset.cols = String(cols) // lets CSS special-case the 1-column scatter
-    const digits = String(cols).padStart(nums.length, '0') // e.g. 003, matching the threshold
+    items.dataset.cols = String(cols) // lets CSS special-case the 1- and 5-column layouts
+    const digits = String(cols).padStart(nums.length, '0')
     nums.forEach((el, i) => (el.innerText = digits[i] ?? '0'))
     sessionStorage.setItem(COL_KEY, String(cols))
   }
@@ -96,6 +100,16 @@ function setupColumns(main: HTMLElement): void {
   apply()
 }
 
+// write "current / total" into the nav counter's six digit spans
+function setCounter(current: number, total: number): void {
+  const el = document.querySelector<HTMLElement>('.gridCount')
+  if (el == null) return
+  const digits = String(current).padStart(3, '0') + String(total).padStart(3, '0')
+  el.querySelectorAll<HTMLElement>('.num').forEach((span, i) => {
+    span.innerText = digits[i] ?? '0'
+  })
+}
+
 function Grid(props: {
   gridButtons: HTMLButtonElement[]
   tagButtons: HTMLButtonElement[]
@@ -111,11 +125,15 @@ function Grid(props: {
 
   const [activeTag, setActiveTag] = createSignal('*')
   const [open, setOpen] = createSignal(false)
-  const [pos, setPos] = createSignal(0) // position within filtered()
-  const [overImage, setOverImage] = createSignal(false)
+  const [pos, setPos] = createSignal(0) // image index within filtered()
+  // flat index into the repeated rail (railRows) that is currently centred;
+  // railIndex % n === pos. Advancing only ever nudges this by ±1 so the strip
+  // glides one thumb at a time; a silent rebase keeps it near the middle copy.
+  const [railIndex, setRailIndex] = createSignal(0)
   let trigger: HTMLButtonElement | null = null
   let closeBtn: HTMLButtonElement | undefined
   let rail: HTMLOListElement | undefined
+  let wheelLock = false
 
   const filtered = createMemo(() =>
     activeTag() === '*'
@@ -123,6 +141,15 @@ function Grid(props: {
       : items().filter((it) => it.tags.includes(activeTag()))
   )
   const current = createMemo(() => filtered()[pos()] ?? null)
+
+  // the rail is the filtered set repeated RAIL_REPEAT times; the flat index
+  // (railIndex) walks this list and rebases into the middle copy to loop
+  const railRows = createMemo(() => {
+    const f = filtered()
+    const rows: Item[] = []
+    for (let c = 0; c < RAIL_REPEAT; c++) rows.push(...f)
+    return rows
+  })
 
   // reflect the active tag onto the server-rendered grid + filter buttons
   createEffect(() => {
@@ -138,37 +165,95 @@ function Grid(props: {
     })
   })
 
+  // keep the nav counter in sync (also reflects filter changes while closed)
+  createEffect(() => {
+    setCounter(pos() + 1, filtered().length)
+  })
+
+  // centre rail child at flat index `i`; smooth for an advance, instant for the
+  // silent rebase (same image, so no visible motion)
+  const scrollToRail = (i: number, smooth: boolean): void => {
+    const li = rail?.children[i] as HTMLElement | undefined
+    li?.scrollIntoView({
+      behavior: smooth ? 'smooth' : 'auto',
+      block: 'center',
+      inline: 'center'
+    })
+  }
+
+  // after a glide settles, if the centred index has drifted out of the middle
+  // band, jump it back to the equivalent thumb in the middle copy — invisible,
+  // since the content there is identical
+  const rebaseRail = (): void => {
+    if (!open()) return
+    const n = filtered().length
+    if (n === 0) return
+    const i = railIndex()
+    if (i >= n && i < (RAIL_REPEAT - 1) * n) return
+    const rebased = RAIL_MID * n + (((i % n) + n) % n)
+    setRailIndex(rebased)
+    scrollToRail(rebased, false)
+  }
+
+  const step = (dir: number): void => {
+    const n = filtered().length
+    if (n === 0) return
+    setPos((p) => (p + dir + n) % n)
+    const i = railIndex() + dir
+    setRailIndex(i)
+    scrollToRail(i, true)
+  }
+  const next = (): void => step(1)
+  const prev = (): void => step(-1)
+
+  const goTo = (flat: number): void => {
+    setPos(((flat % filtered().length) + filtered().length) % filtered().length)
+    setRailIndex(flat)
+    scrollToRail(flat, true)
+  }
+
   const openAt = (btn: HTMLButtonElement): void => {
+    const n = filtered().length
     const p = filtered().findIndex((it) => it.index === Number(btn.dataset.index ?? 0))
     if (p < 0) return
     trigger = btn
     setPos(p)
+    setRailIndex(RAIL_MID * n + p)
     setOpen(true)
   }
   const close = (): void => {
     setOpen(false)
     trigger?.focus()
   }
-  const next = (): void => {
-    setPos((p) => (p + 1) % filtered().length)
-  }
-  const prev = (): void => {
-    setPos((p) => (p + filtered().length - 1) % filtered().length)
-  }
 
   const onKey = (e: KeyboardEvent): void => {
     if (!open()) return
     if (e.key === 'Escape') close()
-    else if (e.key === 'ArrowRight') next()
-    else if (e.key === 'ArrowLeft') prev()
+    else if (e.key === 'ArrowRight' || e.key === 'ArrowDown') next()
+    else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') prev()
   }
 
-  // lock page scroll while the viewer covers the viewport
+  // scroll advances the image (one step per wheel gesture, throttled)
+  const onWheel = (e: WheelEvent): void => {
+    if (!open()) return
+    e.preventDefault()
+    if (wheelLock || Math.abs(e.deltaY) < WHEEL_THRESHOLD) return
+    wheelLock = true
+    if (e.deltaY > 0) next()
+    else prev()
+    window.setTimeout(() => {
+      wheelLock = false
+    }, WHEEL_COOLDOWN)
+  }
+
+  // lock page scroll + swap the nav's stepper for the counter while viewing
   createEffect(() => {
     document.body.style.overflow = open() ? 'hidden' : ''
+    document.body.classList.toggle('gridViewing', open())
   })
   onCleanup(() => {
     document.body.style.overflow = ''
+    document.body.classList.remove('gridViewing')
   })
 
   // trap focus/AT inside the viewer: `inert` pulls every other top-level
@@ -186,11 +271,16 @@ function Grid(props: {
     })
   })
 
-  // keep the active rail thumbnail in view as prev/next walk the set
+  // on open: centre the starting thumb instantly, and rebase the loop whenever
+  // a glide finishes (scrollend) so it can run forever without a visible reset
   createEffect(() => {
-    if (!open()) return
-    const active = rail?.querySelector('.gridRailItem.active')
-    active?.scrollIntoView({ block: 'nearest', inline: 'nearest' })
+    if (!open() || rail == null) return
+    const el = rail
+    requestAnimationFrame(() => {
+      scrollToRail(untrack(railIndex), false)
+    })
+    el.addEventListener('scrollend', rebaseRail)
+    onCleanup(() => el.removeEventListener('scrollend', rebaseRail))
   })
 
   onMount(() => {
@@ -205,105 +295,82 @@ function Grid(props: {
       })
     )
     window.addEventListener('keydown', onKey, { signal })
+    window.addEventListener('wheel', onWheel, { signal, passive: false })
     onCleanup(() => c.abort())
   })
 
   return (
-    <>
-      <Show when={open()}>
-        <div
-          class="gridViewer"
-          role="dialog"
-          aria-modal="true"
-          aria-label="Image viewer"
-        >
-          <button ref={closeBtn} class="gridClose" type="button" onClick={close}>
-            {props.closeText}
-          </button>
+    <Show when={open()}>
+      <div class="gridViewer" role="dialog" aria-modal="true" aria-label="Image viewer">
+        <button ref={closeBtn} class="gridClose" type="button" onClick={close}>
+          {props.closeText}
+        </button>
 
-          <ol ref={rail} class="gridRail" aria-label="Thumbnails">
-            <For each={filtered()}>
-              {(it, i) => (
+        <ol ref={rail} class="gridRail" aria-label="Thumbnails">
+          <For each={railRows()}>
+            {(row, i) => {
+              const active = (): boolean => i() === railIndex()
+              return (
                 <li>
                   <button
                     class="gridRailItem"
-                    classList={{ active: i() === pos() }}
+                    classList={{ active: active() }}
                     type="button"
-                    aria-current={i() === pos() ? 'true' : undefined}
-                    onClick={() => setPos(i())}
+                    aria-current={active() ? 'true' : undefined}
+                    onClick={() => goTo(i())}
                   >
                     <img
-                      src={it.thumbUrl}
-                      alt={it.caption}
+                      src={row.thumbUrl}
+                      alt={row.caption}
                       loading="lazy"
                       draggable="false"
                     />
                   </button>
                 </li>
-              )}
-            </For>
-          </ol>
+              )
+            }}
+          </For>
+        </ol>
 
-          <div
-            class="gridStage"
-            onClick={mobile ? undefined : next}
-            onMouseEnter={() => setOverImage(true)}
-            onMouseLeave={() => setOverImage(false)}
-          >
-            <Show when={current()} keyed>
-              {(it) => (
-                <figure class="gridStageFrame">
-                  <img
-                    src={it.hiUrl}
-                    width={it.hiW}
-                    height={it.hiH}
-                    alt={it.caption}
-                    draggable="false"
-                  />
-                  <Show when={it.caption !== ''}>
-                    <figcaption>{it.caption}</figcaption>
-                  </Show>
-                </figure>
-              )}
-            </Show>
+        <div class="gridStage">
+          <Show when={current()} keyed>
+            {(it) => (
+              <figure class="gridStageFrame">
+                <img
+                  src={it.hiUrl}
+                  width={it.hiW}
+                  height={it.hiH}
+                  alt={it.caption}
+                  draggable="false"
+                />
+                <Show when={it.caption !== ''}>
+                  <figcaption>{it.caption}</figcaption>
+                </Show>
+              </figure>
+            )}
+          </Show>
 
-            <Show when={mobile}>
-              <button
-                class="gridNav prev"
-                type="button"
-                aria-label={props.prevText}
-                onClick={(e) => {
-                  e.stopPropagation()
-                  prev()
-                }}
-              >
-                &#x2039;
-              </button>
-              <button
-                class="gridNav next"
-                type="button"
-                aria-label={props.nextText}
-                onClick={(e) => {
-                  e.stopPropagation()
-                  next()
-                }}
-              >
-                &#x203A;
-              </button>
-            </Show>
-          </div>
+          <Show when={mobile}>
+            <button
+              class="gridNav prev"
+              type="button"
+              aria-label={props.prevText}
+              onClick={prev}
+            >
+              &#x2039;
+            </button>
+            <button
+              class="gridNav next"
+              type="button"
+              aria-label={props.nextText}
+              onClick={next}
+            >
+              &#x203A;
+            </button>
+          </Show>
         </div>
-      </Show>
-
-      {/* desktop: custom cursor reads "next", but only over the stage image —
-          elsewhere (rail, close) the system pointer stays for the controls */}
-      <Show when={!mobile}>
-        <CustomCursor
-          active={() => open() && overImage()}
-          cursorText={() => props.nextText}
-        />
-      </Show>
-    </>
+      </div>
+    </Show>
   )
 }
 

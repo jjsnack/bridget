@@ -19,7 +19,7 @@
   {{- /* placeholders — mirror the homepage nav's right cluster to reserve its
          width; hidden with visibility so they take space but never show. */ -}}
   {{- if eq .Type "grid" -}}
-    {{- /* grid archetype: real column stepper in the threshold slot, wired in grid.tsx */ -}}
+    {{- /* grid archetype: column stepper (shown while browsing), wired in grid.tsx */ -}}
     <div class="gridColumns">
       <span>columns:</span>
       <span>
@@ -40,11 +40,23 @@
       </span>
     </div>
   {{- end -}}
-  <div class="index" aria-hidden="true">
-    <span class="num">0</span><span class="num">0</span><span class="num">0</span
-    ><span class="num">0</span>
-    <span>/</span>
-    <span class="num">0</span><span class="num">0</span><span class="num">0</span
-    ><span class="num">0</span>
-  </div>
+  {{- if eq .Type "grid" -}}
+    {{- /* grid archetype: live image counter (current / total), updated in grid.tsx */ -}}
+    {{- $total := len (.Resources.ByType "image") -}}
+    <div class="gridCount" aria-live="polite" aria-label="Image counter">
+      <span class="num">0</span><span class="num">0</span><span class="num">1</span>
+      <span class="sep">/</span>
+      <span class="num">{{- math.Floor (div $total 100) -}}</span
+      ><span class="num">{{- mod (math.Floor (div $total 10)) 10 -}}</span
+      ><span class="num">{{- mod $total 10 -}}</span>
+    </div>
+  {{- else -}}
+    <div class="index" aria-hidden="true">
+      <span class="num">0</span><span class="num">0</span><span class="num">0</span
+      ><span class="num">0</span>
+      <span>/</span>
+      <span class="num">0</span><span class="num">0</span><span class="num">0</span
+      ><span class="num">0</span>
+    </div>
+  {{- end -}}
 </nav>

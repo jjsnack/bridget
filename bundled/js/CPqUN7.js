@@ -1,21 +1,22 @@
-import { A as createRenderEffect, C as Show, E as createComponent, L as onCleanup, M as createSignal, O as createEffect, R as onMount, _ as template, a as isMobile, d as insert, k as createMemo, l as addEventListener, m as setAttribute, p as render, u as delegateEvents, v as use, x as For } from "./BAeMdM.js";
-import { t as CustomCursor } from "./CZkXrZ.js";
+import { D as createEffect, I as onCleanup, L as onMount, O as createMemo, R as untrack, S as Show, T as createComponent, _ as use, a as isMobile, b as For, f as render, g as template, j as createSignal, k as createRenderEffect, l as delegateEvents, p as setAttribute, u as insert } from "./C3xGhw.js";
 //#region assets/ts/grid.tsx
 /**
 * Grid archetype (`type: grid`, `layouts/grid/single.html`).
-* A tag-filtered image grid; clicking a frame opens a viewer with a vertical
-* thumbnail rail of the current (filtered) set beside a full-size stage —
-* prev/next cycle within the filtered set, matching gregorcollienne.com/focus.
-* A column stepper (mirroring the gallery's threshold control) adjusts the
-* masonry column count on desktop.
+* A tag-filtered image grid; clicking a frame opens a viewer with a looping
+* vertical thumbnail rail beside a full-size stage. Scrolling advances the
+* image (wheel on desktop, arrows on touch); a live counter in the nav shows
+* current / total.
 *
-* Grid + filter bar + stepper are server-rendered; this module is a
-* progressive enhancement (mirrors post.tsx): it wires those existing DOM
-* nodes and portals the viewer overlay. No desktop/mobile split — one CSS
-* layout swaps the rail from a left column to a bottom strip at the tablet
-* breakpoint.
+* Grid + filter bar are server-rendered; this module is a progressive
+* enhancement (mirrors post.tsx): it wires those existing DOM nodes and
+* portals the viewer overlay. No desktop/mobile split — one CSS layout swaps
+* the rail from a left column to a bottom strip at the tablet breakpoint.
 */
 var _tmpl$ = /*#__PURE__*/ template(`<button class="gridNav prev"type=button>&#x2039;`), _tmpl$2 = /*#__PURE__*/ template(`<button class="gridNav next"type=button>&#x203A;`), _tmpl$3 = /*#__PURE__*/ template(`<div class=gridViewer role=dialog aria-modal=true aria-label="Image viewer"><button class=gridClose type=button></button><ol class=gridRail aria-label=Thumbnails></ol><div class=gridStage>`), _tmpl$4 = /*#__PURE__*/ template(`<li><button class=gridRailItem type=button><img loading=lazy draggable=false>`, true, false, false), _tmpl$5 = /*#__PURE__*/ template(`<figcaption>`), _tmpl$6 = /*#__PURE__*/ template(`<figure class=gridStageFrame><img draggable=false>`);
+var RAIL_REPEAT = 5;
+var RAIL_MID = Math.floor(RAIL_REPEAT / 2);
+var WHEEL_COOLDOWN = 340;
+var WHEEL_THRESHOLD = 8;
 var COL_MIN = 1;
 var COL_MAX = 5;
 var COL_DEFAULT = 3;
@@ -61,18 +62,33 @@ function setupColumns(main) {
 	});
 	apply();
 }
+function setCounter(current, total) {
+	const el = document.querySelector(".gridCount");
+	if (el == null) return;
+	const digits = String(current).padStart(3, "0") + String(total).padStart(3, "0");
+	el.querySelectorAll(".num").forEach((span, i) => {
+		span.innerText = digits[i] ?? "0";
+	});
+}
 function Grid(props) {
 	const items = createMemo(() => parseItems(props.gridButtons));
 	const mobile = isMobile();
 	const [activeTag, setActiveTag] = createSignal("*");
 	const [open, setOpen] = createSignal(false);
 	const [pos, setPos] = createSignal(0);
-	const [overImage, setOverImage] = createSignal(false);
+	const [railIndex, setRailIndex] = createSignal(0);
 	let trigger = null;
 	let closeBtn;
 	let rail;
+	let wheelLock = false;
 	const filtered = createMemo(() => activeTag() === "*" ? items() : items().filter((it) => it.tags.includes(activeTag())));
 	const current = createMemo(() => filtered()[pos()] ?? null);
+	const railRows = createMemo(() => {
+		const f = filtered();
+		const rows = [];
+		for (let c = 0; c < RAIL_REPEAT; c++) rows.push(...f);
+		return rows;
+	});
 	createEffect(() => {
 		const tag = activeTag();
 		props.gridButtons.forEach((btn) => {
@@ -85,34 +101,78 @@ function Grid(props) {
 			btn.setAttribute("aria-pressed", String(on));
 		});
 	});
+	createEffect(() => {
+		setCounter(pos() + 1, filtered().length);
+	});
+	const scrollToRail = (i, smooth) => {
+		(rail?.children[i])?.scrollIntoView({
+			behavior: smooth ? "smooth" : "auto",
+			block: "center",
+			inline: "center"
+		});
+	};
+	const rebaseRail = () => {
+		if (!open()) return;
+		const n = filtered().length;
+		if (n === 0) return;
+		const i = railIndex();
+		if (i >= n && i < (RAIL_REPEAT - 1) * n) return;
+		const rebased = RAIL_MID * n + (i % n + n) % n;
+		setRailIndex(rebased);
+		scrollToRail(rebased, false);
+	};
+	const step = (dir) => {
+		const n = filtered().length;
+		if (n === 0) return;
+		setPos((p) => (p + dir + n) % n);
+		const i = railIndex() + dir;
+		setRailIndex(i);
+		scrollToRail(i, true);
+	};
+	const next = () => step(1);
+	const prev = () => step(-1);
+	const goTo = (flat) => {
+		setPos((flat % filtered().length + filtered().length) % filtered().length);
+		setRailIndex(flat);
+		scrollToRail(flat, true);
+	};
 	const openAt = (btn) => {
+		const n = filtered().length;
 		const p = filtered().findIndex((it) => it.index === Number(btn.dataset.index ?? 0));
 		if (p < 0) return;
 		trigger = btn;
 		setPos(p);
+		setRailIndex(RAIL_MID * n + p);
 		setOpen(true);
 	};
 	const close = () => {
 		setOpen(false);
 		trigger?.focus();
 	};
-	const next = () => {
-		setPos((p) => (p + 1) % filtered().length);
-	};
-	const prev = () => {
-		setPos((p) => (p + filtered().length - 1) % filtered().length);
-	};
 	const onKey = (e) => {
 		if (!open()) return;
 		if (e.key === "Escape") close();
-		else if (e.key === "ArrowRight") next();
-		else if (e.key === "ArrowLeft") prev();
+		else if (e.key === "ArrowRight" || e.key === "ArrowDown") next();
+		else if (e.key === "ArrowLeft" || e.key === "ArrowUp") prev();
+	};
+	const onWheel = (e) => {
+		if (!open()) return;
+		e.preventDefault();
+		if (wheelLock || Math.abs(e.deltaY) < WHEEL_THRESHOLD) return;
+		wheelLock = true;
+		if (e.deltaY > 0) next();
+		else prev();
+		window.setTimeout(() => {
+			wheelLock = false;
+		}, WHEEL_COOLDOWN);
 	};
 	createEffect(() => {
 		document.body.style.overflow = open() ? "hidden" : "";
+		document.body.classList.toggle("gridViewing", open());
 	});
 	onCleanup(() => {
 		document.body.style.overflow = "";
+		document.body.classList.remove("gridViewing");
 	});
 	createEffect(() => {
 		const isOpen = open();
@@ -127,11 +187,13 @@ function Grid(props) {
 		});
 	});
 	createEffect(() => {
-		if (!open()) return;
-		(rail?.querySelector(".gridRailItem.active"))?.scrollIntoView({
-			block: "nearest",
-			inline: "nearest"
+		if (!open() || rail == null) return;
+		const el = rail;
+		requestAnimationFrame(() => {
+			scrollToRail(untrack(railIndex), false);
 		});
+		el.addEventListener("scrollend", rebaseRail);
+		onCleanup(() => el.removeEventListener("scrollend", rebaseRail));
 	});
 	onMount(() => {
 		const c = new AbortController();
@@ -139,9 +201,13 @@ function Grid(props) {
 		props.gridButtons.forEach((btn) => btn.addEventListener("click", () => openAt(btn), { signal }));
 		props.tagButtons.forEach((btn) => btn.addEventListener("click", () => setActiveTag(btn.dataset.tag ?? "*"), { signal }));
 		window.addEventListener("keydown", onKey, { signal });
+		window.addEventListener("wheel", onWheel, {
+			signal,
+			passive: false
+		});
 		onCleanup(() => c.abort());
 	});
-	return [createComponent(Show, {
+	return createComponent(Show, {
 		get when() {
 			return open();
 		},
@@ -155,30 +221,30 @@ function Grid(props) {
 			typeof _ref$2 === "function" ? use(_ref$2, _el$3) : rail = _el$3;
 			insert(_el$3, createComponent(For, {
 				get each() {
-					return filtered();
+					return railRows();
 				},
-				children: (it, i) => (() => {
-					var _el$7 = _tmpl$4(), _el$8 = _el$7.firstChild, _el$9 = _el$8.firstChild;
-					_el$8.$$click = () => setPos(i());
-					createRenderEffect((_p$) => {
-						var _v$ = !!(i() === pos()), _v$2 = i() === pos() ? "true" : void 0, _v$3 = it.thumbUrl, _v$4 = it.caption;
-						_v$ !== _p$.e && _el$8.classList.toggle("active", _p$.e = _v$);
-						_v$2 !== _p$.t && setAttribute(_el$8, "aria-current", _p$.t = _v$2);
-						_v$3 !== _p$.a && setAttribute(_el$9, "src", _p$.a = _v$3);
-						_v$4 !== _p$.o && setAttribute(_el$9, "alt", _p$.o = _v$4);
-						return _p$;
-					}, {
-						e: void 0,
-						t: void 0,
-						a: void 0,
-						o: void 0
-					});
-					return _el$7;
-				})()
+				children: (row, i) => {
+					const active = () => i() === railIndex();
+					return (() => {
+						var _el$7 = _tmpl$4(), _el$8 = _el$7.firstChild, _el$9 = _el$8.firstChild;
+						_el$8.$$click = () => goTo(i());
+						createRenderEffect((_p$) => {
+							var _v$ = !!active(), _v$2 = active() ? "true" : void 0, _v$3 = row.thumbUrl, _v$4 = row.caption;
+							_v$ !== _p$.e && _el$8.classList.toggle("active", _p$.e = _v$);
+							_v$2 !== _p$.t && setAttribute(_el$8, "aria-current", _p$.t = _v$2);
+							_v$3 !== _p$.a && setAttribute(_el$9, "src", _p$.a = _v$3);
+							_v$4 !== _p$.o && setAttribute(_el$9, "alt", _p$.o = _v$4);
+							return _p$;
+						}, {
+							e: void 0,
+							t: void 0,
+							a: void 0,
+							o: void 0
+						});
+						return _el$7;
+					})();
+				}
 			}));
-			_el$4.addEventListener("mouseleave", () => setOverImage(false));
-			_el$4.addEventListener("mouseenter", () => setOverImage(true));
-			addEventListener(_el$4, "click", mobile ? void 0 : next, true);
 			insert(_el$4, createComponent(Show, {
 				get when() {
 					return current();
@@ -217,18 +283,12 @@ function Grid(props) {
 				get children() {
 					return [(() => {
 						var _el$5 = _tmpl$();
-						_el$5.$$click = (e) => {
-							e.stopPropagation();
-							prev();
-						};
+						_el$5.$$click = prev;
 						createRenderEffect(() => setAttribute(_el$5, "aria-label", props.prevText));
 						return _el$5;
 					})(), (() => {
 						var _el$6 = _tmpl$2();
-						_el$6.$$click = (e) => {
-							e.stopPropagation();
-							next();
-						};
+						_el$6.$$click = next;
 						createRenderEffect(() => setAttribute(_el$6, "aria-label", props.nextText));
 						return _el$6;
 					})()];
@@ -236,15 +296,7 @@ function Grid(props) {
 			}), null);
 			return _el$;
 		}
-	}), createComponent(Show, {
-		when: !mobile,
-		get children() {
-			return createComponent(CustomCursor, {
-				active: () => open() && overImage(),
-				cursorText: () => props.nextText
-			});
-		}
-	})];
+	});
 }
 function initGrid() {
 	const main = document.querySelector(".grid");

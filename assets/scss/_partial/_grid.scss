@@ -53,7 +53,9 @@ $desktop: map.get($breakpoints, 'desktop');
   }
 }
 
-// column stepper — same look as the gallery nav's threshold control
+// The nav's right cluster swaps between two controls: the column stepper while
+// browsing the grid, and the live image counter while the viewer is open
+// (body.gridViewing, toggled in grid.tsx).
 .gridColumns {
   display: inline-flex;
   align-items: center;
@@ -67,6 +69,26 @@ $desktop: map.get($breakpoints, 'desktop');
     cursor: pointer;
     font: inherit;
     color: inherit;
+  }
+}
+
+// image counter (current / total) — same digits as the gallery's index;
+// hidden until the viewer opens
+.gridCount {
+  display: none;
+  align-items: center;
+
+  .sep {
+    margin: 0 0.4em;
+  }
+}
+
+body.gridViewing {
+  .gridColumns {
+    display: none;
+  }
+  .gridCount {
+    display: inline-flex;
   }
 }
 
@@ -261,7 +283,7 @@ $desktop: map.get($breakpoints, 'desktop');
 }
 
 /* ======================================================================
-   Tablet and up: multi-column masonry, count driven by the stepper
+   Tablet and up: multi-column masonry scatter, count from the nav stepper
    (--grid-cols, default 3). Viewer rail becomes a quiet left column.
    ====================================================================== */
 @media (min-width: $tablet) {
@@ -274,9 +296,7 @@ $desktop: map.get($breakpoints, 'desktop');
     // gap tracks the viewport: wider screen, more air; narrower, tighter
     column-gap: clamp(1.5rem, 3vw, 4.5rem);
     // Cap the field to ~one column-width per column, so stepping up adds a
-    // column of roughly constant size instead of shrinking every frame —
-    // each step reads as only slightly denser. Narrows to fit when the
-    // viewport is smaller than the cap.
+    // column of roughly constant size instead of shrinking every frame.
     max-width: calc(var(--grid-cols, 3) * 24rem);
     margin: 0 auto;
   }
@@ -305,9 +325,8 @@ $desktop: map.get($breakpoints, 'desktop');
     }
   }
 
-  /* One column = the old focus look: not a narrow strip but a wide, airy
-     single flow across the full content width — frames at varied sizes pushed
-     left / centre / right with generous vertical whitespace. */
+  /* One column = the old focus look: a wide, airy single flow across the full
+     content width — frames at varied sizes pushed left / centre / right. */
   .gridItems[data-cols='1'] {
     columns: auto;
     max-width: none;
@@ -344,8 +363,8 @@ $desktop: map.get($breakpoints, 'desktop');
     }
   }
 
-  /* Two columns: let the frames claim more horizontal space — a wider field
-     and near-full-column widths, so the pair reads big and generous. */
+  /* Two columns: frames claim more horizontal space — wider field, near-full
+     column widths, so the pair reads big and generous. */
   .gridItems[data-cols='2'] {
     max-width: calc(2 * 33rem);
 
@@ -364,11 +383,9 @@ $desktop: map.get($breakpoints, 'desktop');
     }
   }
 
-  /* Five columns: fill the full page and stay centred. No max-width (so it
-     never sits off-centre), and a symmetric negative inline margin trims the
-     page's 6vw side padding down to ~2vw so the five columns reach edge to
-     edge. Frames fill their columns — a clean full-width grid, not a scatter
-     that leaves ragged side gaps. */
+  /* Five columns: full page width, centred at any window size (symmetric
+     negative inline margin trims the page padding). Frames fill their columns
+     for a clean edge-to-edge grid, not a scatter with ragged side gaps. */
   .gridItems[data-cols='5'] {
     column-gap: clamp(0.75rem, 1.5vw, 2rem);
     max-width: none;
@@ -390,7 +407,8 @@ $desktop: map.get($breakpoints, 'desktop');
     flex-direction: column;
     gap: 0.9rem;
     height: 100vh;
-    padding: calc(var(--nav-height)) 1.5rem 4vh;
+    // bottom clears the fixed nav (counter) that overlays the viewer
+    padding: 4vh 1.5rem calc(var(--nav-height) + 3vh);
     overflow-x: hidden;
     overflow-y: auto;
 
@@ -402,10 +420,7 @@ $desktop: map.get($breakpoints, 'desktop');
 
   .gridStage {
     order: 0;
-    padding: calc(var(--nav-height)) 6vw 6vh;
-    // desktop swaps the system cursor for the custom "next" cursor over
-    // the stage image (grid.tsx); rail + close keep the pointer
-    cursor: none;
+    padding: 4vh 6vw calc(var(--nav-height) + 4vh);
   }
 
   .gridStageFrame img {
