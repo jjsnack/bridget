@@ -12,11 +12,9 @@ import { D as createEffect, I as onCleanup, L as onMount, O as createMemo, R as 
 * portals the viewer overlay. No desktop/mobile split — one CSS layout swaps
 * the rail from a left column to a bottom strip at the tablet breakpoint.
 */
-var _tmpl$ = /*#__PURE__*/ template(`<button class="gridNav prev"type=button>&#x2039;`), _tmpl$2 = /*#__PURE__*/ template(`<button class="gridNav next"type=button>&#x203A;`), _tmpl$3 = /*#__PURE__*/ template(`<div class=gridViewer role=dialog aria-modal=true aria-label="Image viewer"><button class=gridClose type=button></button><ol class=gridRail aria-label=Thumbnails></ol><div class=gridStage>`), _tmpl$4 = /*#__PURE__*/ template(`<li><button class=gridRailItem type=button><img loading=lazy draggable=false>`, true, false, false), _tmpl$5 = /*#__PURE__*/ template(`<figcaption>`), _tmpl$6 = /*#__PURE__*/ template(`<figure class=gridStageFrame><img draggable=false>`);
+var _tmpl$ = /*#__PURE__*/ template(`<figcaption>`), _tmpl$2 = /*#__PURE__*/ template(`<figure class=gridStageFrame><img draggable=false>`), _tmpl$3 = /*#__PURE__*/ template(`<button class="gridNav prev"type=button>&#x2039;`), _tmpl$4 = /*#__PURE__*/ template(`<button class="gridNav next"type=button>&#x203A;`), _tmpl$5 = /*#__PURE__*/ template(`<div class=gridViewer role=dialog aria-modal=true aria-label="Image viewer"><button class=gridClose type=button></button><ol class=gridRail aria-label=Thumbnails></ol><div class=gridStage>`), _tmpl$6 = /*#__PURE__*/ template(`<li><button class=gridRailItem type=button><img loading=lazy draggable=false>`, true, false, false);
 var RAIL_REPEAT = 5;
 var RAIL_MID = Math.floor(RAIL_REPEAT / 2);
-var WHEEL_COOLDOWN = 340;
-var WHEEL_THRESHOLD = 8;
 var COL_MIN = 1;
 var COL_MAX = 5;
 var COL_DEFAULT = 3;
@@ -80,7 +78,9 @@ function Grid(props) {
 	let trigger = null;
 	let closeBtn;
 	let rail;
-	let wheelLock = false;
+	const vertical = !mobile;
+	let noRebaseUntil = 0;
+	let scrollRAF = 0;
 	const filtered = createMemo(() => activeTag() === "*" ? items() : items().filter((it) => it.tags.includes(activeTag())));
 	const current = createMemo(() => filtered()[pos()] ?? null);
 	const railRows = createMemo(() => {
@@ -104,38 +104,57 @@ function Grid(props) {
 	createEffect(() => {
 		setCounter(pos() + 1, filtered().length);
 	});
+	const kidStart = (k) => vertical ? k.offsetTop : k.offsetLeft;
+	const kidSize = (k) => vertical ? k.offsetHeight : k.offsetWidth;
+	const railPos = (el) => vertical ? el.scrollTop : el.scrollLeft;
+	const setRailPos = (el, v) => {
+		if (vertical) el.scrollTop = v;
+		else el.scrollLeft = v;
+	};
+	const railViewport = (el) => vertical ? el.clientHeight : el.clientWidth;
 	const scrollToRail = (i, smooth) => {
-		(rail?.children[i])?.scrollIntoView({
+		const li = rail?.children[i];
+		if (li == null) return;
+		if (smooth) noRebaseUntil = performance.now() + 700;
+		li.scrollIntoView({
 			behavior: smooth ? "smooth" : "auto",
 			block: "center",
 			inline: "center"
 		});
 	};
-	const rebaseRail = () => {
-		if (!open()) return;
-		const n = filtered().length;
-		if (n === 0) return;
-		const i = railIndex();
-		if (i >= n && i < (RAIL_REPEAT - 1) * n) return;
-		const rebased = RAIL_MID * n + (i % n + n) % n;
-		setRailIndex(rebased);
-		scrollToRail(rebased, false);
+	const onRailScroll = () => {
+		if (scrollRAF !== 0) return;
+		scrollRAF = requestAnimationFrame(() => {
+			scrollRAF = 0;
+			const el = rail;
+			const n = filtered().length;
+			if (el == null || n === 0) return;
+			const kids = el.children;
+			if (kids.length <= n) return;
+			const oneSet = kidStart(kids[n]) - kidStart(kids[0]);
+			if (oneSet > 0 && performance.now() >= noRebaseUntil) {
+				const p = railPos(el);
+				if (p < oneSet) setRailPos(el, p + oneSet);
+				else if (p >= oneSet * (RAIL_REPEAT - 1)) setRailPos(el, p - oneSet);
+			}
+			const mid = railPos(el) + railViewport(el) / 2;
+			let best = 0;
+			let bestDist = Infinity;
+			for (let i = 0; i < kids.length; i++) {
+				const k = kids[i];
+				const dist = Math.abs(kidStart(k) + kidSize(k) / 2 - mid);
+				if (dist < bestDist) {
+					bestDist = dist;
+					best = i;
+				}
+			}
+			setRailIndex(best);
+			setPos(best % n);
+		});
 	};
-	const step = (dir) => {
-		const n = filtered().length;
-		if (n === 0) return;
-		setPos((p) => (p + dir + n) % n);
-		const i = railIndex() + dir;
-		setRailIndex(i);
-		scrollToRail(i, true);
-	};
-	const next = () => step(1);
-	const prev = () => step(-1);
-	const goTo = (flat) => {
-		setPos((flat % filtered().length + filtered().length) % filtered().length);
-		setRailIndex(flat);
-		scrollToRail(flat, true);
-	};
+	const next = () => scrollToRail(railIndex() + 1, true);
+	const prev = () => scrollToRail(railIndex() - 1, true);
+	const goTo = (flat) => scrollToRail(flat, true);
 	const openAt = (btn) => {
 		const n = filtered().length;
 		const p = filtered().findIndex((it) => it.index === Number(btn.dataset.index ?? 0));
@@ -156,15 +175,9 @@ function Grid(props) {
 		else if (e.key === "ArrowLeft" || e.key === "ArrowUp") prev();
 	};
 	const onWheel = (e) => {
-		if (!open()) return;
+		if (!open() || rail == null) return;
 		e.preventDefault();
-		if (wheelLock || Math.abs(e.deltaY) < WHEEL_THRESHOLD) return;
-		wheelLock = true;
-		if (e.deltaY > 0) next();
-		else prev();
-		window.setTimeout(() => {
-			wheelLock = false;
-		}, WHEEL_COOLDOWN);
+		setRailPos(rail, railPos(rail) + (vertical ? e.deltaY : e.deltaY || e.deltaX));
 	};
 	createEffect(() => {
 		document.body.style.overflow = open() ? "hidden" : "";
@@ -192,8 +205,14 @@ function Grid(props) {
 		requestAnimationFrame(() => {
 			scrollToRail(untrack(railIndex), false);
 		});
-		el.addEventListener("scrollend", rebaseRail);
-		onCleanup(() => el.removeEventListener("scrollend", rebaseRail));
+		el.addEventListener("scroll", onRailScroll, { passive: true });
+		onCleanup(() => {
+			el.removeEventListener("scroll", onRailScroll);
+			if (scrollRAF !== 0) {
+				cancelAnimationFrame(scrollRAF);
+				scrollRAF = 0;
+			}
+		});
 	});
 	onMount(() => {
 		const c = new AbortController();
@@ -212,7 +231,7 @@ function Grid(props) {
 			return open();
 		},
 		get children() {
-			var _el$ = _tmpl$3(), _el$2 = _el$.firstChild, _el$3 = _el$2.nextSibling, _el$4 = _el$3.nextSibling;
+			var _el$ = _tmpl$5(), _el$2 = _el$.firstChild, _el$3 = _el$2.nextSibling, _el$4 = _el$3.nextSibling;
 			_el$2.$$click = close;
 			var _ref$ = closeBtn;
 			typeof _ref$ === "function" ? use(_ref$, _el$2) : closeBtn = _el$2;
@@ -226,14 +245,14 @@ function Grid(props) {
 				children: (row, i) => {
 					const active = () => i() === railIndex();
 					return (() => {
-						var _el$7 = _tmpl$4(), _el$8 = _el$7.firstChild, _el$9 = _el$8.firstChild;
-						_el$8.$$click = () => goTo(i());
+						var _el$0 = _tmpl$6(), _el$1 = _el$0.firstChild, _el$10 = _el$1.firstChild;
+						_el$1.$$click = () => goTo(i());
 						createRenderEffect((_p$) => {
-							var _v$ = !!active(), _v$2 = active() ? "true" : void 0, _v$3 = row.thumbUrl, _v$4 = row.caption;
-							_v$ !== _p$.e && _el$8.classList.toggle("active", _p$.e = _v$);
-							_v$2 !== _p$.t && setAttribute(_el$8, "aria-current", _p$.t = _v$2);
-							_v$3 !== _p$.a && setAttribute(_el$9, "src", _p$.a = _v$3);
-							_v$4 !== _p$.o && setAttribute(_el$9, "alt", _p$.o = _v$4);
+							var _v$5 = !!active(), _v$6 = active() ? "true" : void 0, _v$7 = row.thumbUrl, _v$8 = row.caption;
+							_v$5 !== _p$.e && _el$1.classList.toggle("active", _p$.e = _v$5);
+							_v$6 !== _p$.t && setAttribute(_el$1, "aria-current", _p$.t = _v$6);
+							_v$7 !== _p$.a && setAttribute(_el$10, "src", _p$.a = _v$7);
+							_v$8 !== _p$.o && setAttribute(_el$10, "alt", _p$.o = _v$8);
 							return _p$;
 						}, {
 							e: void 0,
@@ -241,7 +260,7 @@ function Grid(props) {
 							a: void 0,
 							o: void 0
 						});
-						return _el$7;
+						return _el$0;
 					})();
 				}
 			}));
@@ -249,25 +268,24 @@ function Grid(props) {
 				get when() {
 					return current();
 				},
-				keyed: true,
-				children: (it) => (() => {
-					var _el$0 = _tmpl$6(), _el$1 = _el$0.firstChild;
-					insert(_el$0, createComponent(Show, {
+				get children() {
+					var _el$5 = _tmpl$2(), _el$6 = _el$5.firstChild;
+					insert(_el$5, createComponent(Show, {
 						get when() {
-							return it.caption !== "";
+							return (current()?.caption ?? "") !== "";
 						},
 						get children() {
-							var _el$10 = _tmpl$5();
-							insert(_el$10, () => it.caption);
-							return _el$10;
+							var _el$7 = _tmpl$();
+							insert(_el$7, () => current()?.caption);
+							return _el$7;
 						}
 					}), null);
 					createRenderEffect((_p$) => {
-						var _v$5 = it.hiUrl, _v$6 = it.hiW, _v$7 = it.hiH, _v$8 = it.caption;
-						_v$5 !== _p$.e && setAttribute(_el$1, "src", _p$.e = _v$5);
-						_v$6 !== _p$.t && setAttribute(_el$1, "width", _p$.t = _v$6);
-						_v$7 !== _p$.a && setAttribute(_el$1, "height", _p$.a = _v$7);
-						_v$8 !== _p$.o && setAttribute(_el$1, "alt", _p$.o = _v$8);
+						var _v$ = current()?.hiUrl, _v$2 = current()?.hiW, _v$3 = current()?.hiH, _v$4 = current()?.caption;
+						_v$ !== _p$.e && setAttribute(_el$6, "src", _p$.e = _v$);
+						_v$2 !== _p$.t && setAttribute(_el$6, "width", _p$.t = _v$2);
+						_v$3 !== _p$.a && setAttribute(_el$6, "height", _p$.a = _v$3);
+						_v$4 !== _p$.o && setAttribute(_el$6, "alt", _p$.o = _v$4);
 						return _p$;
 					}, {
 						e: void 0,
@@ -275,22 +293,22 @@ function Grid(props) {
 						a: void 0,
 						o: void 0
 					});
-					return _el$0;
-				})()
+					return _el$5;
+				}
 			}), null);
 			insert(_el$4, createComponent(Show, {
 				when: mobile,
 				get children() {
 					return [(() => {
-						var _el$5 = _tmpl$();
-						_el$5.$$click = prev;
-						createRenderEffect(() => setAttribute(_el$5, "aria-label", props.prevText));
-						return _el$5;
+						var _el$8 = _tmpl$3();
+						_el$8.$$click = prev;
+						createRenderEffect(() => setAttribute(_el$8, "aria-label", props.prevText));
+						return _el$8;
 					})(), (() => {
-						var _el$6 = _tmpl$2();
-						_el$6.$$click = next;
-						createRenderEffect(() => setAttribute(_el$6, "aria-label", props.nextText));
-						return _el$6;
+						var _el$9 = _tmpl$4();
+						_el$9.$$click = next;
+						createRenderEffect(() => setAttribute(_el$9, "aria-label", props.nextText));
+						return _el$9;
 					})()];
 				}
 			}), null);

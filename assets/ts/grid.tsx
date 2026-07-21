@@ -41,8 +41,6 @@ interface Item {
 // silent rebase re-centres it
 const RAIL_REPEAT = 5
 const RAIL_MID = Math.floor(RAIL_REPEAT / 2) // copy the loop rebases back into
-const WHEEL_COOLDOWN = 340 // ms between wheel-driven advances
-const WHEEL_THRESHOLD = 8 // ignore tiny trackpad jitter
 
 const COL_MIN = 1
 const COL_MAX = 5
@@ -133,7 +131,9 @@ function Grid(props: {
   let trigger: HTMLButtonElement | null = null
   let closeBtn: HTMLButtonElement | undefined
   let rail: HTMLOListElement | undefined
-  let wheelLock = false
+  const vertical = !mobile // rail runs down on desktop, across on mobile
+  let noRebaseUntil = 0 // suppress the seamless rebase during a programmatic glide
+  let scrollRAF = 0
 
   const filtered = createMemo(() =>
     activeTag() === '*'
@@ -170,47 +170,70 @@ function Grid(props: {
     setCounter(pos() + 1, filtered().length)
   })
 
-  // centre rail child at flat index `i`; smooth for an advance, instant for the
-  // silent rebase (same image, so no visible motion)
+  // rail geometry, abstracted over the scroll axis (vertical desktop / across mobile)
+  const kidStart = (k: HTMLElement): number => (vertical ? k.offsetTop : k.offsetLeft)
+  const kidSize = (k: HTMLElement): number =>
+    vertical ? k.offsetHeight : k.offsetWidth
+  const railPos = (el: HTMLElement): number => (vertical ? el.scrollTop : el.scrollLeft)
+  const setRailPos = (el: HTMLElement, v: number): void => {
+    if (vertical) el.scrollTop = v
+    else el.scrollLeft = v
+  }
+  const railViewport = (el: HTMLElement): number =>
+    vertical ? el.clientHeight : el.clientWidth
+
+  // centre rail child `i`; smooth for a click/arrow glide, instant for setup
   const scrollToRail = (i: number, smooth: boolean): void => {
     const li = rail?.children[i] as HTMLElement | undefined
-    li?.scrollIntoView({
+    if (li == null) return
+    if (smooth) noRebaseUntil = performance.now() + 700
+    li.scrollIntoView({
       behavior: smooth ? 'smooth' : 'auto',
       block: 'center',
       inline: 'center'
     })
   }
 
-  // after a glide settles, if the centred index has drifted out of the middle
-  // band, jump it back to the equivalent thumb in the middle copy — invisible,
-  // since the content there is identical
-  const rebaseRail = (): void => {
-    if (!open()) return
-    const n = filtered().length
-    if (n === 0) return
-    const i = railIndex()
-    if (i >= n && i < (RAIL_REPEAT - 1) * n) return
-    const rebased = RAIL_MID * n + (((i % n) + n) % n)
-    setRailIndex(rebased)
-    scrollToRail(rebased, false)
+  // the rail free-scrolls (wheel/touch); this reads the scroll position, keeps
+  // it inside the middle band (seamless loop) and drives the stage from
+  // whichever thumb is nearest centre
+  const onRailScroll = (): void => {
+    if (scrollRAF !== 0) return
+    scrollRAF = requestAnimationFrame(() => {
+      scrollRAF = 0
+      const el = rail
+      const n = filtered().length
+      if (el == null || n === 0) return
+      const kids = el.children
+      if (kids.length <= n) return
+
+      const oneSet = kidStart(kids[n] as HTMLElement) - kidStart(kids[0] as HTMLElement)
+      // seamless rebase: wrap the scroll offset by one set when it nears an end
+      if (oneSet > 0 && performance.now() >= noRebaseUntil) {
+        const p = railPos(el)
+        if (p < oneSet) setRailPos(el, p + oneSet)
+        else if (p >= oneSet * (RAIL_REPEAT - 1)) setRailPos(el, p - oneSet)
+      }
+
+      const mid = railPos(el) + railViewport(el) / 2
+      let best = 0
+      let bestDist = Infinity
+      for (let i = 0; i < kids.length; i++) {
+        const k = kids[i] as HTMLElement
+        const dist = Math.abs(kidStart(k) + kidSize(k) / 2 - mid)
+        if (dist < bestDist) {
+          bestDist = dist
+          best = i
+        }
+      }
+      setRailIndex(best)
+      setPos(best % n)
+    })
   }
 
-  const step = (dir: number): void => {
-    const n = filtered().length
-    if (n === 0) return
-    setPos((p) => (p + dir + n) % n)
-    const i = railIndex() + dir
-    setRailIndex(i)
-    scrollToRail(i, true)
-  }
-  const next = (): void => step(1)
-  const prev = (): void => step(-1)
-
-  const goTo = (flat: number): void => {
-    setPos(((flat % filtered().length) + filtered().length) % filtered().length)
-    setRailIndex(flat)
-    scrollToRail(flat, true)
-  }
+  const next = (): void => scrollToRail(railIndex() + 1, true)
+  const prev = (): void => scrollToRail(railIndex() - 1, true)
+  const goTo = (flat: number): void => scrollToRail(flat, true)
 
   const openAt = (btn: HTMLButtonElement): void => {
     const n = filtered().length
@@ -233,17 +256,12 @@ function Grid(props: {
     else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') prev()
   }
 
-  // scroll advances the image (one step per wheel gesture, throttled)
+  // wheel scrolls the rail continuously (no snapping) — page-like momentum,
+  // since macOS momentum keeps emitting wheel deltas we forward here
   const onWheel = (e: WheelEvent): void => {
-    if (!open()) return
+    if (!open() || rail == null) return
     e.preventDefault()
-    if (wheelLock || Math.abs(e.deltaY) < WHEEL_THRESHOLD) return
-    wheelLock = true
-    if (e.deltaY > 0) next()
-    else prev()
-    window.setTimeout(() => {
-      wheelLock = false
-    }, WHEEL_COOLDOWN)
+    setRailPos(rail, railPos(rail) + (vertical ? e.deltaY : e.deltaY || e.deltaX))
   }
 
   // lock page scroll + swap the nav's stepper for the counter while viewing
@@ -271,16 +289,22 @@ function Grid(props: {
     })
   })
 
-  // on open: centre the starting thumb instantly, and rebase the loop whenever
-  // a glide finishes (scrollend) so it can run forever without a visible reset
+  // on open: centre the starting thumb instantly, then follow the rail's own
+  // scrolling (wheel/touch) to move the stage and keep the loop seamless
   createEffect(() => {
     if (!open() || rail == null) return
     const el = rail
     requestAnimationFrame(() => {
       scrollToRail(untrack(railIndex), false)
     })
-    el.addEventListener('scrollend', rebaseRail)
-    onCleanup(() => el.removeEventListener('scrollend', rebaseRail))
+    el.addEventListener('scroll', onRailScroll, { passive: true })
+    onCleanup(() => {
+      el.removeEventListener('scroll', onRailScroll)
+      if (scrollRAF !== 0) {
+        cancelAnimationFrame(scrollRAF)
+        scrollRAF = 0
+      }
+    })
   })
 
   onMount(() => {
@@ -333,21 +357,21 @@ function Grid(props: {
         </ol>
 
         <div class="gridStage">
-          <Show when={current()} keyed>
-            {(it) => (
-              <figure class="gridStageFrame">
-                <img
-                  src={it.hiUrl}
-                  width={it.hiW}
-                  height={it.hiH}
-                  alt={it.caption}
-                  draggable="false"
-                />
-                <Show when={it.caption !== ''}>
-                  <figcaption>{it.caption}</figcaption>
-                </Show>
-              </figure>
-            )}
+          {/* not keyed: the <img> persists and its src swaps as the rail
+              scrolls, so the stage tracks the motion without a remount flash */}
+          <Show when={current()}>
+            <figure class="gridStageFrame">
+              <img
+                src={current()?.hiUrl}
+                width={current()?.hiW}
+                height={current()?.hiH}
+                alt={current()?.caption}
+                draggable="false"
+              />
+              <Show when={(current()?.caption ?? '') !== ''}>
+                <figcaption>{current()?.caption}</figcaption>
+              </Show>
+            </figure>
           </Show>
 
           <Show when={mobile}>

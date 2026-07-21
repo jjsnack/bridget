@@ -53,9 +53,21 @@ $desktop: map.get($breakpoints, 'desktop');
   }
 }
 
-// The nav's right cluster swaps between two controls: the column stepper while
-// browsing the grid, and the live image counter while the viewer is open
-// (body.gridViewing, toggled in grid.tsx).
+// The nav's right cluster holds two controls in one fixed slot: the column
+// stepper while browsing, the live image counter while the viewer is open.
+// They're stacked in the same grid cell so the slot is always as wide as the
+// larger one — toggling by visibility keeps the menu from shifting.
+.gridControls {
+  display: grid;
+  justify-items: end;
+  align-items: center;
+
+  // both children occupy the same cell
+  > * {
+    grid-area: 1 / 1;
+  }
+}
+
 .gridColumns {
   display: inline-flex;
   align-items: center;
@@ -73,10 +85,11 @@ $desktop: map.get($breakpoints, 'desktop');
 }
 
 // image counter (current / total) — same digits as the gallery's index;
-// hidden until the viewer opens
+// reserved but hidden until the viewer opens
 .gridCount {
-  display: none;
+  display: inline-flex;
   align-items: center;
+  visibility: hidden;
 
   .sep {
     margin: 0 0.4em;
@@ -85,10 +98,10 @@ $desktop: map.get($breakpoints, 'desktop');
 
 body.gridViewing {
   .gridColumns {
-    display: none;
+    visibility: hidden;
   }
   .gridCount {
-    display: inline-flex;
+    visibility: visible;
   }
 }
 
