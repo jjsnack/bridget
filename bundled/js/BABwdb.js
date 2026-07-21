@@ -74,7 +74,8 @@ function setCounter(current, total) {
 function Grid(props) {
 	const items = createMemo(() => parseItems(props.gridButtons));
 	const mobile = isMobile();
-	const [activeTag, setActiveTag] = createSignal("*");
+	const [selected, setSelected] = createSignal([]);
+	const [expanded, setExpanded] = createSignal(false);
 	const [open, setOpen] = createSignal(false);
 	const [pos, setPos] = createSignal(0);
 	const [railIndex, setRailIndex] = createSignal(0);
@@ -85,7 +86,10 @@ function Grid(props) {
 	const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 	let noRebaseUntil = 0;
 	let scrollRAF = 0;
-	const filtered = createMemo(() => activeTag() === "*" ? items() : items().filter((it) => it.tags.includes(activeTag())));
+	const filtered = createMemo(() => {
+		const sel = selected();
+		return sel.length === 0 ? items() : items().filter((it) => it.tags.some((t) => sel.includes(t)));
+	});
 	const current = createMemo(() => filtered()[pos()] ?? null);
 	const railRows = createMemo(() => {
 		const f = filtered();
@@ -94,16 +98,28 @@ function Grid(props) {
 		return rows;
 	});
 	createEffect(() => {
-		const tag = activeTag();
+		const sel = selected();
+		const shown = [];
+		const hidden = [];
 		props.gridButtons.forEach((btn) => {
 			const tags = (btn.dataset.tags ?? "").split(" ").filter(Boolean);
-			btn.classList.toggle("hidden", tag !== "*" && !tags.includes(tag));
+			const show = sel.length === 0 || tags.some((t) => sel.includes(t));
+			btn.classList.toggle("hidden", !show);
+			(show ? shown : hidden).push(btn);
 		});
+		const parent = props.gridButtons[0]?.parentElement;
+		[...shown, ...hidden].forEach((btn) => parent?.appendChild(btn));
 		props.tagButtons.forEach((btn) => {
-			const on = (btn.dataset.tag ?? "*") === tag;
+			const tag = btn.dataset.tag ?? "*";
+			const on = tag === "*" ? sel.length === 0 : sel.includes(tag);
 			btn.classList.toggle("active", on);
 			btn.setAttribute("aria-pressed", String(on));
 		});
+	});
+	createEffect(() => {
+		const isOpen = expanded();
+		props.tagList?.toggleAttribute("hidden", !isOpen);
+		props.toggle?.setAttribute("aria-expanded", String(isOpen));
 	});
 	createEffect(() => {
 		setCounter(pos() + 1, filtered().length);
@@ -239,7 +255,15 @@ function Grid(props) {
 		const c = new AbortController();
 		const { signal } = c;
 		props.gridButtons.forEach((btn) => btn.addEventListener("click", () => openAt(btn), { signal }));
-		props.tagButtons.forEach((btn) => btn.addEventListener("click", () => setActiveTag(btn.dataset.tag ?? "*"), { signal }));
+		props.tagButtons.forEach((btn) => btn.addEventListener("click", () => {
+			const tag = btn.dataset.tag ?? "*";
+			if (tag === "*") {
+				setSelected([]);
+				return;
+			}
+			setSelected((prev) => prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]);
+		}, { signal }));
+		props.toggle?.addEventListener("click", () => setExpanded((e) => !e), { signal });
 		window.addEventListener("keydown", onKey, { signal });
 		window.addEventListener("wheel", onWheel, {
 			signal,
@@ -347,6 +371,8 @@ function initGrid() {
 	const gridButtons = Array.from(main.querySelectorAll(".gridItem"));
 	if (gridButtons.length === 0) return;
 	const tagButtons = Array.from(main.querySelectorAll(".gridTag"));
+	const toggle = main.querySelector(".gridFilterToggle");
+	const tagList = main.querySelector(".gridTagList");
 	setupColumns(main);
 	const ds = document.querySelector(".container")?.dataset;
 	const root = document.createElement("div");
@@ -355,6 +381,8 @@ function initGrid() {
 	render(() => createComponent(Grid, {
 		gridButtons,
 		tagButtons,
+		toggle,
+		tagList,
 		root,
 		get closeText() {
 			return ds?.close ?? "close";

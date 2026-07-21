@@ -13,13 +13,44 @@ $desktop: map.get($breakpoints, 'desktop');
   padding: calc(var(--nav-height) + 6vh) 6vw 14vh;
 }
 
+// font inherits the body (Geist, body-scaled size) so the tags read as nav-bar
+// text; the bar holds "all" + the caret, the list holds the (disclosed) tags.
 .gridFilter {
+  margin-bottom: 6vh;
+}
+
+.gridFilterBar {
+  display: flex;
+  align-items: center;
+  gap: 0.5em; // caret sits close to "all"
+}
+
+.gridTagList {
   display: flex;
   flex-wrap: wrap;
   gap: 1.4em;
-  margin-bottom: 6vh;
-  // font inherits the body (Geist, body-scaled size) so the tags read as
-  // nav-bar text; positioning to the top-left corner happens at tablet+
+  padding-top: 1.4em;
+
+  &[hidden] {
+    display: none;
+  }
+}
+
+// caret disclosure: '>' rotates to point down when the tag list is open
+.gridFilterToggle {
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+
+  font: inherit;
+  color: #000;
+  line-height: 1;
+  transition: transform 0.25s ease;
+
+  &[aria-expanded='true'] {
+    transform: rotate(90deg);
+  }
 }
 
 .gridTag {
@@ -30,14 +61,9 @@ $desktop: map.get($breakpoints, 'desktop');
 
   font: inherit;
   color: #000;
-  transition: opacity 0.25s ease;
 
-  &:not(.active):hover {
-    opacity: 0.55;
-  }
-  // active tag mirrors the nav's current-page marker (italic + underline)
+  // active tag marked by underline only
   &.active {
-    font-style: italic;
     text-decoration: underline;
   }
 }
@@ -288,12 +314,17 @@ body.gridViewing {
     left: 0;
     right: 0;
     z-index: 10;
-    flex-wrap: nowrap;
-    align-items: center;
-    height: var(--nav-height);
     margin: 0;
     padding: 0 var(--space-standard);
     background: white;
+  }
+  // the bar is the nav-height row; the tag list drops below it when expanded,
+  // growing the fixed white panel downward over the grid
+  .gridFilterBar {
+    height: var(--nav-height);
+  }
+  .gridTagList {
+    padding: 0.2em 0 0.8em;
   }
 
   /* Multi-column masonry, count driven by the nav stepper (--grid-cols).
@@ -451,6 +482,32 @@ body.gridViewing {
 @media (max-width: ($tablet - 1px)), (hover: none) {
   .gridColumns {
     display: none;
+  }
+
+  // Tags pin to the bottom (the nav sits at the top on mobile) as a full-width
+  // white bar. column-reverse keeps the bar at the bottom edge and grows the
+  // disclosed tag list upward, above it.
+  .gridFilter {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 10;
+    display: flex;
+    flex-direction: column-reverse;
+    margin: 0;
+    padding: 0 var(--space-standard);
+    background: white;
+  }
+  .gridFilterBar {
+    height: var(--nav-height);
+  }
+  .gridTagList {
+    padding: 0.2em 0 0.8em;
+  }
+  // list opens upward here, so the caret points up when expanded
+  .gridFilterToggle[aria-expanded='true'] {
+    transform: rotate(-90deg);
   }
 }
 

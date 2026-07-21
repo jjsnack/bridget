@@ -114,6 +114,8 @@ function setCounter(current: number, total: number): void {
 function Grid(props: {
   gridButtons: HTMLButtonElement[]
   tagButtons: HTMLButtonElement[]
+  toggle: HTMLButtonElement | null
+  tagList: HTMLElement | null
   root: HTMLElement
   closeText: string
   nextText: string
@@ -124,7 +126,10 @@ function Grid(props: {
   const items = createMemo(() => parseItems(props.gridButtons))
   const mobile = isMobile()
 
-  const [activeTag, setActiveTag] = createSignal('*')
+  // multi-select filter: an image shows if it carries *any* selected tag;
+  // an empty selection means "all". `expanded` toggles the tag-list disclosure.
+  const [selected, setSelected] = createSignal<string[]>([])
+  const [expanded, setExpanded] = createSignal(false)
   const [open, setOpen] = createSignal(false)
   const [pos, setPos] = createSignal(0) // image index within filtered()
   // flat index into the repeated rail (railRows) that is currently centred;
@@ -139,11 +144,12 @@ function Grid(props: {
   let noRebaseUntil = 0 // suppress the seamless rebase during a programmatic glide
   let scrollRAF = 0
 
-  const filtered = createMemo(() =>
-    activeTag() === '*'
+  const filtered = createMemo(() => {
+    const sel = selected()
+    return sel.length === 0
       ? items()
-      : items().filter((it) => it.tags.includes(activeTag()))
-  )
+      : items().filter((it) => it.tags.some((t) => sel.includes(t)))
+  })
   const current = createMemo(() => filtered()[pos()] ?? null)
 
   // the rail is the filtered set repeated RAIL_REPEAT times; the flat index
@@ -155,18 +161,36 @@ function Grid(props: {
     return rows
   })
 
-  // reflect the active tag onto the server-rendered grid + filter buttons
+  // reflect the selection onto the server-rendered grid + filter buttons.
+  // "all" (data-tag="*") is active only when nothing is selected.
   createEffect(() => {
-    const tag = activeTag()
+    const sel = selected()
+    const shown: HTMLButtonElement[] = []
+    const hidden: HTMLButtonElement[] = []
     props.gridButtons.forEach((btn) => {
       const tags = (btn.dataset.tags ?? '').split(' ').filter(Boolean)
-      btn.classList.toggle('hidden', tag !== '*' && !tags.includes(tag))
+      const show = sel.length === 0 || tags.some((t) => sel.includes(t))
+      btn.classList.toggle('hidden', !show)
+      ;(show ? shown : hidden).push(btn)
     })
+    // move visible frames to the front so the `:nth-child` scatter (widths +
+    // margins) keys off *visible* position — display:none siblings still count
+    // toward nth-child, which otherwise scrambles the column layout on filter
+    const parent = props.gridButtons[0]?.parentElement
+    ;[...shown, ...hidden].forEach((btn) => parent?.appendChild(btn))
     props.tagButtons.forEach((btn) => {
-      const on = (btn.dataset.tag ?? '*') === tag
+      const tag = btn.dataset.tag ?? '*'
+      const on = tag === '*' ? sel.length === 0 : sel.includes(tag)
       btn.classList.toggle('active', on)
       btn.setAttribute('aria-pressed', String(on))
     })
+  })
+
+  // reflect the disclosure state onto the tag list + toggle caret
+  createEffect(() => {
+    const isOpen = expanded()
+    props.tagList?.toggleAttribute('hidden', !isOpen)
+    props.toggle?.setAttribute('aria-expanded', String(isOpen))
   })
 
   // keep the nav counter in sync (also reflects filter changes while closed)
@@ -351,10 +375,22 @@ function Grid(props: {
       btn.addEventListener('click', () => openAt(btn), { signal })
     )
     props.tagButtons.forEach((btn) =>
-      btn.addEventListener('click', () => setActiveTag(btn.dataset.tag ?? '*'), {
-        signal
-      })
+      btn.addEventListener(
+        'click',
+        () => {
+          const tag = btn.dataset.tag ?? '*'
+          if (tag === '*') {
+            setSelected([]) // "all" clears the selection
+            return
+          }
+          setSelected((prev) =>
+            prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
+          )
+        },
+        { signal }
+      )
     )
+    props.toggle?.addEventListener('click', () => setExpanded((e) => !e), { signal })
     window.addEventListener('keydown', onKey, { signal })
     window.addEventListener('wheel', onWheel, { signal, passive: false })
     onCleanup(() => c.abort())
@@ -443,6 +479,8 @@ export function initGrid(): void {
   const gridButtons = Array.from(main.querySelectorAll<HTMLButtonElement>('.gridItem'))
   if (gridButtons.length === 0) return
   const tagButtons = Array.from(main.querySelectorAll<HTMLButtonElement>('.gridTag'))
+  const toggle = main.querySelector<HTMLButtonElement>('.gridFilterToggle')
+  const tagList = main.querySelector<HTMLElement>('.gridTagList')
 
   setupColumns(main)
 
@@ -456,6 +494,8 @@ export function initGrid(): void {
       <Grid
         gridButtons={gridButtons}
         tagButtons={tagButtons}
+        toggle={toggle}
+        tagList={tagList}
         root={root}
         closeText={ds?.close ?? 'close'}
         nextText={ds?.next ?? 'next'}

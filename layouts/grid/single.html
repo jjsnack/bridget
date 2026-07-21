@@ -22,19 +22,38 @@
       {{- /* column stepper lives in the nav (postNav.html); the filter stays here */ -}}
       {{- with $tags -}}
         <div class="gridFilter" role="group" aria-label="Filter by tag">
-          <button class="gridTag active" type="button" data-tag="*" aria-pressed="true">
-            all
-          </button>
-          {{- range . -}}
+          <div class="gridFilterBar">
             <button
-              class="gridTag"
+              class="gridTag active"
               type="button"
-              data-tag="{{- . -}}"
-              aria-pressed="false"
+              data-tag="*"
+              aria-pressed="true"
             >
-              {{- . -}}
+              all
             </button>
-          {{- end -}}
+            {{- /* caret discloses the (potentially long) tag list */ -}}
+            <button
+              class="gridFilterToggle"
+              type="button"
+              aria-expanded="false"
+              aria-controls="gridTagList"
+              aria-label="Show tags"
+            >
+              &gt;
+            </button>
+          </div>
+          <div class="gridTagList" id="gridTagList" hidden>
+            {{- range . -}}
+              <button
+                class="gridTag"
+                type="button"
+                data-tag="{{- . -}}"
+                aria-pressed="false"
+              >
+                {{- . -}}
+              </button>
+            {{- end -}}
+          </div>
         </div>
       {{- end -}}
 
