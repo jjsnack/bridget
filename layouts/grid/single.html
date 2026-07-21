@@ -1,0 +1,99 @@
+{{- define "main" -}}
+  <div
+    class="container"
+    data-page="grid"
+    data-close="{{- site.Params.labels.close -}}"
+    data-next="{{- site.Params.labels.next -}}"
+    data-prev="{{- site.Params.labels.prev -}}"
+  >
+    {{- partial "postNav.html" . -}}
+
+
+    <main class="grid">
+      {{- $imgs := .Resources.ByType "image" -}}
+
+      {{- /* union of every image's tags, sorted — one filter button each */ -}}
+      {{- $tags := slice -}}
+      {{- range $imgs -}}
+        {{- range .Params.tags -}}{{- $tags = $tags | append . -}}{{- end -}}
+      {{- end -}}
+      {{- $tags = $tags | uniq | sort -}}
+
+      {{- /* column stepper lives in the nav (postNav.html); the filter stays here */ -}}
+      {{- with $tags -}}
+        <div class="gridFilter" role="group" aria-label="Filter by tag">
+          <div class="gridFilterBar">
+            <button
+              class="gridTag active"
+              type="button"
+              data-tag="*"
+              aria-pressed="true"
+            >
+              all
+            </button>
+            {{- /* caret discloses the (potentially long) tag list */ -}}
+            <button
+              class="gridFilterToggle"
+              type="button"
+              aria-expanded="false"
+              aria-controls="gridTagList"
+              aria-label="Show tags"
+            >
+              &gt;
+            </button>
+          </div>
+          <div class="gridTagList" id="gridTagList" hidden>
+            {{- range . -}}
+              <button
+                class="gridTag"
+                type="button"
+                data-tag="{{- . -}}"
+                aria-pressed="false"
+              >
+                {{- . -}}
+              </button>
+            {{- end -}}
+          </div>
+        </div>
+      {{- end -}}
+
+
+      <div class="gridItems">
+        {{- range $i, $img := $imgs -}}
+          {{- if ne site.Params.autoOrient false -}}
+            {{- $img = $img | images.Filter (images.AutoOrient) -}}
+          {{- end -}}
+          {{- $lo := $img.Resize (site.Params.loResOpt | default "800x webp Lanczos q60") -}}
+          {{- $hi := $img.Resize (site.Params.hiResOpt | default "2500x webp Lanczos q75") -}}
+          {{- $caption := $img.Params.caption | default $img.Title -}}
+          <button
+            class="gridItem"
+            type="button"
+            data-index="{{- $i -}}"
+            data-tags="{{- delimit $img.Params.tags " " -}}"
+            data-hi-url="{{- $hi.RelPermalink -}}"
+            data-hi-w="{{- $hi.Width -}}"
+            data-hi-h="{{- $hi.Height -}}"
+            data-caption="{{- $caption -}}"
+            aria-label="{{- with $caption -}}
+              {{- printf "Open image: %s" . -}}
+            {{- else -}}
+              Open image
+            {{- end -}}"
+          >
+            <img
+              class="gridThumb"
+              src="{{- $lo.RelPermalink -}}"
+              width="{{- $lo.Width -}}"
+              height="{{- $lo.Height -}}"
+              alt="{{- $caption -}}"
+              loading="lazy"
+              decoding="async"
+              draggable="false"
+            />
+          </button>
+        {{- end -}}
+      </div>
+    </main>
+  </div>
+{{- end -}}

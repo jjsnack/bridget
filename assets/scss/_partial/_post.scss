@@ -41,10 +41,16 @@ html:has(.postArticle) {
   .index {
     visibility: hidden;
     pointer-events: none;
+    position: relative; // anchor the grid stepper / counter overlays (styled in _grid.scss)
   }
 
   .link {
     text-decoration: none;
+  }
+  // the active menu item stays italic + underlined (matches the gallery nav);
+  // re-assert underline since `.link` clears it above
+  .link.current {
+    text-decoration: underline;
   }
 }
 

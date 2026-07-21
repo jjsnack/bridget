@@ -8,31 +8,66 @@
   </div>
   <div class="links">
     {{- $index := 0 -}}
+    {{- $cur := .RelPermalink | relLangURL -}}
     {{- $menus := .Site.Menus.main -}}
     {{- $len := len $menus -}}
     {{- range $menus -}}
-      <a href="{{- .URL | relURL -}}" class="link">{{- .Title -}}</a>
-      {{- if ne (add $index 1) $len -}},&nbsp;{{- end -}}
+      <a
+        href="{{- .URL | relURL -}}"
+        class="link{{- if eq (.URL | relLangURL) $cur -}}{{- printf " current" -}}{{- end -}}"
+        >{{- .Title -}}</a
+      >
+      {{- if ne (add $index 1) $len -}},&nbsp{{- end -}}
       {{- $index = add $index 1 -}}
     {{- end -}}
   </div>
-  {{- /* placeholders — mirror the homepage nav's right cluster to reserve its
-         width; hidden with visibility so they take space but never show. */ -}}
-  <div class="threshold" aria-hidden="true">
-    <span>{{- site.Params.labels.threshold -}}:</span>
-    <span>
+  {{- /* Right cluster is the gallery nav's threshold + index slots verbatim, so
+         the menu lands in the exact same place. On grid pages the placeholders
+         still reserve that width (hidden) while the column stepper and image
+         counter are overlaid on top, out of flow — layout matches the gallery
+         byte for byte. */ -}}
+  <div class="threshold">
+    <span aria-hidden="true">{{- site.Params.labels.threshold -}}:</span>
+    <span aria-hidden="true">
       <button class="dec" tabindex="-1">&#xFF0D;</button>
       <span class="num">0</span><span class="num">0</span><span class="num"
         >8</span
       ><span class="num">0</span>
       <button class="inc" tabindex="-1">&#xFF0B;</button>
     </span>
+    {{- if eq .Type "grid" -}}
+      <div class="gridColumns">
+        <span>Columns:</span>
+        <span>
+          <button class="dec" type="button" aria-label="Fewer columns">&#xFF0D;</button>
+          <span class="num">0</span><span class="num">0</span><span class="num">3</span>
+          <button class="inc" type="button" aria-label="More columns">&#xFF0B;</button>
+        </span>
+      </div>
+    {{- end -}}
   </div>
-  <div class="index" aria-hidden="true">
-    <span class="num">0</span><span class="num">0</span><span class="num">0</span
-    ><span class="num">0</span>
-    <span>/</span>
-    <span class="num">0</span><span class="num">0</span><span class="num">0</span
-    ><span class="num">0</span>
+  <div class="index">
+    <span aria-hidden="true"
+      ><span class="num">0</span><span class="num">0</span><span class="num">0</span
+      ><span class="num">0</span>
+      <span>/</span>
+      <span class="num">0</span><span class="num">0</span><span class="num">0</span
+      ><span class="num">0</span></span
+    >
+    {{- if eq .Type "grid" -}}
+      {{- $total := len (.Resources.ByType "image") -}}
+      {{- /* decorative counter mirroring the gallery's index digits; the stage
+             image carries the real content, so this is hidden from AT rather
+             than announced digit-by-digit on every rail settle */ -}}
+      <div class="gridCount" aria-hidden="true">
+        <span class="num">0</span><span class="num">0</span><span class="num">0</span
+        ><span class="num">1</span>
+        <span>/</span>
+        <span class="num">{{- math.Floor (div $total 1000) -}}</span
+        ><span class="num">{{- mod (math.Floor (div $total 100)) 10 -}}</span
+        ><span class="num">{{- mod (math.Floor (div $total 10)) 10 -}}</span
+        ><span class="num">{{- mod $total 10 -}}</span>
+      </div>
+    {{- end -}}
   </div>
 </nav>

@@ -1,0 +1,523 @@
+@use 'sass:map';
+
+@use '_core/mixins' as *;
+
+$tablet: map.get($breakpoints, 'tablet');
+$desktop: map.get($breakpoints, 'desktop');
+
+/* ======================================================================
+   Grid + filter + column stepper (server-rendered). Mobile-first: a
+   single centred column — the photographs set the rhythm.
+   ====================================================================== */
+.grid {
+  padding: calc(var(--nav-height) + 6vh) 6vw 14vh;
+}
+
+// font inherits the body (Geist, body-scaled size) so the tags read as nav-bar
+// text; the bar holds "all" + the caret, the list holds the (disclosed) tags.
+.gridFilter {
+  margin-bottom: 6vh;
+}
+
+.gridFilterBar {
+  display: flex;
+  align-items: center;
+  gap: 0.5em; // caret sits close to "all"
+}
+
+.gridTagList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.4em;
+  padding-top: 1.4em;
+
+  &[hidden] {
+    display: none;
+  }
+}
+
+// caret disclosure: '>' rotates to point down when the tag list is open
+.gridFilterToggle {
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+
+  font: inherit;
+  color: #000;
+  line-height: 1;
+  transition: transform 0.25s ease;
+
+  &[aria-expanded='true'] {
+    transform: rotate(90deg);
+  }
+}
+
+.gridTag {
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+
+  font: inherit;
+  color: #000;
+
+  // active tag marked by underline only
+  &.active {
+    text-decoration: underline;
+  }
+}
+
+// The nav's right cluster reuses the gallery nav's threshold + index slots:
+// the column stepper sits in the threshold slot, the image counter in the
+// index slot. Both keep their space (visibility, not display) so the menu
+// never shifts — while browsing the stepper shows, while viewing the counter.
+.gridColumns {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  visibility: visible; // shown over the reserved (hidden) threshold slot
+
+  .dec,
+  .inc {
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+    font: inherit;
+    color: inherit;
+  }
+}
+
+// image counter (current / total) — same digits as the gallery's index;
+// reserved but hidden until the viewer opens
+.gridCount {
+  display: inline-flex;
+  align-items: center;
+  visibility: hidden;
+}
+
+body.gridViewing {
+  .gridColumns {
+    visibility: hidden;
+  }
+  .gridCount {
+    visibility: visible;
+  }
+}
+
+// grid pages overlay the real controls on postNav's reserved (hidden)
+// threshold/index slots, out of flow — so the nav layout is byte-identical to
+// the gallery's and nothing shifts. (The slots get position:relative in
+// _post.scss to anchor these.)
+.postNav {
+  .gridColumns,
+  .gridCount {
+    position: absolute;
+    inset: 0;
+    justify-content: flex-start; // align to the slot's left edge, like the placeholder
+    align-items: center;
+    pointer-events: auto;
+  }
+}
+
+.gridItems {
+  columns: 1;
+  column-gap: 8vw;
+  max-width: 34rem;
+  margin: 0 auto;
+}
+
+.gridItem {
+  display: block;
+  width: 100%;
+  // width-tracking gap: tightens on narrow screens, opens up on wider ones
+  margin: 0 0 clamp(1.5rem, 7vw, 4rem);
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+
+  break-inside: avoid;
+
+  &.hidden {
+    display: none;
+  }
+}
+
+.gridThumb {
+  display: block;
+  width: 100%;
+  height: auto;
+
+  @include broken-image-placeholder;
+
+  transition: opacity 0.3s ease;
+
+  .gridItem:hover & {
+    opacity: 0.78;
+  }
+}
+
+/* ======================================================================
+   Viewer overlay (JS island). Mobile: full-size stage on top, a
+   horizontal thumbnail strip below.
+   ====================================================================== */
+.gridViewer {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+
+  display: grid;
+  grid-template-rows: 1fr auto;
+
+  background: #fff;
+  animation: gridIn 0.3s ease;
+}
+
+// Mobile: horizontal strip at the bottom; thumbs rise upward out of it.
+.gridRail {
+  order: 2;
+  display: flex;
+  align-items: flex-end; // thumbs sit at the strip's edge and grow away from it
+  gap: 1rem;
+  margin: 0;
+  padding: 9vh 4vw 2vh; // top room for the rise
+  list-style: none;
+  overflow-x: auto;
+
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  // grid.tsx drives transform / opacity / z-index per thumb on scroll; the
+  // transition low-passes those per-frame writes so the rise reads as damped,
+  // eased motion rather than tracking the raw (chunky) scroll 1:1
+  li {
+    position: relative; // so z-index stacks the risen thumb over its neighbours
+    transform-origin: center bottom;
+    transition:
+      transform 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 0.6s ease-out;
+    will-change: transform, opacity;
+  }
+  // the rebase frame repaints instantly (no damping) to stay seamless
+  &.noAnim li {
+    transition: none;
+  }
+}
+
+.gridRailItem {
+  display: block;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+
+  img {
+    display: block;
+    height: 9vh;
+    width: auto;
+  }
+}
+
+.gridStage {
+  order: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 9vh 4vw 2vh;
+  overflow: hidden;
+  cursor: none; // custom "close" cursor supplies the affordance; click to close
+}
+
+.gridStageFrame {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  margin: 0;
+  max-height: 100%;
+
+  img {
+    max-width: 100%;
+    max-height: 74vh;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    animation: gridFade 0.35s ease;
+  }
+
+  figcaption {
+    font-family: 'Geist', sans-serif;
+    font-size: 0.8rem;
+    color: rgba(0, 0, 0, 0.55);
+    text-align: center;
+  }
+}
+
+.gridNav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 3;
+  padding: 0.2em 0.4em;
+  border: 0;
+  background: none;
+  cursor: pointer;
+
+  font-size: 2.2rem;
+  line-height: 1;
+  color: #000;
+
+  &.prev {
+    left: 1vw;
+  }
+  &.next {
+    right: 1vw;
+  }
+}
+
+@keyframes gridIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes gridFade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* ======================================================================
+   Tablet and up: multi-column masonry scatter, count from the nav stepper
+   (--grid-cols, default 3). Viewer rail becomes a quiet left column.
+   ====================================================================== */
+@media (min-width: $tablet) {
+  // Tags pin to the top as a full-width white bar mirroring the bottom nav —
+  // the white background keeps them off the scrolling imagery. z-index sits
+  // above the grid images (whose hover-opacity forms stacking contexts) but
+  // below the viewer (z 100) so the viewer still covers them while focused.
+  .gridFilter {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 10;
+    margin: 0;
+    padding: 0 var(--space-standard);
+    background: white;
+  }
+  // the bar is the nav-height row; the tag list drops below it when expanded,
+  // growing the fixed white panel downward over the grid
+  .gridFilterBar {
+    height: var(--nav-height);
+  }
+  .gridTagList {
+    padding: 0.2em 0 0.8em;
+  }
+
+  /* Multi-column masonry, count driven by the nav stepper (--grid-cols).
+     Within each column the frames scatter — varied width, alternating
+     alignment, irregular vertical rhythm — so it reads editorial, not gridded.
+     Multicol reflows on filter, so hiding a frame never leaves a hole. */
+  .gridItems {
+    columns: var(--grid-cols, 3);
+    // gap tracks the viewport: wider screen, more air; narrower, tighter
+    column-gap: clamp(1.5rem, 3vw, 4.5rem);
+    // Cap the field to ~one column-width per column, so stepping up adds a
+    // column of roughly constant size instead of shrinking every frame.
+    max-width: calc(var(--grid-cols, 3) * 24rem);
+    margin: 0 auto;
+  }
+  .gridItem {
+    width: 96%;
+    margin: 0 0 5vw;
+
+    // five-frame scatter cycle: width + horizontal pull + vertical gap
+    &:nth-child(5n + 2) {
+      width: 78%;
+      margin-left: auto; // pull right
+      margin-bottom: 8vw;
+    }
+    &:nth-child(5n + 3) {
+      width: 90%;
+      margin-bottom: 3vw;
+    }
+    &:nth-child(5n + 4) {
+      width: 66%;
+      margin: 2vw auto 9vw; // centred, extra breathing room
+    }
+    &:nth-child(5n + 5) {
+      width: 84%;
+      margin-left: auto; // pull right
+      margin-bottom: 6vw;
+    }
+  }
+
+  /* One column = the old focus look: a wide, airy single flow across the full
+     content width — frames at varied sizes pushed left / centre / right. */
+  .gridItems[data-cols='1'] {
+    columns: auto;
+    max-width: none;
+    margin: 0;
+
+    .gridItem {
+      // vertical gap tracks width so a narrow window doesn't leave big voids
+      margin: 0 0 clamp(2.5rem, 10vw, 12rem);
+
+      &:nth-child(6n + 1) {
+        width: 46%;
+        margin-left: 2%;
+      }
+      &:nth-child(6n + 2) {
+        width: 33%;
+        margin-left: 60%;
+      }
+      &:nth-child(6n + 3) {
+        width: 40%;
+        margin-left: 28%;
+      }
+      &:nth-child(6n + 4) {
+        width: 29%;
+        margin-left: 7%;
+      }
+      &:nth-child(6n + 5) {
+        width: 43%;
+        margin-left: 50%;
+      }
+      &:nth-child(6n + 6) {
+        width: 36%;
+        margin-left: 23%;
+      }
+    }
+  }
+
+  /* Two columns: frames claim more horizontal space — wider field, near-full
+     column widths, so the pair reads big and generous. */
+  .gridItems[data-cols='2'] {
+    max-width: calc(2 * 33rem);
+
+    .gridItem {
+      width: 100%;
+
+      &:nth-child(5n + 2) {
+        width: 88%;
+      }
+      &:nth-child(5n + 4) {
+        width: 78%;
+      }
+      &:nth-child(5n + 5) {
+        width: 94%;
+      }
+    }
+  }
+
+  /* Five columns: full page width, centred at any window size (symmetric
+     negative inline margin trims the page padding). Frames fill their columns
+     for a clean edge-to-edge grid, not a scatter with ragged side gaps. */
+  .gridItems[data-cols='5'] {
+    column-gap: clamp(0.75rem, 1.5vw, 2rem);
+    max-width: none;
+    margin-inline: -4vw;
+
+    .gridItem {
+      width: 100%;
+      margin: 0 0 clamp(0.75rem, 1.5vw, 2rem);
+    }
+  }
+
+  .gridViewer {
+    grid-template-rows: none;
+    // wide lane: small thumbs hug the left, the centred one rises into the
+    // empty space toward the stage
+    grid-template-columns: 16rem 1fr;
+  }
+
+  .gridRail {
+    order: 0;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1.7rem;
+    height: 100vh;
+    // bottom clears the fixed nav (counter) that overlays the viewer
+    padding: 6vh 1.5rem calc(var(--nav-height) + 3vh);
+    overflow-x: hidden;
+    overflow-y: auto;
+
+    // thumbs rise rightward, out of the strip toward the stage
+    li {
+      transform-origin: left center;
+    }
+
+    img {
+      width: 5.5rem;
+      height: auto;
+    }
+  }
+
+  .gridStage {
+    order: 0;
+    // rail column (16rem) pushes the 1fr stage right of viewport centre; the
+    // extra right padding pulls the centred image back toward screen centre
+    padding: 4vh 11vw calc(var(--nav-height) + 4vh) 3vw;
+  }
+
+  .gridStageFrame img {
+    max-height: 82vh;
+  }
+}
+
+// single column on mobile/touch — the stepper is meaningless there
+@media (max-width: ($tablet - 1px)), (hover: none) {
+  .gridColumns {
+    display: none;
+  }
+
+  // Tags pin to the bottom (the nav sits at the top on mobile) as a full-width
+  // white bar. column-reverse keeps the bar at the bottom edge and grows the
+  // disclosed tag list upward, above it.
+  .gridFilter {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 10;
+    display: flex;
+    flex-direction: column-reverse;
+    margin: 0;
+    padding: 0 var(--space-standard);
+    background: white;
+  }
+  .gridFilterBar {
+    height: var(--nav-height);
+  }
+  .gridTagList {
+    padding: 0.2em 0 0.8em;
+  }
+  // list opens upward here, so the caret points up when expanded
+  .gridFilterToggle[aria-expanded='true'] {
+    transform: rotate(-90deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gridViewer,
+  .gridStageFrame img {
+    animation: none;
+  }
+  .gridThumb,
+  .gridTag,
+  .gridRailItem,
+  .gridRail li {
+    transition: none;
+  }
+}
