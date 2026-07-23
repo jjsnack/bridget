@@ -1,0 +1,88 @@
+name: 'Deploy to GitHub Pages'
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+# Allow the GITHUB_TOKEN to deploy to Pages, and Pages to mint an OIDC token.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# One in-progress deploy at a time; don't cancel a running one mid-publish.
+concurrency:
+  group: 'pages'
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: Build exampleSite
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Pages
+        id: pages
+        uses: actions/configure-pages@v5
+
+      - name: Setup Mise
+        uses: jdx/mise-action@v4
+        with:
+          install_args: node@latest pnpm@10 hugo-extended@latest
+          tool_versions: |
+            node latest
+            pnpm 10
+            hugo-extended latest
+          cache: true
+
+      - name: Get pnpm store path
+        id: pnpm-cache
+        run: 'echo "STORE_PATH=$(pnpm store path)" >> "$GITHUB_OUTPUT"'
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v5
+        with:
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          key: pnpm-store-${{ hashFiles('./pnpm-lock.yaml') }}
+          restore-keys: |
+            pnpm-store-
+
+      - name: Setup Hugo cache
+        uses: actions/cache@v5
+        with:
+          path: exampleSite/resources/_gen
+          key: hugo-pages-${{ hashFiles('./exampleSite/**/*.jpg') }}-${{ hashFiles('./assets/**', './layouts/**') }}
+          restore-keys: |
+            hugo-pages-${{ hashFiles('./exampleSite/**/*.jpg') }}-
+            hugo-pages-
+
+      - name: Install project dependencies
+        run: 'pnpm install'
+
+      - name: Build JS/CSS bundle
+        run: 'pnpm run vite:build'
+
+      # baseURL comes from configure-pages (e.g. https://user.github.io/repo),
+      # so the site works under the project-pages subpath without hard-coding it.
+      - name: Build site
+        run: 'hugo --source=exampleSite --minify --baseURL "${{ steps.pages.outputs.base_url }}/"'
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: exampleSite/public
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    name: Deploy
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

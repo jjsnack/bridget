@@ -1,13 +1,15 @@
 ### Contents
 
 - [Prequisites](#prequisites)
+- [Quick Start](#quick-start)
 - [Installation](#installation)
-  - [Hugo Modules (Recommended)](#hugo-modules-recommended)
-  - [Git Repository (For Customizations)](#git-repository-for-customizations)
+  - [As a Git Submodule (Recommended)](#as-a-git-submodule-recommended)
+  - [Clone Into `themes/`](#clone-into-themes)
 - [Content Management](#content-management)
   - [`index.md`](#indexmd)
     - [Front Matter](#front-matter)
     - [Markdown Content](#markdown-content)
+  - [Archetypes](#archetypes)
   - [Favicon](#favicon)
 - [Configuration](#configuration)
   - [`hugo.toml`](#hugotoml)
@@ -15,6 +17,8 @@
   - [`outputs.toml`](#outputstoml)
   - [`params.toml`](#paramstoml)
   - [`sitemap.toml`](#sitemaptoml)
+- [Deployment](#deployment)
+  - [GitHub Pages](#github-pages)
 - [Usage](#usage)
 - [Customizations](#customizations)
   - [Change Font](#change-font)
@@ -26,7 +30,7 @@
 
 _[Contents](#contents)_
 
-- [Hugo (extended)](https://gohugo.io/installation/), minimum required version can be seen in the [`theme.toml`](https://github.com/Sped0n/bridget/blob/main/theme.toml#L19)
+- [Hugo (extended)](https://gohugo.io/installation/), minimum required version can be seen in the [`theme.toml`](https://github.com/jjsnack/bridget/blob/main/theme.toml)
 
   ```bash
   ❯ hugo version
@@ -41,59 +45,79 @@ _[Contents](#contents)_
   v22.20.0
   ```
 
+## Quick Start
+
+_[Contents](#contents)_
+
+This fork is **not published to the Hugo module registry**, so it is consumed as a
+**local theme via a Git submodule** (not `hugo mod get`). From an empty directory:
+
+```bash
+# 1. create a Git repo for your site
+git init my-site && cd my-site
+
+# 2. add this theme as a submodule under themes/
+git submodule add https://github.com/jjsnack/bridget themes/bridget
+
+# 3. copy the sample config as your starting point
+mkdir -p config
+cp -r themes/bridget/exampleSite/config/_default config/_default
+
+# 4. install the toolchain (only needed to (re)build the JS/CSS bundle — see below)
+cd themes/bridget && pnpm install && pnpm build && cd ../..
+
+# 5. edit config/_default/hugo.toml (baseURL, title) and the module block below,
+#    then add some content (see Content Management) and serve
+hugo server
+```
+
+> [!NOTE]
+> The theme ships its compiled JS/CSS under `themes/bridget/bundled/`, which is
+> committed to the repo — so a plain `hugo server` works without Node/pnpm. You
+> only need step 4 if you change the theme's TypeScript/SCSS.
+
 ## Installation
 
 _[Contents](#contents)_
 
-### Hugo Modules (Recommended)
+### As a Git Submodule (Recommended)
 
 _[Contents](#contents)_
 
-> [!IMPORTANT]
-> Checkout https://gohugo.io/hugo-modules/use-modules/#prerequisite before using Hugo Modules.
-
-First turn your site into a Hugo module (in case you haven't done it yet):
+From the root of your Hugo site's Git repository:
 
 ```bash
-hugo mod init github.com/me/my-new-site
-# or whatever you like, it doesn’t need to be a valid GitHub repo link.
-hugo mod init blablabla
+git submodule add https://github.com/jjsnack/bridget themes/bridget
 ```
 
-Then import the theme as a dependency adding the following line to the `module` section of your site's configuration file.
+The theme is a [Hugo module](https://gohugo.io/hugo-modules/), so point Hugo at the
+submodule with a module **replacement** in your site config. The module path stays
+`github.com/Sped0n/bridget/v2` (the fork keeps the upstream module path); the
+replacement maps it to the checked-out submodule directory:
 
 ```toml
 # config/_default/hugo.toml
 [module]
+# map the module path to the local submodule — no network / `hugo mod` needed
+replacements = "github.com/Sped0n/bridget/v2 -> themes/bridget"
 [[module.imports]]
 path = "github.com/Sped0n/bridget/v2"
 ```
 
-If you want to upgrade the theme, just run:
+To update the theme later:
 
-```shell
-hugo mod get -u
+```bash
+git submodule update --remote themes/bridget
 ```
 
-### Git Repository (For Customizations)
+### Clone Into `themes/`
 
 _[Contents](#contents)_
 
-First clone the repository into your `themes` directory:
+If you don't want a submodule, clone the fork instead (same `module` config as above):
 
 ```bash
-# latest version (main branch, might be unstable)
-git clone https://github.com/Sped0n/bridget themes/bridget
-
-# and you can checkout to a specific stable version, see https://github.com/Sped0n/bridget/releases
-cd themes/bridget
-git checkout v1.0.0
-```
-
-If you are already using Git for your site, you can add the theme as a submodule by running the following command in the root directory of your Hugo site:
-
-```bash
-git submodule add https://github.com/Sped0n/bridget themes/bridget
+git clone https://github.com/jjsnack/bridget themes/bridget
 ```
 
 ## Content Management
@@ -168,6 +192,79 @@ _[Contents](#contents)_
   - You can write anything in index.md, and it will be rendered as HTML.
   - However, please note that the CSS for the information page **only provides simple styling for text**. If you have any requirements beyond text and the browser rendering does not meet your expectations, please modify [`_article.scss`](https://github.com/Sped0n/bridget/blob/main/assets/scss/_partial/_article.scss).
 
+### Archetypes
+
+_[Contents](#contents)_
+
+Beyond the default full-bleed **scatter gallery** (a directory of images with a
+bare `index.md`), the theme ships three content archetypes. The `type` front-matter
+field selects the layout. See `themes/bridget/exampleSite/content/` for complete,
+working examples of each.
+
+| `type`     | URL in example | What it is                                                                           |
+| ---------- | -------------- | ------------------------------------------------------------------------------------ |
+| `_default` | `/erwitt/`     | Scatter gallery — a directory of images, click any to open the focus view            |
+| `post`     | `/posts/*/`    | A blog-style prose page: Markdown body with inline images + a click-to-open lightbox |
+| `postlist` | `/posts/`      | The scattered index of every `post` (discovered by `type: post`, no manual linking)  |
+| `grid`     | `/archive/`    | A tag-filtered image grid with a full-screen, looping focus viewer                   |
+
+**Posts (`post` / `postlist`).** A post is a leaf bundle (`content/posts/<slug>/index.md`)
+with its images alongside. Inline images take a size keyword as their Markdown title
+(`small`, `medium`, `large`, `wide`, `full`), and the `row` shortcode lays two side by
+side:
+
+```markdown
+---
+type: post
+layout: single
+outputs: ['HTML']
+title: 'On Alex Webb'
+date: 2026-07-14
+url: /posts/webb/
+lede: 'A one-line standfirst under the title.'
+---
+
+Prose here. Drop an image with a size keyword as its title:
+
+![Alt text, also the caption](photo.jpg 'wide')
+
+{{</* row */>}}
+![](left.jpg 'small')
+![](right.jpg 'large')
+{{</* /row */>}}
+```
+
+The `postlist` page is a separate leaf bundle whose `type` is `postlist`; it renders
+the index of all posts automatically. Give it a menu entry so it appears in the nav.
+
+**Archive (`grid`).** A single leaf bundle whose per-image `tags` (set via the
+`resources` front matter) build a multi-select filter bar; an empty selection means
+"all". Each `resources` entry maps a file in the bundle to its tags + caption:
+
+```toml
+---
+type: grid
+layout: single
+outputs: ['HTML']
+title: 'Archive'
+url: /archive/
+resources:
+  - src: 'w1.jpg'
+    params:
+      tags: ['Webb']
+      caption: 'Six things at once'
+  - src: 'g1.jpg'
+    params:
+      tags: ['Gruyaert']
+      caption: 'Colour as weather'
+build:
+  publishResources: false
+---
+```
+
+To use `hugo new` scaffolding for these, the theme provides matching archetype
+templates under `themes/bridget/archetypes/` (`post.md`, `grid.md`).
+
 ### Favicon
 
 _[Contents](#contents)_
@@ -210,25 +307,20 @@ disableKinds = ["section", "taxonomy", "term", "home"]
 enableRobotsTXT = true
 ```
 
-Depend on which [installation](#installation) method you choose, you need to modify the `module` section:
+Then the `module` section points Hugo at the theme submodule (see [Installation](#installation)):
 
-- If you use [Hugo Modules](#hugo-modules-recommended):
+```toml
+[module]
+# map the upstream module path to the local submodule/clone under themes/
+replacements = "github.com/Sped0n/bridget/v2 -> themes/bridget"
+[[module.imports]]
+path = "github.com/Sped0n/bridget/v2"
+```
 
-  ```toml
-  [module]
-  [[module.imports]]
-  path = "github.com/Sped0n/bridget/v2"
-  ```
-
-- If you use [Git Repository](#git-repository-for-customizations):
-
-  ```toml
-  [module]
-  # This is the relative path to hugo theme directory([official doc](https://gohugo.io/hugo-modules/configuration/#module-configuration-top-level))**.
-  replacements = "github.com/Sped0n/bridget/v2 -> ../.."
-  [[module.imports]]
-  path = "github.com/Sped0n/bridget/v2"
-  ```
+> [!NOTE]
+> The theme's own `exampleSite` uses `replacements = "github.com/Sped0n/bridget/v2 -> ../.."`
+> instead, because from inside `exampleSite/` the theme root is two directories up.
+> For a real site with the theme under `themes/bridget`, use the mapping above.
 
 ### `markup.toml`
 
@@ -262,6 +354,32 @@ autoOrient = false
 _[Contents](#contents)_
 
 https://gohugo.io/templates/sitemap-template/#configuration
+
+## Deployment
+
+_[Contents](#contents)_
+
+### GitHub Pages
+
+_[Contents](#contents)_
+
+This repository includes a ready-to-use workflow, [`.github/workflows/pages.yml`](.github/workflows/pages.yml),
+that builds the `exampleSite` and publishes it to **GitHub Pages** on every push to
+`main`. To turn it on:
+
+1. In the repo, go to **Settings → Pages** and set **Source** to **GitHub Actions**.
+2. Push to `main` (or run the workflow manually via **Actions → Deploy to GitHub Pages → Run workflow**).
+3. The site publishes at `https://<user>.github.io/<repo>/` — e.g. `https://jjsnack.github.io/bridget/`.
+
+The workflow overrides `baseURL` with the Pages URL at build time (via
+`actions/configure-pages`), so you don't need to hard-code it in `hugo.toml`. It
+installs Node/pnpm/Hugo with [mise](https://mise.jdx.dev), runs `pnpm build`, and
+uploads `exampleSite/public`.
+
+**Deploying your own site (not this repo):** point the same steps at your site
+directory instead of `exampleSite/`, and set `baseURL` to your Pages URL (project
+sites live under a `/<repo>/` subpath — pass `--baseURL` to `hugo` to match, exactly
+as the workflow does).
 
 ## Usage
 
