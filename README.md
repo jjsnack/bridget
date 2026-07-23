@@ -27,6 +27,8 @@ Head to this [documentation](https://github.com/jjsnack/bridget/blob/main/docs.m
 - JS **dynamic loading**
 - Image **preloading** + **lazy loading**
 - **Dynamic resolution** based on view mode
+- **Cloud image CDN** (optional): production builds can serve gallery imagery from an on-the-fly image CDN (imgix / Cloudflare Images / Cloudinary) while local dev keeps using committed low-res copies — a single `hugo.IsProduction` + `cdnBase` switch, no template changes
+- **Metadata-derived tags**: extract embedded IPTC/XMP keywords into `data/imagetags.yaml`, merged with hand-written front-matter tags to build the Archive filter — both sources survive re-extraction
 - Multiple **analytics** services supported
 - Search engine **verification** supported (Google, Bind, Yandex and Baidu)
 
@@ -35,6 +37,10 @@ Head to this [documentation](https://github.com/jjsnack/bridget/blob/main/docs.m
 - **Scatter gallery** — the default full-bleed, click-to-focus image collection
 - **Posts** (`type: post` / `postlist`) — blog-style prose pages with an inline-image render hook and a click-to-open lightbox, plus a scattered post index
 - **Archive** (`type: grid`) — a tag-filtered image grid with a full-screen, looping focus viewer
+
+### Image pipeline (optional)
+
+For a cloud-backed deploy, `pnpm images <masters-dir>` prepares photos in one pass: it extracts embedded keywords into `data/imagetags.yaml`, writes EXIF-stripped, orientation-baked full-res copies for CDN upload (GPS / serial / timestamps removed), and downscaled previews committed for local dev. Originals and upload copies stay out of git (`masters/`, `dist-images/`); only the previews and the tags file are committed. Set `cdnBase` plus `cdnHiQuery` / `cdnLoQuery` in params to serve the full-res copies from your CDN in production — leave `cdnBase` empty and the theme just Hugo-processes the local previews, so the pipeline is entirely opt-in.
 
 ## Credits
 

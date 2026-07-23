@@ -10,6 +10,7 @@
     "vite": "DISABLE_WATCH=1 vite build",
     "lint": "eslint . --fix && prettier --write .",
     "lint:check": "eslint . && prettier . --check",
+    "images": "node scripts/prep-images.mjs",
     "dev": "run-p vite:dev hugo:dev",
     "dev:lan": "run-p vite:dev hugo:lan",
     "hugo:lan": "hugo server --source=exampleSite -D --disableFastRender --watch --logLevel info --bind 0.0.0.0 --baseURL http://$(ipconfig getifaddr en0 || ipconfig getifaddr en1):1313",

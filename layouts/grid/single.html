@@ -13,9 +13,13 @@
     <main class="grid">
       {{- $imgs := .Resources.ByType "image" -}}
 
-      {{- /* union of every image's tags, sorted — one filter button each */ -}}
+      {{- /* filter buttons: union of extracted keywords (data/imagetags.yaml, keyed by content-relative path) + hand-written resources[].params.tags — one button each */ -}}
       {{- $tags := slice -}}
       {{- range $imgs -}}
+        {{- $key := path.Join $.File.Dir .Name -}}
+        {{- range (index hugo.Data.imagetags $key) -}}
+          {{- $tags = $tags | append . -}}
+        {{- end -}}
         {{- range .Params.tags -}}{{- $tags = $tags | append . -}}{{- end -}}
       {{- end -}}
       {{- $tags = $tags | uniq | sort -}}
@@ -61,20 +65,25 @@
 
       <div class="gridItems">
         {{- range $i, $img := $imgs -}}
-          {{- if ne site.Params.autoOrient false -}}
-            {{- $img = $img | images.Filter (images.AutoOrient) -}}
-          {{- end -}}
-          {{- $lo := $img.Resize (site.Params.loResOpt | default "800x webp Lanczos q60") -}}
-          {{- $hi := $img.Resize (site.Params.hiResOpt | default "2500x webp Lanczos q75") -}}
+          {{- $lo := partial "function/imgSrc.html" (dict "img" $img "page" $ "size" "lo") -}}
+          {{- $hi := partial "function/imgSrc.html" (dict "img" $img "page" $ "size" "hi") -}}
           {{- $caption := $img.Params.caption | default $img.Title -}}
+          {{- /* per-frame tags: same two sources as the filter bar */ -}}
+          {{- $imgTags := slice -}}
+          {{- range (index hugo.Data.imagetags (path.Join $.File.Dir $img.Name)) -}}
+            {{- $imgTags = $imgTags | append . -}}
+          {{- end -}}
+          {{- range $img.Params.tags -}}
+            {{- $imgTags = $imgTags | append . -}}
+          {{- end -}}
           <button
             class="gridItem"
             type="button"
             data-index="{{- $i -}}"
-            data-tags="{{- delimit $img.Params.tags " " -}}"
-            data-hi-url="{{- $hi.RelPermalink -}}"
-            data-hi-w="{{- $hi.Width -}}"
-            data-hi-h="{{- $hi.Height -}}"
+            data-tags="{{- delimit ($imgTags | uniq) " " -}}"
+            data-hi-url="{{- $hi.url -}}"
+            data-hi-w="{{- $hi.w -}}"
+            data-hi-h="{{- $hi.h -}}"
             data-caption="{{- $caption -}}"
             aria-label="{{- with $caption -}}
               {{- printf "Open image: %s" . -}}
@@ -84,9 +93,9 @@
           >
             <img
               class="gridThumb"
-              src="{{- $lo.RelPermalink -}}"
-              width="{{- $lo.Width -}}"
-              height="{{- $lo.Height -}}"
+              src="{{- $lo.url -}}"
+              width="{{- $lo.w -}}"
+              height="{{- $lo.h -}}"
               alt="{{- $caption -}}"
               loading="lazy"
               decoding="async"

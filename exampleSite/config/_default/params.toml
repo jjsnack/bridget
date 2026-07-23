@@ -23,6 +23,17 @@ svgFavicon = "/dot.svg"
 # fallback png favicon for unsupported browsers
 svgFaviconFallback = "/dot.png"
 
+# cloud image CDN (optional)
+# When cdnBase is set AND building for production (hugo.IsProduction), gallery
+# images are served from an on-the-fly image CDN instead of Hugo-processed local
+# copies: {cdnBase}/{key}{cdnHiQuery|cdnLoQuery}. Leave cdnBase empty to always use
+# the committed low-res copies (local dev + non-CDN deploys). Upload EXIF-stripped
+# masters (see `pnpm images`) to {cdnBase}/{key}; key = content-relative image path,
+# e.g. grid/e1.jpg.
+cdnBase = ""
+cdnHiQuery = "?w=2500&fm=webp&q=75"
+cdnLoQuery = "?w=800&fm=webp&q=60"
+
 # labels (text shown on the UI)
 [labels]
 next = "next"
