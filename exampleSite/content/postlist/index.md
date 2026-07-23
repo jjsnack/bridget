@@ -6,7 +6,7 @@ title: 'Posts'
 url: /posts/
 menu:
   main:
-    weight: 4
+    weight: 3
     identifier: posts
     title: Posts
 build:

@@ -6,7 +6,7 @@ title: 'Archive'
 url: /archive/
 menu:
   main:
-    weight: 3
+    weight: 4
     identifier: grid
     title: Archive
 resources:
