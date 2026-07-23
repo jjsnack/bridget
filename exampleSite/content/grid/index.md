@@ -2,50 +2,50 @@
 type: grid
 layout: single
 outputs: ['HTML']
-title: 'Grid'
-url: /grid/
+title: 'All'
+url: /all/
 menu:
   main:
     weight: 3
     identifier: grid
-    title: Grid
+    title: All
 resources:
-  - src: 'c1.jpg'
+  - src: 'e1.jpg'
     params:
-      tags: ['color']
-      caption: 'Market red'
-  - src: 'c2.jpg'
+      tags: ['Erwitt']
+      caption: 'The well-timed accident'
+  - src: 'e2.jpg'
     params:
-      tags: ['color', 'street']
-      caption: 'Awning light'
-  - src: 'c3.jpg'
-    params:
-      tags: ['color']
-      caption: 'Blue hour'
-  - src: 'h1.jpg'
-    params:
-      tags: ['street']
-      caption: 'Havana, noon'
-  - src: 'h2.jpg'
-    params:
-      tags: ['street']
-      caption: 'Malecón'
-  - src: 'h3.jpg'
-    params:
-      tags: ['street', 'color']
-      caption: 'Doorway'
-  - src: 'd1.jpg'
-    params:
-      tags: ['dogs', 'street']
+      tags: ['Erwitt']
       caption: 'Ankle height'
-  - src: 'd2.jpg'
+  - src: 'e3.jpg'
     params:
-      tags: ['dogs']
-      caption: 'The crossing'
-  - src: 'd3.jpg'
+      tags: ['Erwitt']
+      caption: 'One beat too long'
+  - src: 'g1.jpg'
     params:
-      tags: ['dogs']
-      caption: 'Stand-off'
+      tags: ['Gruyaert']
+      caption: 'Colour as weather'
+  - src: 'g2.jpg'
+    params:
+      tags: ['Gruyaert']
+      caption: 'Blue hour, held'
+  - src: 'g3.jpg'
+    params:
+      tags: ['Gruyaert']
+      caption: 'The temperature of a place'
+  - src: 'w1.jpg'
+    params:
+      tags: ['Webb']
+      caption: 'Six things at once'
+  - src: 'w2.jpg'
+    params:
+      tags: ['Webb']
+      caption: 'Hard light'
+  - src: 'w3.jpg'
+    params:
+      tags: ['Webb']
+      caption: 'Three stories deep'
 build:
   publishResources: false
 ---

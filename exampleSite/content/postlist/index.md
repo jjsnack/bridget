@@ -1,14 +1,14 @@
 ---
 type: postlist
 layout: single
-outputs: ["HTML"]
-title: "Journal"
-url: /journal/
+outputs: ['HTML']
+title: 'Posts'
+url: /posts/
 menu:
   main:
     weight: 4
-    identifier: journal
-    title: Journal
+    identifier: posts
+    title: Posts
 build:
   publishResources: false
 ---
