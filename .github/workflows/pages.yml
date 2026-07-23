@@ -28,12 +28,6 @@ jobs:
         id: pages
         uses: actions/configure-pages@v5
 
-      - name: Detect Hugo min version
-        id: hugo
-        run: |
-          version=$(awk -F '"' '/^min = / { print $2; exit }' theme.toml)
-          echo "version=${version:-latest}" >> "$GITHUB_OUTPUT"
-
       - name: Setup Mise
         uses: jdx/mise-action@v4
         with:
