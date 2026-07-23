@@ -5,6 +5,12 @@ import { useImageState } from '../imageState'
 import type { MobileImage } from './layout'
 import { useMobileState } from './state'
 
+// how many leading images (index 0..N-1) are treated as LCP candidates: eager +
+// fetchpriority high, and preloaded from the HTML by head/preload-lcp.html. Keep
+// the two in sync — a high-priority img with no matching preload (or vice-versa)
+// wastes the hint.
+const LCP_COUNT = 2
+
 function getRandom(min: number, max: number): number {
   return Math.floor(Math.random() * (max - min + 1)) + min
 }
@@ -102,10 +108,11 @@ export default function Collection(): JSX.Element {
               width={ij.moImgW}
               data-src={ij.moUrl}
               alt={ij.alt}
-              // LCP: the centred first image; hint the browser to prioritise it
-              // and never lazy-load it (the preload link makes it a cache hit)
-              fetchpriority={i() === 0 ? 'high' : undefined}
-              loading={i() === 0 ? 'eager' : undefined}
+              // LCP: the first couple of images; hint the browser to prioritise
+              // them and never lazy-load them (the preload links make them cache
+              // hits)
+              fetchpriority={i() < LCP_COUNT ? 'high' : undefined}
+              loading={i() < LCP_COUNT ? 'eager' : undefined}
               style={{
                 transform: `translate3d(${i() !== 0 ? getRandom(-25, 25) : 0}%, ${i() !== 0 ? getRandom(-35, 35) : 0}%, 0)`
               }}

@@ -1,33 +1,35 @@
-{{- /* Make the mobile scatter's LCP image discoverable straight from the HTML.
+{{- /* Make the mobile scatter's LCP images discoverable straight from the HTML.
 
   The scatter gallery is client-rendered: main.js must load, fetch index.json,
   then set <img> src — so without this the LCP image can't start downloading
   until deep into that chain. index.json is a build artefact, so we already know
-  the first image here and emit a high-priority preload that downloads in
-  parallel with the JS; when the collection later sets img[0].src it's a cache
-  hit.
+  the leading images here and emit high-priority preloads that download in
+  parallel with the JS; when the collection later sets img[0..N-1].src they're
+  cache hits.
 
-  The image + resize mirror single.json exactly (same getImageSlice, same
-  autoOrient, same moResOpt) so the preloaded URL equals the moUrl the mobile
-  collection requests — otherwise the browser warns about an unused preload.
-  index 0 is the alphabetically-first image (single.json sorts Name desc and
-  counts down to 0), i.e. the last of the Name-desc slice. Gated to coarse
-  pointers so desktop, which renders a different first image (the stage), never
-  fetches it. */
+  Keep the count in sync with LCP_COUNT in mobile/collection.tsx: those are the
+  images rendered eager + fetchpriority high, so each needs a matching preload
+  (and no extra, or the browser warns about an unused preload).
+
+  The image + resize mirror single.json exactly (same getImageSlice, same imgSrc
+  call with moResOpt) so each preloaded URL equals the moUrl the mobile collection
+  requests — local webp in dev, CDN URL in prod. The collection sorts index.json
+  ascending by index, so its leading images are index 0,1,… = the LAST N of the
+  Name-desc slice here. Gated to coarse pointers so desktop, which renders a
+  different first image (the stage), never fetches them. */
 -}}
 {{- if not (in (slice "grid" "post" "postlist") .Type) -}}
+  {{- $page := . -}}
   {{- with partial "function/getImageSlice.html" . -}}
-    {{- $first := index (sort . "Name" "desc" | last 1) 0 -}}
-    {{- if ne site.Params.autoOrient false -}}
-      {{- $first = $first | images.Filter (images.AutoOrient) -}}
+    {{- range (sort . "Name" "desc" | last 2) -}}
+      {{- $mo := partial "function/imgSrc.html" (dict "img" . "page" $page "size" "lo" "spec" (site.Params.moResOpt | default "640x webp Lanczos q60")) -}}
+      <link
+        rel="preload"
+        as="image"
+        href="{{- $mo.url -}}"
+        media="(pointer: coarse)"
+        fetchpriority="high"
+      />
     {{- end -}}
-    {{- $mo := $first.Resize (site.Params.moResOpt | default "640x webp Lanczos q60") -}}
-    <link
-      rel="preload"
-      as="image"
-      href="{{- $mo.RelPermalink -}}"
-      media="(pointer: coarse)"
-      fetchpriority="high"
-    />
   {{- end -}}
 {{- end -}}
