@@ -118,6 +118,8 @@ if (page === '404') {
   void import('./grid').then((m) => {
     m.initGrid()
   })
+} else if (page === 'info') {
+  // text-only page (e.g. Info) — server-rendered prose only, no gallery to boot.
 } else {
   render(() => <Main />, container)
 }

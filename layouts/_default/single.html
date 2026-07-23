@@ -1,6 +1,8 @@
 {{- define "main" -}}
+  {{- $hasImages := .Resources.ByType "image" -}}
   <div
     class="container"
+    data-page="{{ if not $hasImages }}info{{ end }}"
     data-next="{{- site.Params.labels.next -}}"
     data-prev="{{- site.Params.labels.prev -}}"
     data-close="{{- site.Params.labels.close -}}"
@@ -12,9 +14,8 @@
       </article>
     {{- end -}}
 
-    {{- /* galleries (pages with images) keep the full nav with the
-           threshold/index chrome; text pages like Info get the quiet nav. */ -}}
-    {{- if .Resources.ByType "image" -}}
+    {{- /* image pages get the full nav; text pages (Info) get the quiet nav */ -}}
+    {{- if $hasImages -}}
       {{- partial "nav.html" . -}}
     {{- else -}}
       {{- partial "postNav.html" . -}}
