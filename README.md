@@ -6,25 +6,19 @@
 [![License: MIT](https://img.shields.io/github/license/jjsnack/bridget?color=blue)](LICENSE)
 [![Hugo](https://img.shields.io/badge/Hugo-extended%20%E2%89%A5%200.121.2-ff4088?logo=hugo&logoColor=white)](https://gohugo.io)
 
-Bridget is a minimal [Hugo](https://gohugo.io) theme for photographers/visual artists, based on https://github.com/tylermcrobert/bridget-pictures-www.
+Bridget is a minimal [Hugo](https://gohugo.io) theme for photographers/visual artists, based on [bridget-pictures-www](https://github.com/tylermcrobert/bridget-pictures-www).
 
-![thumbnail](https://raw.githubusercontent.com/Sped0n/bridget/main/images/tn.jpg)
+![thumbnail](https://raw.githubusercontent.com/jjsnack/bridget/main/images/tn.jpg)
 
-> [!NOTE]
-> This repository is currently in **maintenance mode** for two reasons:
->
-> 1. I want to keep this theme minimal.
-> 2. My bandwith after work is limited.
->
-> BUT, bug fixes will be addressed (including related issues and PRs), and they are the **number one priority** for this project.
->
-> Please understand that feature request might **NOT** be addressed or may take a long time to be implemented.
->
-> Anyway, forks are welcomed, and I'm looking forward to seeing what you can do with the theme.
+## About
+
+Bridget treats the images as the content and keeps the UI out of the way — a white canvas, black chrome, no accent colour, so the photography supplies the only colour on the page. [Hugo](https://gohugo.io) renders the pages and routing; a handful of [SolidJS](https://www.solidjs.com) islands drive the interactive pieces — a custom cursor, the full-bleed scatter gallery, and the click-to-open focus/stage viewer. On top of the core galleries it adds blog-style **Posts** (prose with inline images and a lightbox) and a tag-filtered **Archive**.
+
+This fork is growing Bridget from a gallery theme into a complete personal **portfolio site**: the galleries stay the centrepiece, with room around them for project write-ups, an about/info page, and the other pages a working portfolio needs — while holding the line on the minimal, image-first design. The [`exampleSite`](exampleSite/) is the living test bed for that direction and doubles as the [demo](https://jjsnack.github.io/bridget/).
 
 ## Getting Started
 
-Head to this [documentation](https://github.com/Sped0n/bridget/blob/main/docs.md) for a complete guidance to get started with the theme.
+Head to this [documentation](https://github.com/jjsnack/bridget/blob/main/docs.md) for a complete guidance to get started with the theme.
 
 ## Features
 
