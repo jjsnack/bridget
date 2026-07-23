@@ -1,6 +1,10 @@
 # Bridget
 
-![GitHub Workflow Status (with event)](https://img.shields.io/github/actions/workflow/status/Sped0n/bridget/build.yml?logo=github) ![GitHub deployments](https://img.shields.io/github/deployments/Sped0n/bridget/Production?logo=vercel&label=deploy)
+[![Build](https://img.shields.io/github/actions/workflow/status/jjsnack/bridget/build.yml?branch=main&logo=github&label=build)](https://github.com/jjsnack/bridget/actions/workflows/build.yml)
+[![Lint](https://img.shields.io/github/actions/workflow/status/jjsnack/bridget/lint.yml?branch=main&logo=github&label=lint)](https://github.com/jjsnack/bridget/actions/workflows/lint.yml)
+[![Pages](https://img.shields.io/github/deployments/jjsnack/bridget/github-pages?logo=github&label=pages)](https://jjsnack.github.io/bridget/)
+[![License: MIT](https://img.shields.io/github/license/jjsnack/bridget?color=blue)](LICENSE)
+[![Hugo](https://img.shields.io/badge/Hugo-extended%20%E2%89%A5%200.121.2-ff4088?logo=hugo&logoColor=white)](https://gohugo.io)
 
 Bridget is a minimal [Hugo](https://gohugo.io) theme for photographers/visual artists, based on https://github.com/tylermcrobert/bridget-pictures-www.
 
