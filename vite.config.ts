@@ -3,6 +3,9 @@ import solidPlugin from 'vite-plugin-solid'
 
 export default defineConfig({
   plugins: [solidPlugin()],
+  // relative base so dynamic-import preloads resolve via import.meta.url —
+  // works under any deploy subpath (GitHub project Pages serves at /<repo>/)
+  base: './',
   build: {
     outDir: './bundled',
     cssMinify: 'esbuild',
