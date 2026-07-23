@@ -72,10 +72,11 @@ server = ""
 id = ""
 # Umami Analytics
 [analytics.umami]
-data_website_id = "942d4c0d-ebd0-4da7-936a-bd278af32e5e"
-src = "https://umami.sped0n.com/script.js"
+# empty = no script. Configure with your OWN Umami instance to enable.
+data_website_id = ""
+src = ""
 data_host_url = ""
-data_domains = "bridget-demo.sped0n.com"
+data_domains = ""
 # Plausible Analytics
 [analytics.plausible]
 data_domain = ""
