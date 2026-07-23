@@ -42,6 +42,7 @@ Head to this [documentation](https://github.com/Sped0n/bridget/blob/main/docs.md
 
 ## Credits
 
+- Forked from [Sped0n/bridget](https://github.com/Sped0n/bridget), the upstream theme this build extends
 - https://github.com/tylermcrobert/bridget-pictures-www
 - https://www.youtube.com/watch?v=Jt3A2lNN2aE
 - https://github.com/d4cho/bridget-pictures-clone
