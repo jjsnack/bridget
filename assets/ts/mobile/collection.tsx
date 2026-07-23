@@ -98,10 +98,14 @@ export default function Collection(): JSX.Element {
           {(ij, i) => (
             <img
               ref={imgs[i()]}
-              height={ij.loImgH}
-              width={ij.loImgW}
-              data-src={ij.loUrl}
+              height={ij.moImgH}
+              width={ij.moImgW}
+              data-src={ij.moUrl}
               alt={ij.alt}
+              // LCP: the centred first image; hint the browser to prioritise it
+              // and never lazy-load it (the preload link makes it a cache hit)
+              fetchpriority={i() === 0 ? 'high' : undefined}
+              loading={i() === 0 ? 'eager' : undefined}
               style={{
                 transform: `translate3d(${i() !== 0 ? getRandom(-25, 25) : 0}%, ${i() !== 0 ? getRandom(-35, 35) : 0}%, 0)`
               }}
