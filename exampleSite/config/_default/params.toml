@@ -4,20 +4,14 @@
 description = "Bridget is a minimal Hugo theme designed for photographers/visual artists."
 
 # resize options for dynamic resolution, please refer to https://gohugo.io/content-management/image-processing/#image-processing-options
+# moResOpt: smaller variant for the mobile scatter view (displayed at ~60vw) —
+# also the image preloaded for mobile LCP. Keep it <= loResOpt.
+moResOpt = "640x webp Lanczos q60"
 loResOpt = "800x webp Lanczos q60"
 hiResOpt = "2500x webp Lanczos q75"
 
 # auto-orient gallery images from EXIF orientation before resizing; only false disables it
 autoOrient = true
-
-# labels (text shown on the UI)
-[labels]
-next = "next"
-prev = "prev"
-close = "close"
-threshold = "Threshold"
-error = "page not found"
-loading = "loading..."
 
 # --- OPTIONAL -----------------------------------------------------------------
 
@@ -28,6 +22,15 @@ favicon = true
 svgFavicon = "/dot.svg"
 # fallback png favicon for unsupported browsers
 svgFaviconFallback = "/dot.png"
+
+# labels (text shown on the UI)
+[labels]
+next = "next"
+prev = "prev"
+close = "close"
+threshold = "Threshold"
+error = "page not found"
+loading = "loading..."
 
 # site verification code for Google/Bing/Yandex/Pinterest/Baidu
 [verification]

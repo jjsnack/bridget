@@ -1,0 +1,33 @@
+{{- /* Make the mobile scatter's LCP image discoverable straight from the HTML.
+
+  The scatter gallery is client-rendered: main.js must load, fetch index.json,
+  then set <img> src — so without this the LCP image can't start downloading
+  until deep into that chain. index.json is a build artefact, so we already know
+  the first image here and emit a high-priority preload that downloads in
+  parallel with the JS; when the collection later sets img[0].src it's a cache
+  hit.
+
+  The image + resize mirror single.json exactly (same getImageSlice, same
+  autoOrient, same moResOpt) so the preloaded URL equals the moUrl the mobile
+  collection requests — otherwise the browser warns about an unused preload.
+  index 0 is the alphabetically-first image (single.json sorts Name desc and
+  counts down to 0), i.e. the last of the Name-desc slice. Gated to coarse
+  pointers so desktop, which renders a different first image (the stage), never
+  fetches it. */
+-}}
+{{- if not (in (slice "grid" "post" "postlist") .Type) -}}
+  {{- with partial "function/getImageSlice.html" . -}}
+    {{- $first := index (sort . "Name" "desc" | last 1) 0 -}}
+    {{- if ne site.Params.autoOrient false -}}
+      {{- $first = $first | images.Filter (images.AutoOrient) -}}
+    {{- end -}}
+    {{- $mo := $first.Resize (site.Params.moResOpt | default "640x webp Lanczos q60") -}}
+    <link
+      rel="preload"
+      as="image"
+      href="{{- $mo.RelPermalink -}}"
+      media="(pointer: coarse)"
+      fetchpriority="high"
+    />
+  {{- end -}}
+{{- end -}}

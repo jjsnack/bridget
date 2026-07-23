@@ -2,6 +2,9 @@
 export interface ImageJSON {
   index: number
   alt: string
+  moUrl: string
+  moImgH: number
+  moImgW: number
   loUrl: string
   loImgH: number
   loImgW: number
