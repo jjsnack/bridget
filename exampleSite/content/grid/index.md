@@ -2,13 +2,13 @@
 type: grid
 layout: single
 outputs: ['HTML']
-title: 'All'
-url: /all/
+title: 'Archive'
+url: /archive/
 menu:
   main:
     weight: 3
     identifier: grid
-    title: All
+    title: Archive
 resources:
   - src: 'e1.jpg'
     params:
