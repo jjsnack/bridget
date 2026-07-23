@@ -42,6 +42,7 @@ close = "close"
 threshold = "Threshold"
 error = "page not found"
 loading = "loading..."
+skip = "Skip to content"
 
 # site verification code for Google/Bing/Yandex/Pinterest/Baidu
 [verification]

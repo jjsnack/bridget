@@ -10,7 +10,10 @@
     {{- partial "head/preload-lcp.html" . -}}
   </head>
   <body lang="{{- site.LanguageCode -}}">
-    <div id="main">
+    <a class="skipLink" href="#main"
+      >{{- site.Params.labels.skip | default "Skip to content" -}}</a
+    >
+    <div id="main" tabindex="-1">
       {{- block "main" . -}}
       {{- end -}}
     </div>
