@@ -482,6 +482,55 @@ body.gridViewing {
     display: none;
   }
 
+  // Two-column masonry scatter (no column stepper on mobile). Loose, airy:
+  // tight gutter so frames read large, generous vertical rhythm, and varied
+  // widths — with some frames pushed to the right of their column
+  // (margin-left: auto) so they drift left/right instead of all hugging the
+  // left edge.
+  .grid {
+    padding-inline: 4vw;
+  }
+  .gridItems {
+    columns: 2;
+    column-gap: 5vw;
+    max-width: none;
+  }
+  // width + a fractional left offset per frame (margin % is relative to the
+  // column), so frames sit at varied horizontal positions — flush to neither
+  // the left nor the right edge — for a genuinely irregular scatter.
+  .gridItem {
+    width: 100%;
+    margin: 0 0 clamp(2.5rem, 12vw, 6rem);
+
+    &:nth-child(6n + 1) {
+      width: 90%;
+      margin-left: 2%;
+    }
+    &:nth-child(6n + 2) {
+      width: 78%;
+      margin-left: 15%;
+      margin-top: 12vw;
+    }
+    &:nth-child(6n + 3) {
+      width: 100%;
+      margin-top: 5vw;
+    }
+    &:nth-child(6n + 4) {
+      width: 82%;
+      margin-left: 7%;
+    }
+    &:nth-child(6n + 5) {
+      width: 86%;
+      margin-left: 12%;
+      margin-top: 9vw;
+    }
+    &:nth-child(6n + 6) {
+      width: 74%;
+      margin-left: 4%;
+      margin-top: 3vw;
+    }
+  }
+
   // Tags pin to the bottom (the nav sits at the top on mobile) as a full-width
   // white bar. column-reverse keeps the bar at the bottom edge and grows the
   // disclosed tag list upward, above it.
