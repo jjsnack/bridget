@@ -6,7 +6,7 @@
 [![License: MIT](https://img.shields.io/github/license/jjsnack/bridget?color=blue)](LICENSE)
 [![Hugo](https://img.shields.io/badge/Hugo-extended%20%E2%89%A5%200.121.2-ff4088?logo=hugo&logoColor=white)](https://gohugo.io)
 
-Bridget is a minimal [Hugo](https://gohugo.io) theme for photographers/visual artists, based on https://github.com/tylermcrobert/bridget-pictures-www.
+Bridget is a minimal [Hugo](https://gohugo.io) theme for photographers/visual artists, based on [bridget-pictures-www](https://github.com/tylermcrobert/bridget-pictures-www).
 
 ![thumbnail](https://raw.githubusercontent.com/jjsnack/bridget/main/images/tn.jpg)
 
