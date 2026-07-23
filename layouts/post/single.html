@@ -1,6 +1,12 @@
 {{- define "main" -}}
-  <div class="container" data-page="post" data-close="{{- site.Params.labels.close -}}">
+  <div
+    class="container"
+    data-page="post"
+    data-close="{{- site.Params.labels.close -}}"
+    data-loading="{{- site.Params.labels.loading -}}"
+  >
     {{- partial "postNav.html" . -}}
+
 
     <article class="postArticle">
       <header class="postHeader">

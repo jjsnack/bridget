@@ -3,7 +3,9 @@ import { createEffect, createSignal, onCleanup, onMount, type JSX } from 'solid-
 import { render } from 'solid-js/web'
 
 import CustomCursor from './desktop/customCursor'
+import { mountMobileStage } from './mobileStage'
 import { initPostDrag } from './postDrag'
+import { type ImageJSON } from './resources'
 import { isMobile, loadGsap } from './utils'
 
 interface Shot {
@@ -183,8 +185,30 @@ export function initPost(): void {
   )
   if (buttons.length === 0) return
 
-  const closeText =
-    document.querySelector<HTMLElement>('.container')?.dataset.close ?? 'close'
+  const ds = document.querySelector<HTMLElement>('.container')?.dataset
+  const closeText = ds?.close ?? 'close'
+
+  // mobile reuses the scatter gallery's swipeable focus view instead of the
+  // grow-from-thumbnail lightbox, so a tap drops into the same stage as the
+  // main gallery
+  if (isMobile()) {
+    const images: ImageJSON[] = buttons.map((btn, i) => {
+      const img = btn.querySelector('img')
+      return {
+        index: i,
+        alt: img?.alt ?? '',
+        loUrl: img?.getAttribute('src') ?? '',
+        loImgW: img?.width ?? 0,
+        loImgH: img?.height ?? 0,
+        hiUrl: btn.dataset.hiUrl ?? '',
+        hiImgW: Number(btn.dataset.hiW ?? 0),
+        hiImgH: Number(btn.dataset.hiH ?? 0)
+      }
+    })
+    const stage = mountMobileStage(images, closeText, ds?.loading ?? 'loading')
+    buttons.forEach((btn, i) => btn.addEventListener('click', () => stage.open(i)))
+    return
+  }
 
   const root = document.createElement('div')
   root.className = 'postOverlayRoot'

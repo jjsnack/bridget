@@ -1,0 +1,10 @@
+// The post/grid archetypes reuse the scatter gallery's mobile focus view
+// (mounted under .mobileStageRoot). On these pages the site nav sits in the
+// .container, which is its own stacking context on mobile — so the shared
+// full-bleed .curtain (top:0) would paint over and dim the navbar. Inset the
+// curtain below the nav here (only for the reused stage) so the navbar stays
+// undimmed, mirroring where the gallery panel already begins.
+.mobileStageRoot .curtain {
+  top: var(--nav-height);
+  height: calc(var(--window-height) - var(--nav-height));
+}

@@ -25,6 +25,8 @@ import {
 import { render } from 'solid-js/web'
 
 import CustomCursor from './desktop/customCursor'
+import { mountMobileStage, type MobileStage } from './mobileStage'
+import { type ImageJSON } from './resources'
 import { isMobile } from './utils'
 
 interface Item {
@@ -119,6 +121,7 @@ function Grid(props: {
   tagList: HTMLElement | null
   root: HTMLElement
   closeText: string
+  loadingText: string
   nextText: string
   prevText: string
 }): JSX.Element {
@@ -126,6 +129,29 @@ function Grid(props: {
   // scope (parses once) so it isn't a reactivity foot-gun
   const items = createMemo(() => parseItems(props.gridButtons))
   const mobile = isMobile()
+
+  // mobile reuses the scatter gallery's swipeable focus view instead of the
+  // rail viewer. Built once over every image (data-index === position), so a
+  // tap opens the same stage as the main gallery.
+  // ponytail: the tag filter narrows the grid you browse, not the swipe set —
+  // opening any thumb drops into the full image set, matching the plain gallery
+  let stage: MobileStage | null = null
+  if (mobile) {
+    onMount(() => {
+      const images: ImageJSON[] = items().map((it) => ({
+        index: it.index,
+        alt: it.caption,
+        loUrl: it.thumbUrl,
+        loImgW: it.hiW,
+        loImgH: it.hiH,
+        hiUrl: it.hiUrl,
+        hiImgW: it.hiW,
+        hiImgH: it.hiH
+      }))
+      stage = mountMobileStage(images, props.closeText, props.loadingText)
+    })
+    onCleanup(() => stage?.dispose())
+  }
 
   // multi-select filter: an image shows if it carries *any* selected tag;
   // an empty selection means "all". `expanded` toggles the tag-list disclosure.
@@ -299,6 +325,10 @@ function Grid(props: {
   const goTo = (flat: number): void => scrollToRail(flat, true)
 
   const openAt = (btn: HTMLButtonElement): void => {
+    if (mobile) {
+      stage?.open(Number(btn.dataset.index ?? 0))
+      return
+    }
     const n = filtered().length
     const p = filtered().findIndex((it) => it.index === Number(btn.dataset.index ?? 0))
     if (p < 0) return
@@ -531,6 +561,7 @@ export function initGrid(): void {
         tagList={tagList}
         root={root}
         closeText={ds?.close ?? 'close'}
+        loadingText={ds?.loading ?? 'loading'}
         nextText={ds?.next ?? 'next'}
         prevText={ds?.prev ?? 'prev'}
       />
