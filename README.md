@@ -34,6 +34,12 @@ Head to this [documentation](https://github.com/Sped0n/bridget/blob/main/docs.md
 - Multiple **analytics** services supported
 - Search engine **verification** supported (Google, Bind, Yandex and Baidu)
 
+### Content archetypes
+
+- **Scatter gallery** — the default full-bleed, click-to-focus image collection
+- **Posts** (`type: post` / `postlist`) — blog-style prose pages with an inline-image render hook and a click-to-open lightbox, plus a scattered post index
+- **Archive** (`type: grid`) — a tag-filtered image grid with a full-screen, looping focus viewer
+
 ## Credits
 
 - https://github.com/tylermcrobert/bridget-pictures-www
