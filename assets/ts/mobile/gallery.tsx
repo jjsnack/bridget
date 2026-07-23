@@ -26,6 +26,10 @@ export default function Gallery(props: {
   children?: JSX.Element
   closeText: string
   loadingText: string
+  // swipe/counter default on (scatter gallery); the journal stage turns both
+  // off to show a single tapped image with only the close control
+  swipe?: boolean
+  counter?: boolean
 }): JSX.Element {
   let _gsap: typeof gsap
   let _swiper: Swiper | undefined
@@ -106,7 +110,10 @@ export default function Gallery(props: {
         _gsap = g
 
         invariant(galleryInner, 'galleryInner is not defined')
-        _swiper = new S(galleryInner, { spaceBetween: 20 })
+        _swiper = new S(galleryInner, {
+          spaceBetween: 20,
+          allowTouchMove: props.swipe !== false
+        })
         _swiper.on('slideChange', ({ realIndex }) => {
           setIndex(realIndex)
         })
@@ -185,7 +192,7 @@ export default function Gallery(props: {
             </For>
           </div>
         </div>
-        <GalleryNav closeText={props.closeText} />
+        <GalleryNav closeText={props.closeText} counter={props.counter} />
       </div>
       <div ref={curtain} class="curtain" />
     </>

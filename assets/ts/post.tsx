@@ -205,7 +205,12 @@ export function initPost(): void {
         hiImgH: Number(btn.dataset.hiH ?? 0)
       }
     })
-    const stage = mountMobileStage(images, closeText, ds?.loading ?? 'loading')
+    // journal shows only the tapped image: no swiping between shots, no
+    // counter — just the close control
+    const stage = mountMobileStage(images, closeText, ds?.loading ?? 'loading', {
+      swipe: false,
+      counter: false
+    })
     buttons.forEach((btn, i) => btn.addEventListener('click', () => stage.open(i)))
     return
   }

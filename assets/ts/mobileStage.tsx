@@ -11,12 +11,19 @@ export interface MobileStage {
   dispose: () => void
 }
 
+export interface MobileStageOptions {
+  swipe?: boolean // allow swiping between images (default true)
+  counter?: boolean // show the index counter in the nav (default true)
+}
+
 // Grabs the mobile-state setters from inside the providers and hands an
 // imperative `open` back to the (non-Solid) caller in post/grid.
 function Bridge(props: {
   onReady: (open: (index: number) => void) => void
   closeText: string
   loadingText: string
+  swipe?: boolean
+  counter?: boolean
 }): JSX.Element {
   const [, { setIndex, setIsOpen }] = useMobileState()
   onMount(() =>
@@ -25,7 +32,14 @@ function Bridge(props: {
       setIsOpen(true)
     })
   )
-  return <Gallery closeText={props.closeText} loadingText={props.loadingText} />
+  return (
+    <Gallery
+      closeText={props.closeText}
+      loadingText={props.loadingText}
+      swipe={props.swipe}
+      counter={props.counter}
+    />
+  )
 }
 
 /**
@@ -38,7 +52,8 @@ function Bridge(props: {
 export function mountMobileStage(
   images: ImageJSON[],
   closeText: string,
-  loadingText: string
+  loadingText: string,
+  options: MobileStageOptions = {}
 ): MobileStage {
   const root = document.createElement('div')
   root.className = 'mobileStageRoot'
@@ -53,6 +68,8 @@ export function mountMobileStage(
             onReady={(fn) => (open = fn)}
             closeText={closeText}
             loadingText={loadingText}
+            swipe={options.swipe}
+            counter={options.counter}
           />
         </MobileStateProvider>
       </ImageStateProvider>

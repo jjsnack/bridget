@@ -1,5 +1,5 @@
 import { A as createComponent, i as ImageStateProvider, n as useMobileState, t as MobileStateProvider, v as render, z as onMount } from "./main.js";
-import { t as Gallery } from "./zODQlT.js";
+import { t as Gallery } from "./D4UST3.js";
 //#region assets/ts/mobileStage.tsx
 function Bridge(props) {
 	const [, { setIndex, setIsOpen }] = useMobileState();
@@ -13,6 +13,12 @@ function Bridge(props) {
 		},
 		get loadingText() {
 			return props.loadingText;
+		},
+		get swipe() {
+			return props.swipe;
+		},
+		get counter() {
+			return props.counter;
 		}
 	});
 }
@@ -23,7 +29,7 @@ function Bridge(props) {
 * must be ordered so each entry's `index` equals its position (the swiper
 * realIndex the gallery tracks).
 */
-function mountMobileStage(images, closeText, loadingText) {
+function mountMobileStage(images, closeText, loadingText, options = {}) {
 	const root = document.createElement("div");
 	root.className = "mobileStageRoot";
 	document.body.appendChild(root);
@@ -35,7 +41,13 @@ function mountMobileStage(images, closeText, loadingText) {
 				return createComponent(Bridge, {
 					onReady: (fn) => open = fn,
 					closeText,
-					loadingText
+					loadingText,
+					get swipe() {
+						return options.swipe;
+					},
+					get counter() {
+						return options.counter;
+					}
 				});
 			} });
 		}

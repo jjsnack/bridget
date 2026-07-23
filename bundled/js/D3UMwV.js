@@ -1,5 +1,5 @@
 import { A as createComponent, C as use, E as For, L as on, N as createRenderEffect, O as Show, R as onCleanup, S as template, a as useImageState, b as setStyleProperty, g as insert, h as delegateEvents, j as createEffect, n as useMobileState, y as setAttribute, z as onMount } from "./main.js";
-import { t as Gallery } from "./zODQlT.js";
+import { t as Gallery } from "./D4UST3.js";
 //#region assets/ts/mobile/collection.tsx
 var _tmpl$ = /*#__PURE__*/ template(`<div class=collection>`), _tmpl$2 = /*#__PURE__*/ template(`<img>`);
 function getRandom(min, max) {

@@ -1,6 +1,6 @@
 import { A as createComponent, C as use, N as createRenderEffect, P as createSignal, R as onCleanup, S as template, _ as memo, d as loadGsap, g as insert, h as delegateEvents, j as createEffect, u as isMobile, v as render, y as setAttribute, z as onMount } from "./main.js";
 import { t as CustomCursor } from "./BbnyD4.js";
-import { t as mountMobileStage } from "./DGaG1E.js";
+import { t as mountMobileStage } from "./BRrHS1.js";
 //#region assets/ts/postDrag.ts
 var SELECTOR = [
 	".postTitle",
@@ -264,7 +264,10 @@ function initPost() {
 				hiImgW: Number(btn.dataset.hiW ?? 0),
 				hiImgH: Number(btn.dataset.hiH ?? 0)
 			};
-		}), closeText, ds?.loading ?? "loading");
+		}), closeText, ds?.loading ?? "loading", {
+			swipe: false,
+			counter: false
+		});
 		buttons.forEach((btn, i) => btn.addEventListener("click", () => stage.open(i)));
 		return;
 	}

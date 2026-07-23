@@ -1,6 +1,6 @@
 import { A as createComponent, B as untrack, C as use, D as Index, M as createMemo, N as createRenderEffect, O as Show, P as createSignal, R as onCleanup, S as template, g as insert, h as delegateEvents, j as createEffect, u as isMobile, v as render, y as setAttribute, z as onMount } from "./main.js";
 import { t as CustomCursor } from "./BbnyD4.js";
-import { t as mountMobileStage } from "./DGaG1E.js";
+import { t as mountMobileStage } from "./BRrHS1.js";
 //#region assets/ts/grid.tsx
 /**
 * Grid archetype (`type: grid`, `layouts/grid/single.html`).

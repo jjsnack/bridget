@@ -1,4 +1,4 @@
-import { createMemo, type JSX } from 'solid-js'
+import { Show, createMemo, type JSX } from 'solid-js'
 
 import { useImageState } from '../imageState'
 import { expand } from '../utils'
@@ -12,6 +12,7 @@ export function capitalizeFirstLetter(str: string): string {
 export default function GalleryNav(props: {
   children?: JSX.Element
   closeText: string
+  counter?: boolean
 }): JSX.Element {
   // states
   const imageState = useImageState()
@@ -27,17 +28,19 @@ export default function GalleryNav(props: {
   return (
     <>
       <div class="nav">
-        <div>
-          <span class="num">{indexValue()[0]}</span>
-          <span class="num">{indexValue()[1]}</span>
-          <span class="num">{indexValue()[2]}</span>
-          <span class="num">{indexValue()[3]}</span>
-          <span>/</span>
-          <span class="num">{indexLength()[0]}</span>
-          <span class="num">{indexLength()[1]}</span>
-          <span class="num">{indexLength()[2]}</span>
-          <span class="num">{indexLength()[3]}</span>
-        </div>
+        <Show when={props.counter !== false} fallback={<div />}>
+          <div>
+            <span class="num">{indexValue()[0]}</span>
+            <span class="num">{indexValue()[1]}</span>
+            <span class="num">{indexValue()[2]}</span>
+            <span class="num">{indexValue()[3]}</span>
+            <span>/</span>
+            <span class="num">{indexLength()[0]}</span>
+            <span class="num">{indexLength()[1]}</span>
+            <span class="num">{indexLength()[2]}</span>
+            <span class="num">{indexLength()[3]}</span>
+          </div>
+        </Show>
         <div
           class="navClose"
           onClick={onClick}

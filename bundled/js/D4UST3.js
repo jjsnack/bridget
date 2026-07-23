@@ -1,4 +1,4 @@
-import { A as createComponent, B as untrack, C as use, E as For, F as getListener, I as mergeProps, L as on, M as createMemo, P as createSignal, S as template, T as $TRACK, a as useImageState, c as expand, d as loadGsap, f as removeDuplicates, g as insert, h as delegateEvents, j as createEffect, k as batch, m as invariant, n as useMobileState, p as __vitePreload, w as $PROXY, x as spread, z as onMount } from "./main.js";
+import { A as createComponent, B as untrack, C as use, E as For, F as getListener, I as mergeProps, L as on, M as createMemo, O as Show, P as createSignal, S as template, T as $TRACK, a as useImageState, c as expand, d as loadGsap, f as removeDuplicates, g as insert, h as delegateEvents, j as createEffect, k as batch, m as invariant, n as useMobileState, p as __vitePreload, w as $PROXY, x as spread, z as onMount } from "./main.js";
 //#region node_modules/.pnpm/solid-js@1.9.13/node_modules/solid-js/store/dist/store.js
 var $RAW = Symbol("store-raw"), $NODE = Symbol("store-node"), $HAS = Symbol("store-has"), $SELF = Symbol("store-self");
 function wrap$1(value) {
@@ -292,7 +292,7 @@ function GalleryImage(props) {
 }
 //#endregion
 //#region assets/ts/mobile/galleryNav.tsx
-var _tmpl$$1 = /*#__PURE__*/ template(`<div class=nav><div><span class=num></span><span class=num></span><span class=num></span><span class=num></span><span>/</span><span class=num></span><span class=num></span><span class=num></span><span class=num></span></div><div class=navClose role=button tabindex=0>`);
+var _tmpl$$1 = /*#__PURE__*/ template(`<div><span class=num></span><span class=num></span><span class=num></span><span class=num></span><span>/</span><span class=num></span><span class=num></span><span class=num></span><span class=num>`), _tmpl$2$1 = /*#__PURE__*/ template(`<div class=nav><div class=navClose role=button tabindex=0>`), _tmpl$3$1 = /*#__PURE__*/ template(`<div>`);
 function capitalizeFirstLetter(str) {
 	return str.charAt(0).toUpperCase() + str.slice(1);
 }
@@ -306,15 +306,27 @@ function GalleryNav(props) {
 		setIsOpen(false);
 	};
 	return (() => {
-		var _el$ = _tmpl$$1(), _el$2 = _el$.firstChild, _el$3 = _el$2.firstChild, _el$4 = _el$3.nextSibling, _el$5 = _el$4.nextSibling, _el$6 = _el$5.nextSibling, _el$8 = _el$6.nextSibling.nextSibling, _el$9 = _el$8.nextSibling, _el$0 = _el$9.nextSibling, _el$1 = _el$0.nextSibling, _el$10 = _el$2.nextSibling;
-		insert(_el$3, () => indexValue()[0]);
-		insert(_el$4, () => indexValue()[1]);
-		insert(_el$5, () => indexValue()[2]);
-		insert(_el$6, () => indexValue()[3]);
-		insert(_el$8, () => indexLength()[0]);
-		insert(_el$9, () => indexLength()[1]);
-		insert(_el$0, () => indexLength()[2]);
-		insert(_el$1, () => indexLength()[3]);
+		var _el$ = _tmpl$2$1(), _el$10 = _el$.firstChild;
+		insert(_el$, createComponent(Show, {
+			get when() {
+				return props.counter !== false;
+			},
+			get fallback() {
+				return _tmpl$3$1();
+			},
+			get children() {
+				var _el$2 = _tmpl$$1(), _el$3 = _el$2.firstChild, _el$4 = _el$3.nextSibling, _el$5 = _el$4.nextSibling, _el$6 = _el$5.nextSibling, _el$8 = _el$6.nextSibling.nextSibling, _el$9 = _el$8.nextSibling, _el$0 = _el$9.nextSibling, _el$1 = _el$0.nextSibling;
+				insert(_el$3, () => indexValue()[0]);
+				insert(_el$4, () => indexValue()[1]);
+				insert(_el$5, () => indexValue()[2]);
+				insert(_el$6, () => indexValue()[3]);
+				insert(_el$8, () => indexLength()[0]);
+				insert(_el$9, () => indexLength()[1]);
+				insert(_el$0, () => indexLength()[2]);
+				insert(_el$1, () => indexLength()[3]);
+				return _el$2;
+			}
+		}), _el$10);
 		_el$10.$$keydown = onClick;
 		_el$10.$$touchend = onClick;
 		_el$10.$$click = onClick;
@@ -446,7 +458,10 @@ function Gallery(props) {
 				const [g, S] = await Promise.all([loadGsap(), loadSwiper()]);
 				_gsap = g;
 				invariant(galleryInner, "galleryInner is not defined");
-				_swiper = new S(galleryInner, { spaceBetween: 20 });
+				_swiper = new S(galleryInner, {
+					spaceBetween: 20,
+					allowTouchMove: props.swipe !== false
+				});
 				_swiper.on("slideChange", ({ realIndex }) => {
 					setIndex(realIndex);
 				});
@@ -513,9 +528,14 @@ function Gallery(props) {
 				return _el$5;
 			})()
 		}));
-		insert(_el$, createComponent(GalleryNav, { get closeText() {
-			return props.closeText;
-		} }), null);
+		insert(_el$, createComponent(GalleryNav, {
+			get closeText() {
+				return props.closeText;
+			},
+			get counter() {
+				return props.counter;
+			}
+		}), null);
 		return _el$;
 	})(), (() => {
 		var _el$4 = _tmpl$2();
