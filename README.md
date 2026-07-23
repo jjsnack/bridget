@@ -8,7 +8,7 @@
 
 Bridget is a minimal [Hugo](https://gohugo.io) theme for photographers/visual artists, based on https://github.com/tylermcrobert/bridget-pictures-www.
 
-![thumbnail](https://raw.githubusercontent.com/Sped0n/bridget/main/images/tn.jpg)
+![thumbnail](https://raw.githubusercontent.com/jjsnack/bridget/main/images/tn.jpg)
 
 > [!NOTE]
 > This repository is currently in **maintenance mode** for two reasons:
@@ -24,7 +24,7 @@ Bridget is a minimal [Hugo](https://gohugo.io) theme for photographers/visual ar
 
 ## Getting Started
 
-Head to this [documentation](https://github.com/Sped0n/bridget/blob/main/docs.md) for a complete guidance to get started with the theme.
+Head to this [documentation](https://github.com/jjsnack/bridget/blob/main/docs.md) for a complete guidance to get started with the theme.
 
 ## Features
 

@@ -190,7 +190,7 @@ _[Contents](#contents)_
   - Place the images in the same directory as `index.md`.
 - If this is an **information** page:
   - You can write anything in index.md, and it will be rendered as HTML.
-  - However, please note that the CSS for the information page **only provides simple styling for text**. If you have any requirements beyond text and the browser rendering does not meet your expectations, please modify [`_article.scss`](https://github.com/Sped0n/bridget/blob/main/assets/scss/_partial/_article.scss).
+  - However, please note that the CSS for the information page **only provides simple styling for text**. If you have any requirements beyond text and the browser rendering does not meet your expectations, please modify [`_article.scss`](https://github.com/jjsnack/bridget/blob/main/assets/scss/_partial/_article.scss).
 
 ### Archetypes
 
@@ -298,7 +298,7 @@ First, what you need to modify is the `baseURL` and `title`:
 # timeout
 timeout = "1200s"
 # your website url
-baseURL = 'https://bridget-demo.sped0n.com' # <-- MODIFY ME
+baseURL = 'https://jjsnack.github.io/bridget/' # <-- MODIFY ME
 # website title
 title = 'Bridget' # <-- MODIFY ME
 # don't touch this
