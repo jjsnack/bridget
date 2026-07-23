@@ -212,7 +212,7 @@ export default function Stage(): JSX.Element {
 
   return (
     <>
-      <div class="stage" onClick={onClick} onKeyDown={onClick}>
+      <div class="stage" onClick={onClick}>
         <For each={imageState().images}>
           {(ij, i) => (
             <img

@@ -22,21 +22,16 @@ export async function getImageJSON(): Promise<ImageJSON[]> {
     ? new URL('index.json', ogUrlMetaTag.content).href
     : new URL('index.json', window.location.href).href
 
-  try {
-    const response = await fetch(indexJsonUrl, {
-      headers: {
-        Accept: 'application/json'
-      }
-    })
-    const data: ImageJSON[] = await response.json()
-    return data.sort((a: ImageJSON, b: ImageJSON) => {
-      if (a.index < b.index) {
-        return -1
-      }
-      return 1
-    })
-  } catch (e) {
-    console.error(e)
-    return []
+  const response = await fetch(indexJsonUrl, {
+    headers: {
+      Accept: 'application/json'
+    }
+  })
+  // let a bad response reject the resource instead of silently ready-with-[] —
+  // a 500 serving an HTML body would otherwise throw in .json() and blank out
+  if (!response.ok) {
+    throw new Error(`failed to load ${indexJsonUrl}: ${response.status}`)
   }
+  const data: ImageJSON[] = await response.json()
+  return data.sort((a: ImageJSON, b: ImageJSON) => a.index - b.index)
 }

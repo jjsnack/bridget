@@ -24,6 +24,14 @@ export function expand(num: number): string {
 
 export async function loadGsap(): Promise<typeof gsap> {
   const g = await import('gsap')
+  // ponytail: reduced-motion handled once at the single GSAP load point —
+  // a huge global timeScale collapses every core-gallery tween to one frame,
+  // instead of back-porting a matchMedia guard to each tween in
+  // stageAnimations/galleryTransitions. Newer modules that already guard
+  // (grid, post) are unaffected — they pass duration 0 regardless.
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    g.gsap.globalTimeline.timeScale(1000)
+  }
   return g.gsap
 }
 
