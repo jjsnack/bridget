@@ -5,9 +5,7 @@
     data-close="{{- site.Params.labels.close -}}"
     data-loading="{{- site.Params.labels.loading -}}"
   >
-    {{- partial "postNav.html" . -}}
-
-
+    {{- /* nav after main: content leads the tab order so the skip link bypasses the fixed nav */ -}}
     <article class="postArticle">
       <header class="postHeader">
         {{- with .Params.eyebrow -}}<p class="postEyebrow">{{- . -}}</p>{{- end -}}
@@ -29,5 +27,6 @@
         {{- .Content -}}
       </div>
     </article>
+    {{- partial "postNav.html" . -}}
   </div>
 {{- end -}}

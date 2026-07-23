@@ -1,0 +1,33 @@
+{{- /* Resolve an image resource to {url,w,h}, branching on environment. Prod (hugo.IsProduction + site.Params.cdnBase set): emit an on-the-fly image CDN URL {cdnBase}/{key}?{query}; originals are uploaded pre-oriented + EXIF-stripped by scripts/prep-images.mjs, so the CDN resizes via query params. Dev (or prod without cdnBase): Hugo-process the committed low-res copy via .Resize. Call with (dict "img" $img "page" $ownerPage "size" "hi"|"lo" ["spec" resizeSpec]). Key = image path relative to content root (e.g. "grid/c2.jpg"), overridable per resource with a `cloudKey` param; same key feeds data/imagetags.yaml. */ -}}
+{{- $img := .img -}}
+{{- $isHi := eq .size "hi" -}}
+{{- $url := "" -}}
+{{- $w := 0 -}}
+{{- $h := 0 -}}
+{{- if and hugo.IsProduction site.Params.cdnBase -}}
+  {{- $key := $img.Name -}}
+  {{- with $img.Params.cloudKey -}}
+    {{- $key = . -}}
+  {{- else -}}
+    {{- if and .page .page.File -}}
+      {{- $key = path.Join .page.File.Dir $img.Name -}}
+    {{- end -}}
+  {{- end -}}
+  {{- $q := cond $isHi (site.Params.cdnHiQuery | default "") (site.Params.cdnLoQuery | default "") -}}
+  {{- $url = printf "%s/%s%s" site.Params.cdnBase $key $q -}}
+  {{- $w = $img.Width -}}
+  {{- $h = $img.Height -}}
+{{- else -}}
+  {{- if ne site.Params.autoOrient false -}}
+    {{- $img = $img | images.Filter (images.AutoOrient) -}}
+  {{- end -}}
+  {{- $spec := .spec -}}
+  {{- if not $spec -}}
+    {{- $spec = cond $isHi (site.Params.hiResOpt | default "2500x webp Lanczos q75") (site.Params.loResOpt | default "800x webp Lanczos q60") -}}
+  {{- end -}}
+  {{- $r := $img.Resize $spec -}}
+  {{- $url = $r.RelPermalink -}}
+  {{- $w = $r.Width -}}
+  {{- $h = $r.Height -}}
+{{- end -}}
+{{- return (dict "url" $url "w" $w "h" $h) -}}

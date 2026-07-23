@@ -23,6 +23,17 @@ svgFavicon = "/dot.svg"
 # fallback png favicon for unsupported browsers
 svgFaviconFallback = "/dot.png"
 
+# cloud image CDN (optional)
+# When cdnBase is set AND building for production (hugo.IsProduction), gallery
+# images are served from an on-the-fly image CDN instead of Hugo-processed local
+# copies: {cdnBase}/{key}{cdnHiQuery|cdnLoQuery}. Leave cdnBase empty to always use
+# the committed low-res copies (local dev + non-CDN deploys). Upload EXIF-stripped
+# masters (see `pnpm images`) to {cdnBase}/{key}; key = content-relative image path,
+# e.g. grid/e1.jpg.
+cdnBase = ""
+cdnHiQuery = "?w=2500&fm=webp&q=75"
+cdnLoQuery = "?w=800&fm=webp&q=60"
+
 # labels (text shown on the UI)
 [labels]
 next = "next"
@@ -31,6 +42,7 @@ close = "close"
 threshold = "Threshold"
 error = "page not found"
 loading = "loading..."
+skip = "Skip to content"
 
 # site verification code for Google/Bing/Yandex/Pinterest/Baidu
 [verification]
@@ -60,10 +72,11 @@ server = ""
 id = ""
 # Umami Analytics
 [analytics.umami]
-data_website_id = "942d4c0d-ebd0-4da7-936a-bd278af32e5e"
-src = "https://umami.sped0n.com/script.js"
+# empty = no script. Configure with your OWN Umami instance to enable.
+data_website_id = ""
+src = ""
 data_host_url = ""
-data_domains = "bridget-demo.sped0n.com"
+data_domains = ""
 # Plausible Analytics
 [analytics.plausible]
 data_domain = ""
