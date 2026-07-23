@@ -60,12 +60,14 @@
         </div>
       {{- end -}}
 
-
+      {{- /* first $lcpCount frames = mobile top row (2-col) = LCP: eager + high, rest lazy */ -}}
+      {{- $lcpCount := 2 -}}
       <div class="gridItems">
         {{- range $i, $img := $imgs -}}
           {{- $lo := partial "function/imgSrc.html" (dict "img" $img "page" $ "size" "lo") -}}
           {{- $hi := partial "function/imgSrc.html" (dict "img" $img "page" $ "size" "hi") -}}
           {{- $caption := $img.Params.caption | default $img.Title -}}
+          {{- $lcp := lt $i $lcpCount -}}
           {{- /* per-frame tags: same two sources as the filter bar */ -}}
           {{- $imgTags := slice -}}
           {{- range (index hugo.Data.imagetags (path.Join $.File.Dir $img.Name)) -}}
@@ -95,7 +97,11 @@
               width="{{- $lo.w -}}"
               height="{{- $lo.h -}}"
               alt="{{- $caption -}}"
-              loading="lazy"
+              {{ if $lcp }}
+                fetchpriority="high"
+              {{ else }}
+                loading="lazy"
+              {{ end }}
               decoding="async"
               draggable="false"
             />
