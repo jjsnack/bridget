@@ -1,6 +1,6 @@
 {{- define "main" -}}
   <div class="container" data-page="postlist">
-    {{- partial "postNav.html" . -}}
+    {{- /* nav after main: content leads the tab order so the skip link bypasses the fixed nav */ -}}
 
 
     <main class="postScatter">
@@ -41,5 +41,6 @@
         {{- end -}}
       {{- end -}}
     </main>
+    {{- partial "postNav.html" . -}}
   </div>
 {{- end -}}

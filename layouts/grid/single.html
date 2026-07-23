@@ -7,9 +7,7 @@
     data-next="{{- site.Params.labels.next -}}"
     data-prev="{{- site.Params.labels.prev -}}"
   >
-    {{- partial "postNav.html" . -}}
-
-
+    {{- /* nav after main: content leads the tab order so the skip link bypasses the fixed nav */ -}}
     <main class="grid">
       {{- $imgs := .Resources.ByType "image" -}}
 
@@ -105,5 +103,6 @@
         {{- end -}}
       </div>
     </main>
+    {{- partial "postNav.html" . -}}
   </div>
 {{- end -}}
