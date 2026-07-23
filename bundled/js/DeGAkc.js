@@ -405,7 +405,6 @@ function Stage() {
 	}, { defer: true }));
 	return (() => {
 		var _el$ = _tmpl$$1();
-		_el$.$$keydown = onClick;
 		_el$.$$click = onClick;
 		insert(_el$, createComponent(For, {
 			get each() {
@@ -444,7 +443,7 @@ function Stage() {
 		return _el$;
 	})();
 }
-delegateEvents(["click", "keydown"]);
+delegateEvents(["click"]);
 //#endregion
 //#region assets/ts/desktop/stageNav.tsx
 var _tmpl$ = /*#__PURE__*/ template(`<div class=navOverlay>`), _tmpl$2 = /*#__PURE__*/ template(`<div class=overlay tabindex=-1>`);

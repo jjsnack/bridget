@@ -1,6 +1,6 @@
 import { A as createComponent, B as untrack, C as use, D as Index, M as createMemo, N as createRenderEffect, O as Show, P as createSignal, R as onCleanup, S as template, g as insert, h as delegateEvents, j as createEffect, u as isMobile, v as render, y as setAttribute, z as onMount } from "./main.js";
 import { t as CustomCursor } from "./BbnyD4.js";
-import { t as mountMobileStage } from "./BRrHS1.js";
+import { t as mountMobileStage } from "./DuxKE8.js";
 //#region assets/ts/grid.tsx
 /**
 * Grid archetype (`type: grid`, `layouts/grid/single.html`).
@@ -50,6 +50,9 @@ function setupColumns(main) {
 		const digits = String(cols).padStart(nums.length, "0");
 		nums.forEach((el, i) => el.innerText = digits[i] ?? "0");
 		sessionStorage.setItem(COL_KEY, String(cols));
+		items.style.display = "none";
+		items.offsetHeight;
+		items.style.display = "";
 	};
 	dec?.addEventListener("click", () => {
 		if (cols > COL_MIN) {

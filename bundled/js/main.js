@@ -1,4 +1,4 @@
-const __vite__mapDeps=(i,m=__vite__mapDeps,d=(m.f||(m.f=["js/DIyoX-.js","js/BbnyD4.js","js/D3UMwV.js","js/D4UST3.js","js/B26T_x.js","js/BRrHS1.js","js/Cr17wx.js"])))=>i.map(i=>d[i]);
+const __vite__mapDeps=(i,m=__vite__mapDeps,d=(m.f||(m.f=["js/DeGAkc.js","js/BbnyD4.js","js/Y1ETwV.js","js/BX4azT.js","js/By3CMH.js","js/DuxKE8.js","js/18wm8D.js"])))=>i.map(i=>d[i]);
 //#region node_modules/.pnpm/solid-js@1.9.13/node_modules/solid-js/dist/solid.js
 var sharedConfig = {
 	context: void 0,
@@ -1762,7 +1762,9 @@ function expand(num) {
 	return ("0000" + num.toString()).slice(-4);
 }
 async function loadGsap() {
-	return (await __vitePreload(() => import("./BtMreJ.js"), [])).gsap;
+	const g = await __vitePreload(() => import("./BtMreJ.js"), []);
+	if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) g.gsap.globalTimeline.timeScale(1e3);
+	return g.gsap;
 }
 function getThresholdSessionIndex() {
 	const s = sessionStorage.getItem("thresholdsIndex");
@@ -1965,25 +1967,19 @@ async function getImageJSON() {
 	if (document.title.split(" | ")[0] === "404") return [];
 	const ogUrlMetaTag = document.querySelector("meta[property=\"og:url\"]");
 	const indexJsonUrl = ogUrlMetaTag?.content ? new URL("index.json", ogUrlMetaTag.content).href : new URL("index.json", window.location.href).href;
-	try {
-		return (await (await fetch(indexJsonUrl, { headers: { Accept: "application/json" } })).json()).sort((a, b) => {
-			if (a.index < b.index) return -1;
-			return 1;
-		});
-	} catch (e) {
-		console.error(e);
-		return [];
-	}
+	const response = await fetch(indexJsonUrl, { headers: { Accept: "application/json" } });
+	if (!response.ok) throw new Error(`failed to load ${indexJsonUrl}: ${response.status}`);
+	return (await response.json()).sort((a, b) => a.index - b.index);
 }
 //#endregion
 //#region assets/ts/main.tsx
-var _tmpl$ = /*#__PURE__*/ template(`<div>Error`);
+var _tmpl$ = /*#__PURE__*/ template(`<div>Error`), _tmpl$2 = /*#__PURE__*/ template(`<div class=ijsFallback>Couldn’t load images.`), _tmpl$3 = /*#__PURE__*/ template(`<div class=ijsFallback>No images yet.`);
 document.addEventListener("contextmenu", (e) => {
 	if (e.target instanceof HTMLImageElement) e.preventDefault();
 });
 var container = document.getElementsByClassName("container")[0];
-var Desktop = lazy(async () => await __vitePreload(() => import("./DIyoX-.js"), __vite__mapDeps([0,1])));
-var Mobile = lazy(async () => await __vitePreload(() => import("./D3UMwV.js"), __vite__mapDeps([2,3])));
+var Desktop = lazy(async () => await __vitePreload(() => import("./DeGAkc.js"), __vite__mapDeps([0,1])));
+var Mobile = lazy(async () => await __vitePreload(() => import("./Y1ETwV.js"), __vite__mapDeps([2,3])));
 function AppContent(props) {
 	return createComponent(Switch, {
 		get fallback() {
@@ -2034,49 +2030,69 @@ function AppContent(props) {
 }
 function Main() {
 	const [ijs] = createResource(getImageJSON);
-	return createComponent(Show, {
-		get when() {
-			return ijs.state === "ready";
-		},
-		get children() {
-			return createComponent(ImageStateProvider, {
-				get images() {
-					return ijs() ?? [];
+	return createComponent(Switch, { get children() {
+		return [
+			createComponent(Match, {
+				get when() {
+					return ijs.error != null;
 				},
 				get children() {
-					return createComponent(ConfigStateProvider, { get children() {
-						return createComponent(AppContent, {
-							get isMobile() {
-								return isMobile();
-							},
-							get prevText() {
-								return container.dataset.prev;
-							},
-							get closeText() {
-								return container.dataset.close;
-							},
-							get nextText() {
-								return container.dataset.next;
-							},
-							get loadingText() {
-								return container.dataset.loading;
-							}
-						});
-					} });
+					return _tmpl$2();
 				}
-			});
-		}
-	});
+			}),
+			createComponent(Match, {
+				get when() {
+					return memo(() => ijs.state === "ready")() && (ijs()?.length ?? 0) > 0;
+				},
+				get children() {
+					return createComponent(ImageStateProvider, {
+						get images() {
+							return ijs() ?? [];
+						},
+						get children() {
+							return createComponent(ConfigStateProvider, { get children() {
+								return createComponent(AppContent, {
+									get isMobile() {
+										return isMobile();
+									},
+									get prevText() {
+										return container.dataset.prev;
+									},
+									get closeText() {
+										return container.dataset.close;
+									},
+									get nextText() {
+										return container.dataset.next;
+									},
+									get loadingText() {
+										return container.dataset.loading;
+									}
+								});
+							} });
+						}
+					});
+				}
+			}),
+			createComponent(Match, {
+				get when() {
+					return ijs.state === "ready";
+				},
+				get children() {
+					return _tmpl$3();
+				}
+			})
+		];
+	} });
 }
 var page = container?.dataset.page;
-if (page === "404") {} else if (page === "post") __vitePreload(() => import("./B26T_x.js").then((m) => {
+if (page === "404") {} else if (page === "post") __vitePreload(() => import("./By3CMH.js").then((m) => {
 	m.initPost();
 }), __vite__mapDeps([4,1,5,3]));
 else if (page === "postlist") {
 	if (!isMobile()) __vitePreload(() => import("./biROAg.js").then((m) => {
 		m.initPostList();
 	}), []);
-} else if (page === "grid") __vitePreload(() => import("./Cr17wx.js").then((m) => {
+} else if (page === "grid") __vitePreload(() => import("./18wm8D.js").then((m) => {
 	m.initGrid();
 }), __vite__mapDeps([6,1,5,3]));
 else render(() => createComponent(Main, {}), container);

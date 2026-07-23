@@ -1,6 +1,6 @@
 import { A as createComponent, C as use, N as createRenderEffect, P as createSignal, R as onCleanup, S as template, _ as memo, d as loadGsap, g as insert, h as delegateEvents, j as createEffect, u as isMobile, v as render, y as setAttribute, z as onMount } from "./main.js";
 import { t as CustomCursor } from "./BbnyD4.js";
-import { t as mountMobileStage } from "./BRrHS1.js";
+import { t as mountMobileStage } from "./DuxKE8.js";
 //#region assets/ts/postDrag.ts
 var SELECTOR = [
 	".postTitle",
@@ -97,7 +97,7 @@ function initPostDrag(article) {
 }
 //#endregion
 //#region assets/ts/post.tsx
-var _tmpl$ = /*#__PURE__*/ template(`<div class=postLightbox role=dialog aria-modal=true aria-label="Image viewer"tabindex=-1><div class=postLightboxFrame>`), _tmpl$2 = /*#__PURE__*/ template(`<img alt>`);
+var _tmpl$ = /*#__PURE__*/ template(`<div class=postLightbox role=dialog aria-modal=true aria-label="Image viewer"tabindex=-1><div class=postLightboxFrame>`), _tmpl$2 = /*#__PURE__*/ template(`<img>`);
 var prefersReducedMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 function Lightbox(props) {
 	let overlay;
@@ -136,7 +136,8 @@ function Lightbox(props) {
 		setShot({
 			url: btn.dataset.hiUrl ?? "",
 			w: Number(btn.dataset.hiW ?? 0),
-			h: Number(btn.dataset.hiH ?? 0)
+			h: Number(btn.dataset.hiH ?? 0),
+			alt: img.alt
 		});
 		setOpen(true);
 		const g = await ensureGsap();
@@ -223,15 +224,17 @@ function Lightbox(props) {
 			return () => _c$() && (() => {
 				var _el$3 = _tmpl$2();
 				createRenderEffect((_p$) => {
-					var _v$ = shot()?.url, _v$2 = shot()?.w, _v$3 = shot()?.h;
+					var _v$ = shot()?.url, _v$2 = shot()?.w, _v$3 = shot()?.h, _v$4 = shot()?.alt ?? "";
 					_v$ !== _p$.e && setAttribute(_el$3, "src", _p$.e = _v$);
 					_v$2 !== _p$.t && setAttribute(_el$3, "width", _p$.t = _v$2);
 					_v$3 !== _p$.a && setAttribute(_el$3, "height", _p$.a = _v$3);
+					_v$4 !== _p$.o && setAttribute(_el$3, "alt", _p$.o = _v$4);
 					return _p$;
 				}, {
 					e: void 0,
 					t: void 0,
-					a: void 0
+					a: void 0,
+					o: void 0
 				});
 				return _el$3;
 			})();

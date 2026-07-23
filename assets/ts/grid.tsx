@@ -87,6 +87,13 @@ function setupColumns(main: HTMLElement): void {
     const digits = String(cols).padStart(nums.length, '0')
     nums.forEach((el, i) => (el.innerText = digits[i] ?? '0'))
     sessionStorage.setItem(COL_KEY, String(cols))
+    // WebKit/Blink don't always repour a multicol container when its
+    // column-count changes — the frames keep the old layout until a resize or
+    // refresh. Force a synchronous relayout: none→reflow→restore in one tick
+    // invalidates layout without ever painting the hidden state (no flash).
+    items.style.display = 'none'
+    void items.offsetHeight
+    items.style.display = ''
   }
 
   dec?.addEventListener('click', () => {

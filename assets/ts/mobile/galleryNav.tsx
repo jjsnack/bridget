@@ -1,4 +1,4 @@
-import { Show, createMemo, type JSX } from 'solid-js'
+import { Index, Show, createMemo, type JSX } from 'solid-js'
 
 import { useImageState } from '../imageState'
 import { expand } from '../utils'
@@ -30,27 +30,18 @@ export default function GalleryNav(props: {
       <div class="nav">
         <Show when={props.counter !== false} fallback={<div />}>
           <div>
-            <span class="num">{indexValue()[0]}</span>
-            <span class="num">{indexValue()[1]}</span>
-            <span class="num">{indexValue()[2]}</span>
-            <span class="num">{indexValue()[3]}</span>
+            <Index each={[...indexValue()]}>
+              {(d) => <span class="num">{d()}</span>}
+            </Index>
             <span>/</span>
-            <span class="num">{indexLength()[0]}</span>
-            <span class="num">{indexLength()[1]}</span>
-            <span class="num">{indexLength()[2]}</span>
-            <span class="num">{indexLength()[3]}</span>
+            <Index each={[...indexLength()]}>
+              {(d) => <span class="num">{d()}</span>}
+            </Index>
           </div>
         </Show>
-        <div
-          class="navClose"
-          onClick={onClick}
-          onTouchEnd={onClick}
-          onKeyDown={onClick}
-          role="button"
-          tabIndex="0"
-        >
+        <button class="navClose" onClick={onClick}>
           {capitalizeFirstLetter(props.closeText)}
-        </div>
+        </button>
       </div>
     </>
   )

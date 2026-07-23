@@ -17,3 +17,11 @@ a,
 button {
   cursor: pointer;
 }
+
+// the reset's `all: unset` strips every focus ring; restore one globally so
+// keyboard users can see position. Focusable chrome lives on the white nav,
+// so a black ring reads (outline isn't clipped by the gallery's overflow)
+:focus-visible {
+  outline: 2px solid black;
+  outline-offset: 2px;
+}

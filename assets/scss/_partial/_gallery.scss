@@ -1,3 +1,14 @@
+// quiet full-screen message for the error / empty-gallery states in main.tsx
+.ijsFallback {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: var(--space-standard);
+  text-align: center;
+  color: black;
+}
+
 .gallery {
   pointer-events: all;
 

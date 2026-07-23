@@ -12,6 +12,7 @@ interface Shot {
   url: string
   w: number
   h: number
+  alt: string
 }
 
 const prefersReducedMotion = (): boolean =>
@@ -55,7 +56,8 @@ function Lightbox(props: {
     setShot({
       url: btn.dataset.hiUrl ?? '',
       w: Number(btn.dataset.hiW ?? 0),
-      h: Number(btn.dataset.hiH ?? 0)
+      h: Number(btn.dataset.hiH ?? 0),
+      alt: img.alt
     })
     setOpen(true)
 
@@ -163,7 +165,12 @@ function Lightbox(props: {
       >
         <div ref={frame} class="postLightboxFrame">
           {shot() != null && (
-            <img src={shot()?.url} width={shot()?.w} height={shot()?.h} alt="" />
+            <img
+              src={shot()?.url}
+              width={shot()?.w}
+              height={shot()?.h}
+              alt={shot()?.alt ?? ''}
+            />
           )}
         </div>
       </div>

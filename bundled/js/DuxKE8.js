@@ -1,5 +1,5 @@
 import { A as createComponent, i as ImageStateProvider, n as useMobileState, t as MobileStateProvider, v as render, z as onMount } from "./main.js";
-import { t as Gallery } from "./D4UST3.js";
+import { t as Gallery } from "./BX4azT.js";
 //#region assets/ts/mobileStage.tsx
 function Bridge(props) {
 	const [, { setIndex, setIsOpen }] = useMobileState();

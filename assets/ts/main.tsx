@@ -1,4 +1,4 @@
-import { Match, Show, Switch, createResource, lazy, type JSX } from 'solid-js'
+import { Match, Switch, createResource, lazy, type JSX } from 'solid-js'
 import { render } from 'solid-js/web'
 
 import { ConfigStateProvider } from './configState'
@@ -69,8 +69,12 @@ function Main(): JSX.Element {
   // variables
   const [ijs] = createResource(getImageJSON)
   return (
-    <>
-      <Show when={ijs.state === 'ready'}>
+    <Switch>
+      {/* pending renders nothing, as before — the loader lives in the tree */}
+      <Match when={ijs.error != null}>
+        <div class="ijsFallback">Couldn’t load images.</div>
+      </Match>
+      <Match when={ijs.state === 'ready' && (ijs()?.length ?? 0) > 0}>
         <ImageStateProvider images={ijs() ?? []}>
           <ConfigStateProvider>
             <AppContent
@@ -82,8 +86,11 @@ function Main(): JSX.Element {
             />
           </ConfigStateProvider>
         </ImageStateProvider>
-      </Show>
-    </>
+      </Match>
+      <Match when={ijs.state === 'ready'}>
+        <div class="ijsFallback">No images yet.</div>
+      </Match>
+    </Switch>
   )
 }
 
