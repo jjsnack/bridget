@@ -25,9 +25,13 @@ function Bridge(props: {
   swipe?: boolean
   counter?: boolean
 }): JSX.Element {
-  const [, { setIndex, setIsOpen }] = useMobileState()
+  const [mobile, { setIndex, setIsOpen }] = useMobileState()
   onMount(() =>
     props.onReady((index) => {
+      // ignore taps arriving mid close/open animation — the gallery's isOpen
+      // effect skips transitions while animating, so latching isOpen here would
+      // strand it open-but-hidden and no further tap could reopen it
+      if (mobile.isAnimating()) return
       setIndex(index)
       setIsOpen(true)
     })
