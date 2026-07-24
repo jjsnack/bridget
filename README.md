@@ -27,8 +27,9 @@ Head to this [documentation](https://github.com/jjsnack/bridget/blob/main/docs.m
 - JS **dynamic loading**
 - Image **preloading** + **lazy loading**
 - **Dynamic resolution** based on view mode
-- Multiple **analytics** services supported
-- Search engine **verification** supported (Google, Bind, Yandex and Baidu)
+- Multiple **analytics** services supported (Google, Fathom, Baidu, Umami, Plausible, Cloudflare, Splitbee)
+- Search engine **verification** supported (Google, Bing, Yandex, Pinterest, Baidu, 360, Sogou)
+- **Self-hosted assets** — fonts and the JS/CSS bundle ship with the theme; no external asset CDN, so no third-party requests unless you opt into analytics
 
 ### Content archetypes
 
@@ -43,3 +44,5 @@ Head to this [documentation](https://github.com/jjsnack/bridget/blob/main/docs.m
 - https://www.youtube.com/watch?v=Jt3A2lNN2aE
 - https://github.com/d4cho/bridget-pictures-clone
 - https://www.solidjs.com/tutorial
+- https://lmchabot.com
+- https://gregorcollienne.com
