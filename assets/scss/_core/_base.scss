@@ -25,3 +25,25 @@ button {
   outline: 2px solid black;
   outline-offset: 2px;
 }
+
+// bypass block (WCAG 2.4.1): a first tab stop that jumps keyboard users into
+// #main. Off-screen until focused, then slides in over the nav.
+.skipLink {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: calc(var(--z-nav) + 1);
+  padding: var(--space-standard);
+  background: white;
+  color: black;
+  transform: translateY(-150%);
+}
+
+.skipLink:focus {
+  transform: translateY(0);
+}
+
+// #main is only focusable as the skip-link target; don't ring the whole page
+#main:focus {
+  outline: none;
+}

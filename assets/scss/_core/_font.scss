@@ -7,7 +7,12 @@
       format('woff2-variations');
   font-weight: 400;
   font-style: normal;
-  font-display: swap;
+  // optional (not swap): both faces are preloaded in head/link.html, so they're
+  // ready before first paint on virtually every load and get used with no swap.
+  // On a rare slow load the fallback stays for that pageload instead of swapping
+  // in late — either way the text never reflows, killing the font-driven layout
+  // shift in .links (and everywhere else).
+  font-display: optional;
 }
 
 @font-face {
@@ -15,5 +20,5 @@
   src: url(/* @vite-ignore */'{{- "lib/fonts/fw.woff2" | absURL -}}') format('woff2');
   font-weight: 400;
   font-style: normal;
-  font-display: swap;
+  font-display: optional;
 }
