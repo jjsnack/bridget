@@ -29,8 +29,8 @@ Head to this [documentation](https://github.com/jjsnack/bridget/blob/main/docs.m
 - **Dynamic resolution** based on view mode
 - **Cloud image CDN** (optional): production builds can serve gallery imagery from an on-the-fly image CDN (imgix / Cloudflare Images / Cloudinary) while local dev keeps using committed low-res copies — a single `hugo.IsProduction` + `cdnBase` switch, no template changes
 - **Metadata-derived tags**: extract embedded IPTC/XMP keywords into `data/imagetags.yaml`, merged with hand-written front-matter tags to build the Archive filter — both sources survive re-extraction
-- Multiple **analytics** services supported
-- Search engine **verification** supported (Google, Bind, Yandex and Baidu)
+- Multiple **analytics** services supported (Google, Fathom, Baidu, Umami, Plausible, Cloudflare, Splitbee)
+- Search engine **verification** supported (Google, Bing, Yandex, Pinterest, Baidu, 360, Sogou)
 
 ### Content archetypes
 
@@ -49,3 +49,5 @@ For a cloud-backed deploy, `pnpm images <masters-dir>` prepares photos in one pa
 - https://www.youtube.com/watch?v=Jt3A2lNN2aE
 - https://github.com/d4cho/bridget-pictures-clone
 - https://www.solidjs.com/tutorial
+- https://lmchabot.com
+- https://gregorcollienne.com

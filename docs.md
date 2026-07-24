@@ -22,7 +22,7 @@
 - [Usage](#usage)
 - [Customizations](#customizations)
   - [Change Font](#change-font)
-  - [Add a Custom Analytic Script](#add-a-custom-analytic-script)
+  - [Add an Analytics Script](#add-an-analytics-script)
 
 ---
 
@@ -334,8 +334,6 @@ _[Contents](#contents)_
 
 **Just copy it.**
 
-_[Contents](#contents)_
-
 ### `params.toml`
 
 _[Contents](#contents)_
@@ -394,7 +392,7 @@ For further reading, you can refer to the `scripts` field of `package.json`.
 _[Contents](#contents)_
 
 > [!IMPORTANT]
-> Please make sure you have [installation with Git](#git-repository-for-customizations).
+> Please make sure you installed the theme [with Git](#installation) so you have its source to edit.
 >
 > If you want to try some changes on the `exampleSite`, below are some commands you might need:
 >
@@ -406,27 +404,34 @@ _[Contents](#contents)_
 
 _[Contents](#contents)_
 
-These are the places you need to focus on:
+The theme uses two self-hosted families: **Geist** (`GeistVF.woff2`) for body copy and
+**FW** (`fw.woff2`) for buttons/controls. To swap either, touch these places:
 
 - `assets/scss/_core/_font.scss` (`@font-face`)
 - `assets/scss/_core/_typography.scss` (`body.font-family`)
 - `layouts/partials/head/link.html` (`preload`)
-- `static/lib/fonts/GeistVF.woff2` (font file itself)
+- `static/lib/fonts/GeistVF.woff2` / `static/lib/fonts/fw.woff2` (the font files themselves)
 
-### Add a Custom Analytic Script
+### Add an Analytics Script
 
 _[Contents](#contents)_
 
-Go to `layouts/_default/baseof.html`:
+Analytics are **built in** — no template editing needed. Set the provider(s) you use
+under `[analytics]` in `config/_default/params.toml` and toggle the master `enable`
+flag. The theme ships support for Google, Fathom, Baidu, Umami, Plausible, Cloudflare,
+and Splitbee (see `plugin/analytics.html`); leaving an id empty skips that provider.
 
-```html
-<!doctype html>
-<html lang="{{- site.LanguageCode -}}">
-  <head>
-    /* ---------- INSERT HERE ---------- */
-  </head>
-  <body lang="{{- site.LanguageCode -}}">
-    <div class="analytics">/* ---------- OR HERE ---------- */</div>
-  </body>
-</html>
+```toml
+# config/_default/params.toml
+[analytics]
+enable = true
+[analytics.google]
+id = "G-XXXXXXXXXX"
+anonymizeIP = true
+[analytics.plausible]
+data_domain = "example.com"
+src = "https://plausible.io/js/script.js"
 ```
+
+For a provider not listed above, add your snippet to `plugin/analytics.html` — it is
+already wired into `baseof.html` (the `<div class="analytics">`).
