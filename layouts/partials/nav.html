@@ -9,7 +9,7 @@
       {{- $currentIndex = sub .Weight 1 -}}
     {{- end -}}
     {{- $menus := .Site.Menus.main -}}
-    {{- $len := len $menus -}}
+    {{- $len := 0 -}}{{- with $menus }}{{ $len = len . }}{{- end -}}
     {{- range $menus -}}
       {{- $url := .URL | relURL -}}
       {{- if eq (add $index 1) $len -}}
