@@ -6,7 +6,7 @@
 # NOTE: keys mirror the grid bundle's images (exampleSite/content/grid/*.jpg); the
 # keywords below are intentionally different from each image's front-matter tag
 # (Erwitt / Gruyaert / Webb) so the union is visible when running `pnpm dev`.
-grid/e1.jpg: [monochrome, timing]
+grid/e1.jpg: [monochrome, timing, wip]
 grid/e2.jpg: [monochrome, humour]
 grid/e3.jpg: [monochrome, patience]
 grid/g1.jpg: [colour, weather]

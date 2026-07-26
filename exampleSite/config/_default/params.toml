@@ -34,6 +34,14 @@ cdnBase = ""
 cdnHiQuery = "?w=2500&fm=webp&q=75"
 cdnLoQuery = "?w=800&fm=webp&q=60"
 
+# grid view tag filter control
+[grid]
+# tags never shown as filter buttons (control/metadata tags users shouldn't see);
+# stripped from the filter bar and per-frame data-tags
+hideTags = ["wip"]
+# tags shown first in the filter bar, but only if an image actually carries them
+pinTags = ["monochrome", "colour"]
+
 # labels (text shown on the UI)
 [labels]
 next = "next"
