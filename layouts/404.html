@@ -1,9 +1,11 @@
 {{- define "main" -}}
   <div class="container" data-page="404">
+    {{- /* top-left prose, same article formatting as the Info page */ -}}
+    <article>
+      <p><u>404</u>&nbsp;{{- site.Params.labels.error -}}</p>
+      <p><u>404</u>&nbsp;{{- site.Params.labels.error -}}</p>
+      <p><u>404</u>&nbsp;{{- site.Params.labels.error -}}</p>
+    </article>
     {{- partial "postNav.html" . -}}
-    <main class="notFound">
-      <h1 class="notFound__code">404</h1>
-      <p class="notFound__label">{{- site.Params.labels.error -}}</p>
-    </main>
   </div>
 {{- end -}}
