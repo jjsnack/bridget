@@ -36,7 +36,7 @@ Head to this [documentation](https://github.com/jjsnack/bridget/blob/main/docs.m
 
 - **Scatter gallery** — the default full-bleed, click-to-focus image collection
 - **Posts** (`type: post` / `postlist`) — blog-style prose pages with an inline-image render hook and a click-to-open lightbox, plus a scattered post index
-- **Archive** (`type: grid`) — a tag-filtered image grid with a full-screen, looping focus viewer
+- **Archive** (`type: grid`) — a tag-filtered image grid with a full-screen, looping focus viewer; filter tags can be pinned first or hidden entirely via `[grid]` params (`pinTags` / `hideTags`)
 
 ### Image pipeline (optional)
 

@@ -239,7 +239,11 @@ the index of all posts automatically. Give it a menu entry so it appears in the 
 
 **Archive (`grid`).** A single leaf bundle whose per-image `tags` (set via the
 `resources` front matter) build a multi-select filter bar; an empty selection means
-"all". Each `resources` entry maps a file in the bundle to its tags + caption:
+"all". Two optional keys under `[grid]` in `params.toml` shape that bar: `hideTags`
+lists control/metadata tags to strip from the filter (and each frame's `data-tags`)
+so viewers never see them, and `pinTags` lists tags to show first — pinned only when
+an image actually carries the tag. Each `resources` entry maps a file in the bundle to
+its tags + caption:
 
 ```toml
 ---
