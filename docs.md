@@ -37,7 +37,7 @@ _[Contents](#contents)_
   hugo v0.152.2+extended+withdeploy darwin/arm64 BuildDate=unknown VendorInfo=nixpkgs
   ```
 
-- [pnpm](https://pnpm.io/installation) and [Node.js](https://nodejs.org/en/download), please note that these two are only needed for customizations or development.
+- [pnpm](https://pnpm.io/installation) and [Node.js](https://nodejs.org/en/download). You need these two only for customization or development.
 
   ```bash
   ❯ pnpm --version && node --version
@@ -72,9 +72,9 @@ hugo server
 ```
 
 > [!NOTE]
-> The theme ships its compiled JS/CSS under `themes/bridget/bundled/`, which is
-> committed to the repo — so a plain `hugo server` works without Node/pnpm. You
-> only need step 4 if you change the theme's TypeScript/SCSS.
+> The theme ships its compiled JS/CSS under `themes/bridget/bundled/`. This
+> directory is committed to the repo, so a plain `hugo server` works without
+> Node/pnpm. You need step 4 only if you change the theme's TypeScript/SCSS.
 
 ## Installation
 
@@ -92,7 +92,7 @@ git submodule add https://github.com/jjsnack/bridget themes/bridget
 
 The theme is a [Hugo module](https://gohugo.io/hugo-modules/), so point Hugo at the
 submodule with a module **replacement** in your site config. The module path stays
-`github.com/Sped0n/bridget/v2` (the fork keeps the upstream module path); the
+`github.com/Sped0n/bridget/v2` (the fork keeps the upstream module path). The
 replacement maps it to the checked-out submodule directory:
 
 ```toml
@@ -114,7 +114,7 @@ git submodule update --remote themes/bridget
 
 _[Contents](#contents)_
 
-If you don't want a submodule, clone the fork instead (same `module` config as above):
+If you do not want a submodule, clone the fork instead (same `module` config as above):
 
 ```bash
 git clone https://github.com/jjsnack/bridget themes/bridget
@@ -124,7 +124,7 @@ git clone https://github.com/jjsnack/bridget themes/bridget
 
 _[Contents](#contents)_
 
-The content is where the pictures/text is stored, while the static refers to the website icons.
+The content directory stores the pictures and text. The static directory holds the website icons.
 
 ```
 .
@@ -156,7 +156,7 @@ _[Contents](#contents)_
 
 _[Contents](#contents)_
 
-Inside each index.md file, there is a front matter like this:
+Each index.md file has front matter like this:
 
 ```markdown
 ---
@@ -174,12 +174,12 @@ build:
 ---
 ```
 
-- `url` is the href link to this page, in this case, you can visit this page with `blabla.com/erwitt`;
-- `main` is the entry to `menu`;
-  - `weight` determines the position of this link in the navigation bar, with the first one being 1, the second one being 2, and so on;
-  - `identifier` should be the **same** as the name of the **upper-level directory**;
-  - `title` refers to the text that appears on the navigation bar;
-- `unifiedAlt` is **optional**, If you left it empty, the alt attribute of the image will default to its file name; if it is set, the alt attributes of all images will be unified to the value you have set;
+- `url` is the link to this page. In this case, you visit the page at `blabla.com/erwitt`.
+- `main` is the entry to `menu`.
+  - `weight` sets the position of this link in the navigation bar. The first link is 1, the second is 2, and so on.
+  - `identifier` must be the **same** as the name of the **upper-level directory**.
+  - `title` is the text that appears on the navigation bar.
+- `unifiedAlt` is **optional**. If you leave it empty, the alt attribute of each image defaults to its file name. If you set it, the alt attribute of every image uses the value you set.
 
 #### Markdown Content
 
@@ -190,7 +190,7 @@ _[Contents](#contents)_
   - Place the images in the same directory as `index.md`.
 - If this is an **information** page:
   - You can write anything in index.md, and it will be rendered as HTML.
-  - However, please note that the CSS for the information page **only provides simple styling for text**. If you have any requirements beyond text and the browser rendering does not meet your expectations, please modify [`_article.scss`](https://github.com/jjsnack/bridget/blob/main/assets/scss/_partial/_article.scss).
+  - The CSS for the information page **provides simple styling for text only**. If you need more than text and the browser rendering does not meet your expectations, edit [`_article.scss`](https://github.com/jjsnack/bridget/blob/main/assets/scss/_partial/_article.scss).
 
 ### Archetypes
 
@@ -203,7 +203,7 @@ working examples of each.
 
 | `type`     | URL in example | What it is                                                                           |
 | ---------- | -------------- | ------------------------------------------------------------------------------------ |
-| `_default` | `/erwitt/`     | Scatter gallery — a directory of images, click any to open the focus view            |
+| `_default` | `/erwitt/`     | Scatter gallery, a directory of images. Click any to open the focus view             |
 | `post`     | `/posts/*/`    | A blog-style prose page: Markdown body with inline images + a click-to-open lightbox |
 | `postlist` | `/posts/`      | The scattered index of every `post` (discovered by `type: post`, no manual linking)  |
 | `grid`     | `/archive/`    | A tag-filtered image grid with a full-screen, looping focus viewer                   |
@@ -234,15 +234,15 @@ Prose here. Drop an image with a size keyword as its title:
 {{</* /row */>}}
 ```
 
-The `postlist` page is a separate leaf bundle whose `type` is `postlist`; it renders
+The `postlist` page is a separate leaf bundle whose `type` is `postlist`. It renders
 the index of all posts automatically. Give it a menu entry so it appears in the nav.
 
 **Archive (`grid`).** A single leaf bundle whose per-image `tags` (set via the
-`resources` front matter) build a multi-select filter bar; an empty selection means
+`resources` front matter) build a multi-select filter bar. An empty selection means
 "all". Two optional keys under `[grid]` in `params.toml` shape that bar: `hideTags`
 lists control/metadata tags to strip from the filter (and each frame's `data-tags`)
-so viewers never see them, and `pinTags` lists tags to show first — pinned only when
-an image actually carries the tag. Each `resources` entry maps a file in the bundle to
+so viewers never see them, and `pinTags` lists tags to show first. A tag pins only when
+an image carries it. Each `resources` entry maps a file in the bundle to
 its tags + caption:
 
 ```toml
@@ -273,13 +273,13 @@ templates under `themes/bridget/archetypes/` (`post.md`, `grid.md`).
 
 _[Contents](#contents)_
 
-As for the **website icon**, place the files under `static` directory and then go to [config](#configuration) part for further reading.
+To set the **website icon**, place the files under the `static` directory. Then see the [configuration](#configuration) section.
 
 ## Configuration
 
 _[Contents](#contents)_
 
-You can simply copy `exampleSite/config` to the root directory, with some minor modifications and you should be good to go.
+Copy `exampleSite/config` to the root directory. Make a few changes and it works.
 
 ```
 .
@@ -296,7 +296,7 @@ You can simply copy `exampleSite/config` to the root directory, with some minor 
 
 _[Contents](#contents)_
 
-First, what you need to modify is the `baseURL` and `title`:
+First, change the `baseURL` and `title`:
 
 ```toml
 # timeout
@@ -344,7 +344,7 @@ _[Contents](#contents)_
 
 Detailed description in the comments.
 
-By default, Bridget auto-orients gallery images from EXIF orientation before resizing. This behavior is enabled when `autoOrient` is omitted; only explicit `false` disables it:
+By default, Bridget auto-orients gallery images from EXIF orientation before resizing. This behavior is on when you omit `autoOrient`. Only an explicit `false` turns it off:
 
 ```toml
 # config/_default/params.toml
@@ -371,34 +371,34 @@ that builds the `exampleSite` and publishes it to **GitHub Pages** on every push
 
 1. In the repo, go to **Settings → Pages** and set **Source** to **GitHub Actions**.
 2. Push to `main` (or run the workflow manually via **Actions → Deploy to GitHub Pages → Run workflow**).
-3. The site publishes at `https://<user>.github.io/<repo>/` — e.g. `https://jjsnack.github.io/bridget/`.
+3. The site publishes at `https://<user>.github.io/<repo>/`, for example `https://jjsnack.github.io/bridget/`.
 
 The workflow overrides `baseURL` with the Pages URL at build time (via
-`actions/configure-pages`), so you don't need to hard-code it in `hugo.toml`. It
+`actions/configure-pages`), so you do not need to hard-code it in `hugo.toml`. It
 installs Node/pnpm/Hugo with [mise](https://mise.jdx.dev), runs `pnpm build`, and
 uploads `exampleSite/public`.
 
 **Deploying your own site (not this repo):** point the same steps at your site
-directory instead of `exampleSite/`, and set `baseURL` to your Pages URL (project
-sites live under a `/<repo>/` subpath — pass `--baseURL` to `hugo` to match, exactly
-as the workflow does).
+directory instead of `exampleSite/`, and set `baseURL` to your Pages URL. Project
+sites live under a `/<repo>/` subpath, so pass `--baseURL` to `hugo` to match, exactly
+as the workflow does.
 
 ## Usage
 
 _[Contents](#contents)_
 
-Bridget will work as a normal Hugo theme (if you don't have needs to customize), https://gohugo.io/getting-started/usage/ is a great start.
+Bridget works as a normal Hugo theme if you do not need to customize it. https://gohugo.io/getting-started/usage/ is a good start.
 
-For further reading, you can refer to the `scripts` field of `package.json`.
+For more, see the `scripts` field of `package.json`.
 
 ## Customizations
 
 _[Contents](#contents)_
 
 > [!IMPORTANT]
-> Please make sure you installed the theme [with Git](#installation) so you have its source to edit.
+> Make sure you installed the theme [with Git](#installation) so you have its source to edit.
 >
-> If you want to try some changes on the `exampleSite`, below are some commands you might need:
+> To try changes on the `exampleSite`, use these commands:
 >
 > - `pnpm install` to install dependencies.
 > - `pnpm run dev` to start a dev server (`http://localhost:1313`).
@@ -420,10 +420,10 @@ The theme uses two self-hosted families: **Geist** (`GeistVF.woff2`) for body co
 
 _[Contents](#contents)_
 
-Analytics are **built in** — no template editing needed. Set the provider(s) you use
+Analytics are **built in**, with no template editing needed. Set the provider(s) you use
 under `[analytics]` in `config/_default/params.toml` and toggle the master `enable`
 flag. The theme ships support for Google, Fathom, Baidu, Umami, Plausible, Cloudflare,
-and Splitbee (see `plugin/analytics.html`); leaving an id empty skips that provider.
+and Splitbee (see `plugin/analytics.html`). An empty id skips that provider.
 
 ```toml
 # config/_default/params.toml
@@ -437,5 +437,5 @@ data_domain = "example.com"
 src = "https://plausible.io/js/script.js"
 ```
 
-For a provider not listed above, add your snippet to `plugin/analytics.html` — it is
+For a provider not listed above, add your snippet to `plugin/analytics.html`. It is
 already wired into `baseof.html` (the `<div class="analytics">`).
