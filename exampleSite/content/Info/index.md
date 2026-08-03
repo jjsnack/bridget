@@ -14,11 +14,9 @@ build:
 
 Bridget is a _minimal_ Hugo theme designed for photographers/visual artists, powered by <u>[SolidJS](https://www.solidjs.com)</u>.
 
-The inspiration for this theme came from a video by <u>[Hyperlexed](https://www.youtube.com/@Hyperplexed)</u>, which can be found <u>[here](https://www.youtube.com/watch?v=Jt3A2lNN2aE)</u>. Initially, it was developed using no third-party dependencies. However, after website designer <u>[Tyler McRobert](https://tylermcrobert.com)</u> made the source code publicly available, I realized that I have invented many unnecessary wheels, and this project was modified to porting the original design to Hugo while focusing on _performance_.
-
-Once again, great shout out to <u>[Tyler McRobert](https://tylermcrobert.com)</u> for his inspiration to this project.
-
 This site runs a fork of the theme by <u>[jjsnack](https://github.com/jjsnack)</u>. On top of the scatter gallery, the fork adds blog-style **posts**, a scattered **post index**, and a tag-filtered **archive grid**, plus an optional image-CDN source and IPTC/XMP tag extraction. The theme is in maintenance mode and stays minimal.
+
+There's a fantastic explanation for this theme by <u>[Hyperlexed](https://www.youtube.com/@Hyperplexed)</u>, which you can watch <u>[here](https://www.youtube.com/watch?v=Jt3A2lNN2aE)</u>.
 
 [GitHub Repo ↗](https://github.com/jjsnack/bridget)
 
