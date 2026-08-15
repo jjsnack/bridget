@@ -10,7 +10,7 @@
     {{- $index := 0 -}}
     {{- $cur := .RelPermalink | relLangURL -}}
     {{- $menus := .Site.Menus.main -}}
-    {{- $len := len $menus -}}
+    {{- $len := 0 -}}{{- with $menus }}{{ $len = len . }}{{- end -}}
     {{- range $menus -}}
       <a
         href="{{- .URL | relURL -}}"
