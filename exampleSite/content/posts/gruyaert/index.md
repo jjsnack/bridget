@@ -6,6 +6,7 @@ title: 'On Harry Gruyaert'
 date: 2026-05-18
 url: /posts/gruyaert/
 lede: 'Colour as weather — the Belgian who photographed light itself and let the subject arrive later.'
+tileImages: ['22.jpg', '8.jpg', '30.jpg', '14.jpg']
 ---
 
 Gruyaert came to colour when colour was still suspect, and made a case for it that no

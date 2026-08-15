@@ -7,6 +7,17 @@
       {{- $posts := where site.RegularPages "Type" "post" -}}
       {{- range $post := $posts.ByDate.Reverse -}}
         {{- $frames := $post.Resources.ByType "image" -}}
+        {{- with $post.Params.tileImages -}}
+          {{- $picked := slice -}}
+          {{- range $name := . -}}
+            {{- with $post.Resources.GetMatch $name -}}
+              {{- $picked = $picked | append . -}}
+            {{- end -}}
+          {{- end -}}
+          {{- if $picked -}}
+            {{- $frames = $picked -}}
+          {{- end -}}
+        {{- end -}}
         {{- if $frames -}}
           <a
             class="tile"
