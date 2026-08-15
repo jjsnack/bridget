@@ -21,8 +21,13 @@ export async function getImageJSON(): Promise<ImageJSON[]> {
   const ogUrlMetaTag = document.querySelector(
     'meta[property="og:url"]'
   ) as HTMLMetaElement | null
-  const indexJsonUrl = ogUrlMetaTag?.content
-    ? new URL('index.json', ogUrlMetaTag.content).href
+  // og:url can be scheme-relative ("//host/path") when Hugo's baseURL isn't set
+  // (e.g. plain `hugo server` locally) — URL() requires an absolute base, so
+  // borrow the current page's scheme in that case.
+  let ogUrl = ogUrlMetaTag?.content
+  if (ogUrl?.startsWith('//')) ogUrl = window.location.protocol + ogUrl
+  const indexJsonUrl = ogUrl
+    ? new URL('index.json', ogUrl).href
     : new URL('index.json', window.location.href).href
 
   const response = await fetch(indexJsonUrl, {
