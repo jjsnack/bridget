@@ -36,6 +36,10 @@
     {{- $length := 0 -}}
     {{- with partial "function/getImageSlice.html" . -}}
       {{- $length = len . -}}
+    {{- else -}}
+      {{- with $.Params.images -}}
+        {{- $length = len . -}}
+      {{- end -}}
     {{- end -}}
     <span>{{- site.Params.labels.threshold -}}:</span>
     <span>
