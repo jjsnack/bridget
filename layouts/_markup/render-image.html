@@ -3,18 +3,27 @@
   Markdown:  ![caption](file.jpg "size")
   size ∈ small | medium (default) | large | wide | full  — also used as flex weight inside {{< row
 >}}.
-Destination resolves as a page resource; falls back to a raw src (static/remote)
-otherwise. */ -}}
+Destination resolves as a page resource; otherwise the site may resolve it via
+function/imgSrcFallback.html (e.g. a key into an external image store); failing that, a
+raw src (static/remote). */ -}}
 {{- $size := .Title | default "medium" -}}
 {{- $alt := .Text -}}
-{{- $img := .Page.Resources.GetMatch .Destination -}}
+{{- $dest := .Destination -}}
+{{- $img := .Page.Resources.GetMatch $dest -}}
 {{- $page := .Page -}}
+{{- $lo := dict -}}
+{{- $hi := dict -}}
+{{- with $img -}}
+  {{- $lo = partial "function/imgSrc.html" (dict "img" . "page" $page "size" "lo") -}}
+  {{- $hi = partial "function/imgSrc.html" (dict "img" . "page" $page "size" "hi") -}}
+{{- else -}}
+  {{- $lo = partial "function/imgSrcFallback.html" (dict "dest" $dest "page" $page "size" "lo") -}}
+  {{- $hi = partial "function/imgSrcFallback.html" (dict "dest" $dest "page" $page "size" "hi") -}}
+{{- end -}}
 
 
 <figure class="postFigure postFigure--{{- $size -}}">
-  {{- with $img -}}
-    {{- $lo := partial "function/imgSrc.html" (dict "img" . "page" $page "size" "lo") -}}
-    {{- $hi := partial "function/imgSrc.html" (dict "img" . "page" $page "size" "hi") -}}
+  {{- if $lo.url -}}
     <button
       type="button"
       class="postImage"
@@ -37,7 +46,7 @@ otherwise. */ -}}
       />
     </button>
   {{- else -}}
-    <img src="{{- .Destination | safeURL -}}" alt="{{- $alt -}}" loading="lazy" />
+    <img src="{{- $dest | safeURL -}}" alt="{{- $alt -}}" loading="lazy" />
   {{- end -}}
   {{- with $alt -}}<figcaption>{{- . -}}</figcaption>{{- end -}}
 </figure>
