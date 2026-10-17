@@ -18,14 +18,25 @@
             {{- $frames = $picked -}}
           {{- end -}}
         {{- end -}}
-        {{- if $frames -}}
+        {{- $tiles := slice -}}
+        {{- range first 4 $frames -}}
+          {{- $tiles = $tiles | append (partial "function/imgSrc.html" (dict "img" . "page" $post "size" "lo")) -}}
+        {{- end -}}
+        {{- /* no image resources: resolve tileImages names through the site's imgSrcFallback, as render-image.html does */ -}}
+        {{- if not $tiles -}}
+          {{- range first 4 ($post.Params.tileImages | default slice) -}}
+            {{- with partial "function/imgSrcFallback.html" (dict "dest" . "page" $post "size" "lo") -}}
+              {{- $tiles = $tiles | append . -}}
+            {{- end -}}
+          {{- end -}}
+        {{- end -}}
+        {{- if $tiles -}}
           <a
             class="tile"
             href="{{- $post.RelPermalink -}}"
             aria-label="{{- $post.Title -}}"
           >
-            {{- range $i, $img := first 4 $frames -}}
-              {{- $lo := partial "function/imgSrc.html" (dict "img" $img "page" $post "size" "lo") -}}
+            {{- range $i, $lo := $tiles -}}
               {{- if eq $i 0 -}}
                 <img
                   class="tileFrame"
