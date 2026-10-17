@@ -1,5 +1,6 @@
 {{- define "main" -}}
-  {{- $hasImages := .Resources.ByType "image" -}}
+  {{- /* `images` front matter: a site that lists gallery keys instead of bundling files (its own single.json builds index.json) */ -}}
+  {{- $hasImages := or (.Resources.ByType "image") .Params.images -}}
   <div
     class="container"
     data-page="{{ if not $hasImages }}info{{ end }}"
