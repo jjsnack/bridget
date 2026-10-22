@@ -27,7 +27,7 @@ Head to this [documentation](https://github.com/jjsnack/bridget/blob/main/docs.m
 - JS **dynamic loading**
 - Image **preloading** + **lazy loading**
 - **Dynamic resolution** based on view mode
-- **Cloud image CDN** (optional): production builds can serve gallery imagery from an on-the-fly image CDN (imgix / Cloudflare Images / Cloudinary) while local dev keeps using committed low-res copies — a single `hugo.IsProduction` + `cdnBase` switch, no template changes
+- **Cloud image CDN** (optional): production builds can serve gallery imagery from an on-the-fly image CDN (imgix / Cloudflare Images / Cloudinary) while local dev keeps using committed low-res copies — a single `hugo.IsProduction` + `cdnBase` switch, or one site partial (`cdnSrc.html`) for any other URL scheme; see [Images and a CDN](#images-and-a-cdn-optional)
 - **Metadata-derived tags**: extract embedded IPTC/XMP keywords into `data/imagetags.yaml`, merged with hand-written front-matter tags to build the Archive filter — both sources survive re-extraction
 - Multiple **analytics** services supported (Google, Fathom, Baidu, Umami, Plausible, Cloudflare, Splitbee)
 - Search engine **verification** supported (Google, Bing, Yandex, Pinterest, Baidu, 360, Sogou)
@@ -38,9 +38,39 @@ Head to this [documentation](https://github.com/jjsnack/bridget/blob/main/docs.m
 - **Posts** (`type: post` / `postlist`) — blog-style prose pages with an inline-image render hook and a click-to-open lightbox, plus a scattered post index
 - **Archive** (`type: grid`) — a tag-filtered image grid with a full-screen, looping focus viewer; filter tags can be pinned first or hidden entirely via `[grid]` params (`pinTags` / `hideTags`)
 
-### Image pipeline (optional)
+### Images and a CDN (optional)
 
-For a cloud-backed deploy, `pnpm images <masters-dir>` prepares photos in one pass: it extracts embedded keywords into `data/imagetags.yaml`, writes EXIF-stripped, orientation-baked full-res copies for CDN upload (GPS / serial / timestamps removed), and downscaled previews committed for local dev. Originals and upload copies stay out of git (`masters/`, `dist-images/`); only the previews and the tags file are committed. Set `cdnBase` plus `cdnHiQuery` / `cdnLoQuery` in params to serve the full-res copies from your CDN in production — leave `cdnBase` empty and the theme just Hugo-processes the local previews, so the pipeline is entirely opt-in.
+Without a CDN, the theme needs nothing extra: put images in the page bundle and Hugo resizes them at build time (`loResOpt` / `hiResOpt` in params). Keep the committed copies moderate (about 1600–2500 px wide), not camera originals.
+
+Every image URL the theme emits (scatter gallery, Archive grid, post images, post-list tiles, mobile LCP preload) goes through one partial, `layouts/partials/function/imgSrc.html`. In a production build (`hugo.IsProduction`) with `cdnBase` set, it asks `function/cdnSrc.html` for the URL. If that returns no URL, the image is served from the bundle as above. `hugo server` and builds without `cdnBase` never touch the CDN.
+
+**Query-string CDNs** (imgix, Cloudinary fetch, and similar): set the params and upload the full-size files under the same path as in `content/`, for example `grid/e1.jpg`. A resource's `cloudKey` param overrides that path.
+
+```toml
+cdnBase = "https://images.example.com"
+cdnHiQuery = "?w=2500&fm=webp&q=75"
+cdnLoQuery = "?w=800&fm=webp&q=60"
+```
+
+**Any other URL scheme, or only some images on the CDN**: override `cdnSrc.html` in your site (`layouts/partials/function/cdnSrc.html`). It gets the same arguments as `imgSrc` (`img`, `page`, `size` = `"hi"` or `"lo"`, optional `spec`). It returns `(dict "url" U "w" W "h" H)`, with `w`/`h` the size actually served, or an empty dict to use the bundle copy. This example sends only the full-size view to Cloudflare Image Transformations, for images listed in `data/cdn.json` (`{"<name>": {"w": 3000, "h": 2000}}`). Small sizes stay on your host, so first paint never waits on the CDN. On Hugo older than 0.156, use `site.Data` in place of `hugo.Data`.
+
+```go-html-template
+{{- $out := dict -}}
+{{- $name := path.BaseName .img.Name -}}
+{{- if eq .size "hi" -}}
+  {{- with index (hugo.Data.cdn | default dict) $name -}}
+    {{- $w := cond (lt .w 2500) .w 2500 -}}
+    {{- $h := int (math.Round (mul (float .h) (div (float $w) (float .w)))) -}}
+    {{- $url := printf "%s/cdn-cgi/image/width=%d,quality=75,format=auto/%s.jpg" site.Params.cdnBase $w $name -}}
+    {{- $out = dict "url" $url "w" $w "h" $h -}}
+  {{- end -}}
+{{- end -}}
+{{- return $out -}}
+```
+
+Upload files of about 3000 px rather than camera originals. A cold Cloudflare transform of a 60 MP original can time out (`cf-resized: err=9504`, HTTP 524), and that shows as a broken image.
+
+`pnpm images <masters-dir>` prepares photos in one pass: it extracts embedded keywords into `data/imagetags.yaml`, writes EXIF-stripped, orientation-baked copies for upload (GPS, serial and timestamps removed), and writes the downscaled previews to commit. Originals and upload copies stay out of git (`masters/`, `dist-images/`).
 
 ## Credits
 
