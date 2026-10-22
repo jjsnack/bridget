@@ -148,6 +148,10 @@ function Grid(props: {
       const images: ImageJSON[] = items().map((it) => ({
         index: it.index,
         alt: it.caption,
+        // the stage never shows the scatter's mobile size; reuse the thumb
+        moUrl: it.thumbUrl,
+        moImgW: it.hiW,
+        moImgH: it.hiH,
         loUrl: it.thumbUrl,
         loImgW: it.hiW,
         loImgH: it.hiH,

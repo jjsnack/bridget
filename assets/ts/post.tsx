@@ -201,10 +201,15 @@ export function initPost(): void {
   if (isMobile()) {
     const images: ImageJSON[] = buttons.map((btn, i) => {
       const img = btn.querySelector('img')
+      const loUrl = img?.getAttribute('src') ?? ''
       return {
         index: i,
         alt: img?.alt ?? '',
-        loUrl: img?.getAttribute('src') ?? '',
+        // the stage never shows the scatter's mobile size; reuse the inline image
+        moUrl: loUrl,
+        moImgW: img?.width ?? 0,
+        moImgH: img?.height ?? 0,
+        loUrl,
         loImgW: img?.width ?? 0,
         loImgH: img?.height ?? 0,
         hiUrl: btn.dataset.hiUrl ?? '',
