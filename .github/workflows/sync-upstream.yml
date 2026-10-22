@@ -1,0 +1,67 @@
+name: 'Sync upstream'
+# Opens (or refreshes) one PR merging Sped0n/bridget main into this fork.
+# Merge that PR with "Create a merge commit", not squash: the second parent is
+# what records the upstream commits as included.
+on:
+  schedule:
+    - cron: '0 3 1,15 * *' # 1st and 15th, about every two weeks
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency: sync-upstream
+
+jobs:
+  sync:
+    if: github.repository == 'jjsnack/bridget'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      # a PAT, not github.token: PRs opened with github.token don't trigger Build/Lint
+      GH_TOKEN: ${{ secrets.PAT }}
+      BRANCH: sync/upstream
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.PAT }}
+
+      - name: Check for upstream commits
+        id: check
+        run: |
+          git remote add upstream https://github.com/Sped0n/bridget.git
+          git fetch --quiet upstream main
+          behind=$(git rev-list --count HEAD..upstream/main)
+          echo "Upstream commits not in main: $behind"
+          echo "behind=$behind" >> "$GITHUB_OUTPUT"
+
+      - name: Setup Mise
+        if: steps.check.outputs.behind != '0'
+        uses: jdx/mise-action@v4
+        with:
+          install_args: node@latest pnpm@10
+          tool_versions: |
+            node latest
+            pnpm 10
+
+      - name: Merge upstream
+        if: steps.check.outputs.behind != '0'
+        run: scripts/sync-upstream.sh
+
+      - name: Push and open PR
+        if: steps.check.outputs.behind != '0'
+        run: |
+          git push --force origin "$BRANCH"
+          if [ -z "$(gh pr list --repo "$GITHUB_REPOSITORY" --head "$BRANCH" --state open --json number --jq '.[].number')" ]; then
+            gh pr create --repo "$GITHUB_REPOSITORY" --base main --head "$BRANCH" \
+              --title "Sync upstream: ${{ steps.check.outputs.behind }} commits" \
+              --body "Automated merge of \`Sped0n/bridget\` \`main\` (${{ steps.check.outputs.behind }} commits not in this fork).
+
+          - \`bundled/\` keeps the fork's copy; Build regenerates it on \`main\` after the merge.
+          - \`pnpm-lock.yaml\` is regenerated from the merged \`package.json\`.
+
+          **Merge with \"Create a merge commit\", not squash.**"
+          fi
