@@ -11,7 +11,7 @@
     {{- if (urls.Parse $src).Host | not -}}
       {{- $resource := resources.Get $src -}}
       {{- with .Template -}}
-        {{- $resource = $resource | resources.ExecuteAsTemplate . $.Context -}}
+        {{- $resource = $resource | resources.ExecuteAsTemplate $resource.Name $.Context -}}
       {{- end -}}
       {{- if .Minify -}}
         {{- $resource = $resource | minify -}}

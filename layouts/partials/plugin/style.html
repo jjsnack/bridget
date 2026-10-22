@@ -16,7 +16,7 @@
       {{- $resource = $resource | toCSS $options -}}
     {{- end -}}
     {{- with .Template -}}
-      {{- $resource = $resource | resources.ExecuteAsTemplate . $.Context -}}
+      {{- $resource = $resource | resources.ExecuteAsTemplate $resource.Name $.Context -}}
     {{- end -}}
     {{- if or .Minify .Inline -}}
       {{- $resource = $resource | minify -}}
@@ -25,7 +25,10 @@
       {{- $resource = $resource | fingerprint . -}}
       {{- $integrity = $resource.Data.Integrity -}}
     {{- end -}}
-    {{- $href = $resource.RelPermalink -}}
+    {{- /* inline CSS needs no file; .RelPermalink would publish one */ -}}
+    {{- if not .Inline -}}
+      {{- $href = $resource.RelPermalink -}}
+    {{- end -}}
   {{- end -}}
   {{- with .Link -}}
     {{- $href = . -}}
