@@ -71,6 +71,9 @@
       <div class="gridItems">
         {{- range $i, $img := $imgs -}}
           {{- $lo := partial "function/imgSrc.html" (dict "img" $img "page" $ "size" "lo") -}}
+          {{- /* half-width candidate: frames display at most ~30rem (desktop column) or 34rem (mobile) */ -}}
+          {{- $smSpec := replaceRE `^\d+x` "400x" (site.Params.loResOpt | default "800x webp Lanczos q60") -}}
+          {{- $sm := partial "function/imgSrc.html" (dict "img" $img "page" $ "size" "lo" "spec" $smSpec) -}}
           {{- $hi := partial "function/imgSrc.html" (dict "img" $img "page" $ "size" "hi") -}}
           {{- $caption := $img.Params.caption | default $img.Title -}}
           {{- $lcp := lt $i $lcpCount -}}
@@ -102,6 +105,11 @@
               src="{{- $lo.url -}}"
               width="{{- $lo.w -}}"
               height="{{- $lo.h -}}"
+              {{- /* a CDN that ignores the spec returns the same URL: no srcset then */ -}}
+              {{- if and (ne $sm.url $lo.url) (lt $sm.w $lo.w) }}
+                srcset="{{- $sm.url }} {{ $sm.w -}}w, {{ $lo.url }} {{ $lo.w -}}w"
+                sizes="auto, (min-width: 768px) 30rem, 100vw"
+              {{- end }}
               alt="{{- $caption -}}"
               {{ if $lcp }}
                 fetchpriority="high"
